@@ -1,4 +1,4 @@
-# Banksia - Chess tournament manager
+# Banksia - a Chess tournament manager
 
 
 Overview
@@ -14,10 +14,10 @@ Some features:
 - Small, fast
 - Simple and short (in term of design and implementation)
 - Support chess engines with UCI protocol
-- Tournament: concurrently, roundrobin, edp opening, ponderable
+- Tournament: concurrency, round robin, edp opening, ponderable
 - Controlled mainly by 2 json files (one for configurations of engines, one for tournament management). That is very flexible, easy way to setup and change
-- Controlable by keyboard when game playing (type anything from keyboard to display the help)
-- Written in standard C++11
+- Controllable by keyboard when games playing (type anything from keyboard to display the help)
+- Written in standard C++ 11
 - Open source, MIT licence
 
 
