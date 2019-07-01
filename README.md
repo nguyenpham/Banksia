@@ -18,7 +18,7 @@ Some features:
 - Controlled mainly by 2 json files (one for configurations of engines, one for tournament management). That is very flexible, easy way to setup and change
 - Controllable by keyboard when games playing (type anything from keyboard to display the help)
 - Written in standard C++ 11
-- Open source, MIT licence
+- Open source, MIT license
 
 
 Compile
