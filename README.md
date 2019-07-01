@@ -1,4 +1,4 @@
-# Banksia
+# Banksia - Chess tournament manager
 
 
 Overview
@@ -35,6 +35,7 @@ If you want to compile those code manually, use g++ to compile and link as bello
     g++ -std=c++11 -c ../src/*.cpp -O3 -DNDEBUG
     g++ -o banksia *.o
 
+(you may help me to create a makefile too ;) )
 
 Using
 -------
