@@ -1,0 +1,35 @@
+{
+  "event": "My strong engine tournament",
+  "site" : "My iMac, AU",
+  "type": "roundrobin",
+  "concurrency" : 2,
+  "ponder" : false,
+  "time control": {
+    "mode": "standard",
+    "moves": 40,
+    "time": 3.5,
+    "increment": 0.5,
+    "margin": 0.3
+  },
+  "opening book" : {
+      "mode" : true,
+      "type" : "epd",
+      "path" : "c:\\match\\openings.epd"
+  },
+
+  "engine config path": "c:\\match\\engines.json",
+  "players": [ "stockfish", "sf", "fruit", "gaviota-1.0" ],
+
+  "pgn path": "c:\\match\\games.pgn",
+
+  "result log": {
+    "mode": true,
+    "path": "c:\\match\\logresult.txt"
+  },
+  "engine log": {
+    "mode": true,
+    "path": "c:\\match\\logengine.txt"
+  }
+
+}
+

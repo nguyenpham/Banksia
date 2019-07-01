@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VariablesViewState
+   version = "1.0">
+   <ContextStates>
+      <ContextState
+         contextName = "banksia::Game::setupClocks():game.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "banksia::Engine::read_stdout(std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt; &gt; const&amp;):engine.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "banksia::GameTimeController::setupClocksBeforeThinking(int):time.cpp">
+         <PersistentStrings>
+            <PersistentString
+               value = "timeLeft[1]">
+            </PersistentString>
+            <PersistentString
+               value = "timeLeft[0]">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "banksia::TourMng::matchCompleted(banksia::Game*):tourmng.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "banksia::Game::tickWork():game.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "banksia::TourMng::finishTournament():tourmng.cpp">
+      </ContextState>
+   </ContextStates>
+</VariablesViewState>

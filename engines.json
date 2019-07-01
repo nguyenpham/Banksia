@@ -1,0 +1,147 @@
+[
+  {
+    "name": "stockfish",
+    "protocol": "uci",
+    "command": "c:\\match\\stockfish_10_x64",
+    "ponderable": true,
+    "options": [
+      {
+        "name": "Contempt",
+        "type": "spin",
+        "value": 25,
+        "default": 24,
+        "min": -100,
+        "max": 100
+      },
+      {
+        "name": "Threads",
+        "type": "spin",
+        "value": 1,
+        "default": 1,
+        "min": 1,
+        "max": 512
+      },
+      {
+        "name": "Hash",
+        "type": "spin",
+        "value": 32,
+        "default": 16,
+        "min": 1,
+        "max": 2048
+      },
+      {
+        "name": "Clear Hash",
+        "type": "button"
+      },
+      {
+        "name": "Ponder",
+        "type": "check",
+        "value": false,
+        "default": false
+      },
+      {
+        "name": "MultiPV",
+        "type": "spin",
+        "value": 1,
+        "default": 1,
+        "min": 1,
+        "max": 500
+      },
+      {
+        "name": "Skill Level",
+        "type": "spin",
+        "value": 20,
+        "default": 20,
+        "min": 0,
+        "max": 5000
+      },
+      {
+        "name": "Minimum Thinking Time",
+        "type": "spin",
+        "value": 20,
+        "default": 20,
+        "min": 0,
+        "max": 5000
+      },
+      {
+        "name": "Slow Mover",
+        "type": "spin",
+        "value": 84,
+        "default": 84,
+        "min": 0,
+        "max": 1000
+      },
+      {
+        "name": "nodestime",
+        "type": "spin",
+        "value": 0,
+        "default": 0,
+        "min": 0,
+        "max": 10000
+      },
+      {
+        "name": "UCI_AnalyseMode",
+        "type": "check",
+        "value": false,
+        "default": false
+      },
+      {
+        "name": "SyzygyPath",
+        "type": "string",
+        "value": "",
+        "default": ""
+      },
+      {
+        "name": "SyzygyProbeDepth",
+        "type": "spin",
+        "value": 1,
+        "default": 1,
+        "min": 1,
+        "max": 100
+      },
+      {
+        "name": "Syzygy50MoveRule",
+        "type": "check",
+        "value": true,
+        "default": true
+      },
+      {
+        "name": "SyzygyProbeLimit",
+        "type": "spin",
+        "value": 7,
+        "default": 7,
+        "min": 0,
+        "max": 7
+      }
+    ]
+  },
+
+  {
+    "name": "sf",
+    "protocol": "uci",
+    "command": "c:\\match\\stockfish_10_x64",
+    "ponderable": true
+  },
+  {
+    "name": "fruit",
+    "protocol": "uci",
+    "command": "c:\\match\\Fruit-051103.exe",
+    "ponderable": true
+  },
+  {
+    "name": "gaviota-1.0",
+    "protocol": "uci",
+    "command": "C:\\match\\gaviota-1.0\\gaviota-1.0-win32",
+    "ponderable": true
+  }
+
+]
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
