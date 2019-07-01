@@ -10,7 +10,8 @@ Banksia (a name of an Australian native wildflowers) is an open source chess tou
 
 To manage engines, games and the complicated events / relationships between them, the app uses a timer with few c++ callback functions. I believe it is one of the simplest way thus it is not hard for programmers to follow, understand, maintain and modify.
 
-Some features:
+
+Some features
 -----------
 - Command line interface (cli)
 - Small, fast
@@ -53,12 +54,11 @@ Some important fields:
 - time control: second is the unit for all value fields. You can use fractions (such as 1.5 as 1.5 second) for getting more precision.
 - players: names of players will participate the tournament. They must be named in file json 1.
 
-        "players" : [ "stockfish", "gaviota", "fruit" ]
-
+      "players" : [ "stockfish", "gaviota", "fruit" ]
 
 Run the app in a console as bellow:
     
-    banksia -jsonpath c:\tour\tour.json
+     banksia -jsonpath c:\tour\tour.json
 
 There are two json files come with the project as an example.
 
@@ -79,8 +79,7 @@ Working
 
 History
 --------
-
-- 1 July 2019: version 0.01
+- 1 July 2019: first release, version 0.01
 
 
 Terms of use

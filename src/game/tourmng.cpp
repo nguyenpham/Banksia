@@ -686,14 +686,13 @@ void TourMng::showEgineInOutToScreen(bool enabled)
 void TourMng::engineLog(const std::string& name, const std::string& line, LogType logType)
 {
     if (line.empty() || !logEngineInOutMode || logEngineInOutPath.empty()) return;
-    
-    
-    std::string str = name + (logType == LogType::toEngine ? " < " : " > ") + line;
+
+    std::string str = name + (logType == LogType::toEngine ? "< " : "> ") + line;
     
     if (logScreenEngineInOutMode) {
         printText(str);
     }
-    
+
     std::lock_guard<std::mutex> dolock(logMutex);
     append2TextFile(logEngineInOutPath, str);
 }

@@ -39,7 +39,7 @@
 
 namespace banksia {
     
-    const int BANKSIA_VERSION = 0x001;
+    const int BANKSIA_VERSION = 0x002;
     
     class Obj {
     public:

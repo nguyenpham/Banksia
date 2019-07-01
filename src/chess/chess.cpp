@@ -833,7 +833,7 @@ void ChessBoard::make(const Move& move, Hist& hist) {
     enpassant = -1;
     
     if ((castleRights[0] + castleRights[1]) && hist.cap.type == PieceType::rook) {
-        clearCastleRights(move.from, hist.cap.side);
+        clearCastleRights(move.dest, hist.cap.side);
     }
     
     switch (p.type) {
