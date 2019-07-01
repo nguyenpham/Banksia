@@ -1,6 +1,5 @@
 # Banksia
 ==============
-A chess tournament manager for chess engines, using standard C++ 11
 
 
 Overview
