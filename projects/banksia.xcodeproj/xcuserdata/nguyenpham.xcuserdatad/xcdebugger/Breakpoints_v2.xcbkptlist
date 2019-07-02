@@ -42,7 +42,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../src/main.cpp"
-            timestampString = "583715471.578465"
+            timestampString = "583772368.4070801"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "98"
@@ -90,7 +90,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../src/main.cpp"
-            timestampString = "583715471.57884"
+            timestampString = "583772368.407431"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "103"
@@ -136,7 +136,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../src/game/engine.cpp"
-            timestampString = "583656221.161544"
+            timestampString = "583772368.407681"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "78"
@@ -152,7 +152,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../src/game/engine.cpp"
-            timestampString = "583656221.1616139"
+            timestampString = "583772368.407725"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "80"
@@ -184,12 +184,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../src/game/tourmng.cpp"
-            timestampString = "583715471.579285"
+            timestampString = "583772368.407791"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "525"
-            endingLineNumber = "525"
-            landmarkName = "TourMng::createMatch(int gameIdx, const std::string&amp; whiteName, const std::string&amp; blackName, const std::string&amp; startFen, const std::vector&lt;Move&gt;&amp; startMoves)"
+            startingLineNumber = "553"
+            endingLineNumber = "553"
+            landmarkName = "TourMng::createMatch(int gameIdx, const std::string&amp; whiteName, const std::string&amp; blackName, const std::string&amp; startFen, const std::vector&lt;MoveCore&gt;&amp; startMoves)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -231,76 +231,12 @@
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "../src/game/game.cpp"
-            timestampString = "583715471.579428"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "260"
-            endingLineNumber = "260"
-            landmarkName = "Game::tickWork()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/game/game.cpp"
-            timestampString = "583715471.580024"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "79"
-            endingLineNumber = "79"
-            landmarkName = "Game::set(Player* player0, Player* player1, const TimeController&amp; _timeController, bool _ponderMode)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/game/game.cpp"
-            timestampString = "583715471.5804321"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "274"
-            endingLineNumber = "274"
-            landmarkName = "Game::tickWork()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/game/game.cpp"
-            timestampString = "583715471.580808"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "258"
-            endingLineNumber = "258"
-            landmarkName = "Game::tickWork()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
             filePath = "../src/game/engine.cpp"
-            timestampString = "583656221.1620671"
+            timestampString = "583772368.407874"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "108"
-            endingLineNumber = "108"
+            startingLineNumber = "116"
+            endingLineNumber = "116"
             landmarkName = "Engine::kickStart()"
             landmarkType = "7">
          </BreakpointContent>
@@ -312,11 +248,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../src/game/engine.cpp"
-            timestampString = "583656221.16215"
+            timestampString = "583772368.4079109"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "130"
-            endingLineNumber = "130"
+            startingLineNumber = "140"
+            endingLineNumber = "140"
             landmarkName = "Engine::kickStart()"
             landmarkType = "7">
          </BreakpointContent>
@@ -328,11 +264,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../src/game/engine.cpp"
-            timestampString = "583656221.162192"
+            timestampString = "583772368.4079469"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "137"
-            endingLineNumber = "137"
+            startingLineNumber = "147"
+            endingLineNumber = "147"
             landmarkName = "Engine::kickStart()"
             landmarkType = "7">
          </BreakpointContent>
@@ -344,11 +280,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../src/game/engine.cpp"
-            timestampString = "583656221.162233"
+            timestampString = "583772368.407982"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "134"
-            endingLineNumber = "134"
+            startingLineNumber = "144"
+            endingLineNumber = "144"
             landmarkName = "Engine::kickStart()"
             landmarkType = "7">
          </BreakpointContent>
@@ -360,11 +296,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../src/game/engine.cpp"
-            timestampString = "583656221.162274"
+            timestampString = "583772368.408016"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "138"
-            endingLineNumber = "138"
+            startingLineNumber = "148"
+            endingLineNumber = "148"
             landmarkName = "Engine::kickStart()"
             landmarkType = "7">
          </BreakpointContent>
@@ -376,7 +312,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../src/game/uciengine.cpp"
-            timestampString = "583656221.162317"
+            timestampString = "583772368.408051"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "40"
@@ -391,13 +327,13 @@
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "../src/chess/chess.cpp"
-            timestampString = "583715471.58154"
+            filePath = "../src/game/book.cpp"
+            timestampString = "583772368.408084"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "76"
-            endingLineNumber = "76"
-            landmarkName = "ChessBoard::isValid()"
+            startingLineNumber = "170"
+            endingLineNumber = "170"
+            landmarkName = "Book::getRandomBook(std::string&amp; fenString, std::vector&lt;MoveCore&gt;&amp; moveList)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -407,13 +343,13 @@
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "../src/chess/chess.cpp"
-            timestampString = "583715471.581588"
+            filePath = "../src/game/book.cpp"
+            timestampString = "583772368.408118"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "835"
-            endingLineNumber = "835"
-            landmarkName = "ChessBoard::make(const Move&amp; move, Hist&amp; hist)"
+            startingLineNumber = "270"
+            endingLineNumber = "270"
+            landmarkName = "BookMng::getRandomBook(std::string&amp; fenString, std::vector&lt;MoveCore&gt;&amp; moves)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

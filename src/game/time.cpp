@@ -228,7 +228,7 @@ bool GameTimeController::isTimeOver(Side side) const
     }
     
     auto sd = static_cast<int>(side);
-    assert(timeLeft[sd] > 0);
+    assert(timeLeft[sd] >= 0);
     
     auto t = moveTimeConsumed();
     if (t >= timeLeft[sd] + margin) {
@@ -268,5 +268,10 @@ void GameTimeController::udateClockAfterMove(double moveElapse, Side side, int h
     if (fullCnt % moves == 0) {
         timeLeft[sd] += time;
     }
+}
+
+bool GameTimeController::isValid() const
+{
+    return TimeController::isValid() && timeLeft[0] >= 0 && timeLeft[1] >= 0;
 }
 

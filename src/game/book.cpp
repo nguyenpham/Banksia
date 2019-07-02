@@ -48,17 +48,69 @@ std::string Book::toString() const
     return stringStream.str();
 }
 
-void Book::loadEpdFile(const std::string& epdPath)
+bool Book::addPgnMoves(const std::string& str)
 {
-    epdVec = readTextFileToArray(epdPath);
+    if (!str.empty()) {
+        ChessBoard board;
+        board.newGame();
+        if (board.fromSanMoveList(str) && !board.histList.empty()) {
+            std::vector<MoveCore> list;
+            for(auto hist : board.histList) {
+                MoveCore m = hist.move;
+                list.push_back(m);
+            }
+            
+            if (!list.empty()) {
+                moves.push_back(list);
+            }
+
+            return true;
+        }
+    }
+    return false;
+}
+
+void Book::load(const std::string& _path)
+{
+    path = _path;
+    if (type == BookType::pgn) {
+        loadPgnBook(path);
+    } else {
+        loadEdpBook(path);
+    }
+}
+
+void Book::loadEdpBook(const std::string& path)
+{
+    stringVec = readTextFileToArray(path);
+}
+
+void Book::loadPgnBook(const std::string& path)
+{
+    moves.clear();
+    auto vec = readTextFileToArray(path);
+    
+    std::string moveText;
+    for(auto && s : vec) {
+        if (s.find("[") != std::string::npos) {
+            if (s.find("[Event") != std::string::npos) {
+                addPgnMoves(moveText);
+                moveText = "";
+                continue;
+            }
+            continue;
+        }
+        moveText += " " + s;
+    }
+    addPgnMoves(moveText);
 }
 
 std::string Book::getRandomFEN() const
 {
-    if (!epdVec.empty()) {
+    if (!stringVec.empty()) {
         for(int atemp = 0; atemp < 5; atemp++) {
-            auto k = std::rand() % epdVec.size();
-            auto str = epdVec.at(k);
+            auto k = std::rand() % stringVec.size();
+            auto str = stringVec.at(k);
             if (!str.empty()) {
                 ChessBoard board;
                 board.setFen(str);
@@ -76,7 +128,55 @@ std::string Book::getRandomFEN() const
 
 bool Book::isEmpty() const
 {
-    return epdVec.empty();
+    return stringVec.empty() && moves.empty();
+}
+
+
+bool Book::setupOpening(ChessBoard& board, int randomIdx) const
+{
+    if (type == BookType::pgn) {
+        if (moves.empty()) {
+            return false;
+        }
+        
+        auto k = randomIdx % moves.size();
+        auto vec = moves.at(k);
+        if (vec.empty()) {
+            return false;
+        }
+        
+        for(auto && m : vec) {
+            board.checkMake(m.from, m.dest, m.promotion);
+        }
+        return board.isValid();
+    }
+    
+    if (stringVec.empty()) {
+        return false;
+    }
+    
+    auto k = randomIdx % stringVec.size();
+    auto fen = stringVec.at(k);
+    if (!fen.empty()) {
+        board.newGame(fen);
+        return board.isValid();
+    }
+    return false;
+}
+
+bool Book::getRandomBook(std::string& fenString, std::vector<MoveCore>& moveList) const
+{
+    if (type == BookType::pgn) {
+        if (moves.empty()) {
+            return false;
+        }
+        auto k = std::rand() % moves.size();
+        moveList = moves.at(k);
+        return !moveList.empty();
+    }
+    
+    fenString = getRandomFEN();
+    return !fenString.empty();
 }
 
 static const char* bookTypeNames[] = {
@@ -133,7 +233,7 @@ bool BookMng::load(const Json::Value& obj)
         ) {
         return false;
     }
-
+    
     mode = obj.isMember("mode") && obj["mode"].asBool();
     
     if (!mode) {
@@ -144,21 +244,16 @@ bool BookMng::load(const Json::Value& obj)
     auto typeStr = obj["type"].asString();
     auto type = string2BookType(typeStr);
     
-    switch (type) {
-        case BookType::edp:
-        {
-            Book book;
-            book.type = type;
-            book.loadEpdFile(path);
-            if (!book.isEmpty()) {
-                bookList.push_back(book);
-            }
-            return true;
+    if (type == BookType::none) {
+        std::cerr << "Error: does not support yet book type " << typeStr << std::endl;
+    } else {
+        Book book;
+        book.type = type;
+        book.load(path);
+        if (!book.isEmpty()) {
+            bookList.push_back(book);
         }
-            
-        default:
-            std::cerr << "Error: not support yet book type " << typeStr << std::endl;
-            break;
+        return true;
     }
     
     return false;
@@ -170,7 +265,7 @@ Json::Value BookMng::saveToJson() const
     return obj;
 }
 
-std::string BookMng::getRandomFEN() const
+bool BookMng::getRandomBook(std::string& fenString, std::vector<MoveCore>& moves) const
 {
-    return !mode || bookList.empty() ? "" : bookList.front().getRandomFEN();
+    return mode && !bookList.empty() && bookList.front().getRandomBook(fenString, moves);
 }

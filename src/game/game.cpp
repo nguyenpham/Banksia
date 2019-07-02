@@ -32,7 +32,6 @@
 
 using namespace banksia;
 
-
 Game::Game()
 {
     state = GameState::begin;
@@ -60,7 +59,7 @@ std::string Game::toString() const
     return "";
 }
 
-void Game::setStartup(int _idx, const std::string& _startFen, const std::vector<Move>& _startMoves)
+void Game::setStartup(int _idx, const std::string& _startFen, const std::vector<MoveCore>& _startMoves)
 {
     idx = _idx;
     startFen = _startFen;
@@ -89,7 +88,7 @@ void Game::attach(Player* player, Side side)
     
     player->setup(&board, &timeController);
     
-    player->addMoveReceiver(this, [=](const std::string& moveString, const std::string& ponderMoveString, double timeConsumed, EngineComputingState state) {
+    player->setMoveReceiver(this, [=](const std::string& moveString, const std::string& ponderMoveString, double timeConsumed, EngineComputingState state) {
         moveFromPlayer(moveString, ponderMoveString, timeConsumed, side, state);
     });
 }
@@ -101,7 +100,9 @@ Player* Game::deattachPlayer(Side side)
     players[sd] = nullptr;
     if (player) {
         player->setup(nullptr, nullptr);
+        player->setMoveReceiver(this, nullptr);
     }
+    
     return player;
 }
 
@@ -109,11 +110,18 @@ void Game::newGame()
 {
     // Include opening
     board.newGame(startFen);
-    for(auto && m : startMoves) {
-        if (m.isValid()) {
-            auto fullMove = board.createMove(m.from, m.dest, m.promotion);
-            board.make(fullMove);
+    
+    timeController.setupClocksBeforeThinking(0);
+    assert(timeController.isValid());
+    
+    // opening
+    if (!startMoves.empty()) {
+        for(auto && m : startMoves) {
+            if (!board.checkMake(m.from, m.dest, m.promotion)) {
+                break;
+            }
         }
+        board.histList.back().comment = "End of opening moves";
     }
     
     for(int i = 0; i < 2; i++) {
@@ -132,6 +140,7 @@ void Game::startPlaying()
     newGame();
     
     setState(GameState::playing);
+    
     startThinking();
 }
 
@@ -170,10 +179,9 @@ void Game::moveFromPlayer(const std::string& moveString, const std::string& pond
     if (state != GameState::playing || checkTimeOver() || board.side != side) {
         return;
     }
-
+    
     auto move = ChessBoard::moveFromCoordiateString(moveString);
     Move pondermove = ponderMode ? ChessBoard::moveFromCoordiateString(ponderMoveString) : Move::illegalMove;
-
     
     assert(board.side == side);
     if (oldState == EngineComputingState::thinking) {
@@ -258,6 +266,7 @@ void Game::tickWork()
                     stoppedCnt++;
                 }
             }
+            
             if (readyCnt + stoppedCnt < 2) {
                 break;
             }
@@ -309,17 +318,17 @@ void Game::tickWork()
 // https://stackoverflow.com/questions/38034033/c-localtime-this-function-or-variable-may-be-unsafe
 inline std::tm localtime_xp(std::time_t timer)
 {
-	std::tm bt{};
+    std::tm bt{};
 #if defined(__unix__)
-	localtime_r(&timer, &bt);
+    localtime_r(&timer, &bt);
 #elif defined(_MSC_VER)
-	localtime_s(&bt, &timer);
+    localtime_s(&bt, &timer);
 #else
-	static std::mutex mtx;
-	std::lock_guard<std::mutex> lock(mtx);
-	bt = *std::localtime(&timer);
+    static std::mutex mtx;
+    std::lock_guard<std::mutex> lock(mtx);
+    bt = *std::localtime(&timer);
 #endif
-	return bt;
+    return bt;
 }
 
 
@@ -334,11 +343,11 @@ std::string Game::toPgn(std::string event, std::string site, int round) const
         stringStream << "[Site \t\"" << site << "\"]" << std::endl;
     }
     
-	auto tm = localtime_xp(std::time(0));
+    auto tm = localtime_xp(std::time(0));
     
     stringStream << "[Date \t\"" << std::put_time(&tm, "%Y.%m.%d") << "\"]" << std::endl;
     
-    if (round > 0) {
+    if (round >= 0) {
         stringStream << "[Round \t\"" << round << "\"]" << std::endl;
     }
     
@@ -359,31 +368,19 @@ std::string Game::toPgn(std::string event, std::string site, int round) const
     
     if (!board.fromOriginPosition()) {
         stringStream << "[FEN \t\"" << board.getStartingFen() << "\"]" << std::endl;
+        stringStream << "[SetUp \t\"1\"]" << std::endl;
     }
     
     // Move text
-    auto c = 0;
-    for(int i = 0; i < board.histList.size(); i++) {
-        if (c) stringStream << " ";
-        if ((i & 1) == 0) {
-            stringStream << (1 + i / 2) << ". ";
-        }
-        
-        stringStream << board.histList.at(i).moveString;
-        
-        c++;
-        if (c >= 8) {
-            c = 0;
-            stringStream << std::endl;
-        }
-    }
+    stringStream << board.toMoveListString(MoveNotation::san, 8, true);
     
     if (board.result.result != ResultType::noresult) {
-        if (c) stringStream << " ";
+        if (board.histList.size() % 8 != 0) stringStream << " ";
         stringStream << board.result.toShortString() << std::endl;
     }
     stringStream << std::endl;
     
     return stringStream.str();
 }
+
 

@@ -63,7 +63,7 @@ namespace banksia {
         std::string playernames[2];
         
         std::string startFen;
-        std::vector<Move> startMoves;
+        std::vector<MoveCore> startMoves;
         
         ResultType resultType = ResultType::noresult;
         MatchState state = MatchState::none;
@@ -103,7 +103,7 @@ namespace banksia {
         bool createMatchList();
         bool createMatchList(const std::vector<std::string>& nameList, TourType type);
         void createMatch(MatchRecord&);
-        bool createMatch(int gameIdx, const std::string& whiteName, const std::string& blackName, const std::string& startFen, const std::vector<Move>& startMoves);
+        bool createMatch(int gameIdx, const std::string& whiteName, const std::string& blackName, const std::string& startFen, const std::vector<MoveCore>& startMoves);
         
         void startTournament();
         
@@ -121,7 +121,8 @@ namespace banksia {
         virtual bool parseJsonAfterLoading(Json::Value&) override;
         
         void addMatchRecord(MatchRecord& record, bool returnMatch);
-        
+        void addMatchRecord(MatchRecord& record);
+
         int calcErrorMargins(int w, int d, int l);
         
         void finishTournament();
@@ -159,19 +160,23 @@ namespace banksia {
 
     protected:
         bool recoverCrashEngines = true;
-        int gameConcurrency = 1;
+        int gameConcurrency = 1, gameperpair = 1;
+
+        static void showPathInfo(const std::string& name, const std::string& path, bool mode);
         
     protected:
         // for logging
         std::mutex matchMutex, logMutex;
-        
+
         std::string pgnPath;
+        bool pgnPathMode = true;
         
         std::string logResultPath;
         bool logResultMode = false;
         
         std::string logEngineInOutPath;
         bool logEngineInOutMode = false;
+        
         bool logScreenEngineInOutMode = false;
     };
     

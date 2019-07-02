@@ -54,7 +54,7 @@ namespace banksia {
         
         virtual void tickWork() override;
         
-        void addMessageLogger(std::function<void(const std::string& string, LogType logType)> messageLogger);
+        void setMessageLogger(std::function<void(const std::string& string, LogType logType)> messageLogger);
         
     public:
         virtual bool kickStart() override;

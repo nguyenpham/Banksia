@@ -71,7 +71,7 @@ namespace banksia {
         GameState getState() const { return state; }
         void setState(GameState st) { state = st; }
         
-        void setStartup(int idx, const std::string& startFen, const std::vector<Move>& startMoves);
+        void setStartup(int idx, const std::string& startFen, const std::vector<MoveCore>& startMoves);
         int getIdx() const;
         
         std::string toPgn(std::string event = "", std::string site = "", int round = -1) const;
@@ -91,7 +91,7 @@ namespace banksia {
         bool ponderMode = false;
 
         std::string startFen;
-        std::vector<Move> startMoves;
+        std::vector<MoveCore> startMoves;
         std::mutex criticalMutex;
     };
     

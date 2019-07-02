@@ -129,7 +129,7 @@ bool TourMng::parseJsonAfterLoading(Json::Value& d)
     participantList = nameList;
     
     
-    std::string enginConfigJsonPath = "./engine.json";
+    std::string enginConfigJsonPath = "./engines.json";
     auto s = "engine config path";
     if (d.isMember(s)) {
         enginConfigJsonPath = d[s].asString();
@@ -154,6 +154,11 @@ bool TourMng::parseJsonAfterLoading(Json::Value& d)
     //
     // Less inportance
     //
+    s = "game per pair";
+    if (d.isMember(s)) {
+        gameperpair = std::max(1, d[s].asInt());
+    }
+
     if (d.isMember("ponder")) {
         ponderMode = d["ponder"].asBool();
     }
@@ -177,7 +182,14 @@ bool TourMng::parseJsonAfterLoading(Json::Value& d)
     
     s = "pgn path";
     if (d.isMember(s)) {
-        pgnPath = d[s].asString();
+        if (d[s].isString()) {
+            pgnPath = d[s].asString();
+            pgnPathMode = true;
+        } else {
+            auto v = d[s];
+            pgnPathMode = v["mode"].asBool();
+            pgnPath = v["path"].asString();
+        }
     }
     
     s = "result log";
@@ -240,18 +252,33 @@ void TourMng::tickWork()
     }
 }
 
+static std::string bool2OnOffString(bool b)
+{
+    return b ? "on" : "off";
+}
+
+void TourMng::showPathInfo(const std::string& name, const std::string& path, bool mode)
+{
+    std::cout << "path of " << name << ": " << (path.empty() ? "<empty>" : path) << ", " << bool2OnOffString(mode) << std::endl;
+}
 
 void TourMng::startTournament()
 {
     std::string info =
     "type: " + std::string(tourTypeNames[static_cast<int>(type)])
     + ", time control: " + timeController.toString()
-    + ", #players: " + std::to_string(participantList.size())
-    + ", #matches: " + std::to_string(matchRecordList.size())
+    + ", players: " + std::to_string(participantList.size())
+    + ", matches: " + std::to_string(matchRecordList.size())
     + ", concurrency: " + std::to_string(gameConcurrency)
-    + ", ponder: " + (ponderMode ? "on" : "off")
-    + ", book: " + (bookMng.isEmpty() ? "no" : "yes");
+    + ", ponder: " + bool2OnOffString(ponderMode)
+    + ", book: " + bool2OnOffString(!bookMng.isEmpty());
+    
     matchLog(info);
+
+    showPathInfo("pgn", pgnPath, pgnPathMode);
+    showPathInfo("log result", logResultPath, logResultMode);
+    showPathInfo("log engines' in-output", logEngineInOutPath, logEngineInOutMode);
+    std::cout << std::endl;
     
     // tickWork will start the matches
     state = TourState::playing;
@@ -340,6 +367,7 @@ std::string TourMng::createTournamentStats()
         double win = double(r.winCnt * 100) / d, draw = double(r.drawCnt * 100) / d;
         //        auto errorMagins = calcErrorMargins(r.winCnt, r.drawCnt, r.lossCnt);
         stringStream
+        << (i + 1) << ". "
         << r.name << " \t" << r.gameCnt << " \t"
         // << (errorMagins > 0 ? "+" : "") << errorMagins << " "
         << std::fixed << std::setprecision(1)
@@ -403,15 +431,19 @@ void TourMng::createNextKnockoutMatchList()
 
 void TourMng::addMatchRecord(MatchRecord& record, bool returnMatch)
 {
-    record.gameIdx = int(matchRecordList.size());
-    record.startFen = bookMng.getRandomFEN();
-    matchRecordList.push_back(record);
+    addMatchRecord(record);
     
     if (returnMatch) {
         record.swapPlayers();
-        record.startFen = bookMng.getRandomFEN();
+        addMatchRecord(record);
+    }
+}
 
+void TourMng::addMatchRecord(MatchRecord& record)
+{
+    for(int i = 0; i < gameperpair; i++) {
         record.gameIdx = int(matchRecordList.size());
+        bookMng.getRandomBook(record.startFen, record.startMoves);
         matchRecordList.push_back(record);
     }
 }
@@ -478,7 +510,7 @@ bool TourMng::createMatchList(const std::vector<std::string>& nameList, TourType
                     }
                     
                     MatchRecord record(name0, name1);
-                    record.round = j;
+                    record.round = 1;
                     addMatchRecord(record, true);
                 }
             }
@@ -519,7 +551,7 @@ void TourMng::createMatch(MatchRecord& record)
 }
 
 bool TourMng::createMatch(int gameIdx, const std::string& whiteName, const std::string& blackName,
-                          const std::string& startFen, const std::vector<Move>& startMoves)
+                          const std::string& startFen, const std::vector<MoveCore>& startMoves)
 {
     Engine* engines[2];
     engines[W] = playerMng.createEngine(whiteName);
@@ -531,7 +563,7 @@ bool TourMng::createMatch(int gameIdx, const std::string& whiteName, const std::
 
         if (addGame(game)) {
             for(int sd = 0; sd < 2; sd++) {
-                engines[sd]->addMessageLogger([=](const std::string& line, LogType logType) {
+                engines[sd]->setMessageLogger([=](const std::string& line, LogType logType) {
                     engineLog(engines[sd]->name, line, logType);
                 });
             }
@@ -625,8 +657,8 @@ void TourMng::matchCompleted(Game* game)
         record->resultType = game->board.result.result;
         assert(matchRecordList[gIdx].resultType == game->board.result.result);
         
-        if (!pgnPath.empty()) {
-            auto pgnString = game->toPgn(eventName, siteName, record->round >= 0 ? record->round + 1 : -1);
+        if (pgnPathMode && !pgnPath.empty()) {
+            auto pgnString = game->toPgn(eventName, siteName, record->round);
             append2TextFile(pgnPath, pgnString);
         }
     }

@@ -81,7 +81,8 @@ namespace banksia {
         double moveTimeConsumed() const;
         
         bool isTimeOver(Side side) const;
-        
+        virtual bool isValid() const override;
+
         double timeLeft[2];
         
     private:

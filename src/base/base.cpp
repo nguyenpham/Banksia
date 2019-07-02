@@ -47,7 +47,7 @@ std::string BoardCore::getStartingFen() const
 Move BoardCore::createMove(int from, int dest, PieceType promote) const
 {
     Move move(from, dest, promote);
-    if (isPosValid(from)) {
+    if (isPositionValid(from)) {
         move.piece = getPiece(from);
     }
     return move;

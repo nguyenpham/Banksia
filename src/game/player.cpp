@@ -40,19 +40,19 @@ Player::Player()
 }
 
 Player::Player(const std::string& name, PlayerType type)
-: name(name), type(type)
+: name(name), type(type), idNumber(std::rand())
 {
 }
 
 bool Player::isValid() const
 {
-    return !name.empty() && (type == PlayerType::human || type == PlayerType::engine);
+    return !name.empty() && (type == PlayerType::human || type == PlayerType::engine) && board != nullptr && timeController != nullptr;
 }
 
 std::string Player::toString() const
 {
     std::ostringstream stringStream;
-    stringStream << name << ", " << playerTypeNames[static_cast<int>(type)] << std::endl;
+    stringStream << name << ", " << playerTypeNames[static_cast<int>(type)] << ", idNumber: " << idNumber << std::endl;
     return stringStream.str();
 }
 
@@ -67,7 +67,7 @@ bool Player::isAttachedToGame() const
     return board != nullptr && timeController != nullptr;
 }
 
-void Player::addMoveReceiver(void* parent, std::function<void(const std::string&, const std::string&, double, EngineComputingState)> theFunc)
+void Player::setMoveReceiver(void* parent, std::function<void(const std::string&, const std::string&, double, EngineComputingState)> theFunc)
 {
     assert(parent);
     moveReceiver = theFunc;

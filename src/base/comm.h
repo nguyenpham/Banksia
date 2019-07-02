@@ -39,7 +39,22 @@
 
 namespace banksia {
     
-    const int BANKSIA_VERSION = 0x002;
+    const int BANKSIA_VERSION = 0x003;
+    
+#define i16 int16_t
+#define u16 uint16_t
+#define i32 int32_t
+#define u32 uint32_t
+#define u8  uint8_t
+#define u64 uint64_t
+#define i64 int64_t
+    
+#define CASTLERIGHT_LONG        (1<<0)
+#define CASTLERIGHT_SHORT       (1<<1)
+#define CASTLERIGHT_MASK        (CASTLERIGHT_LONG|CASTLERIGHT_SHORT)
+    
+#define B                               0
+#define W                               1
     
     class Obj {
     public:
@@ -86,14 +101,6 @@ namespace banksia {
         std::mutex tickMutex;
     };
     
-    
-    
-#define DARK                            8
-#define LIGHT                           16
-    
-#define B                               0
-#define W                               1
-    
     enum class Side {
         black = 0, white = 1, none = 2
     };
@@ -118,72 +125,47 @@ namespace banksia {
         crash
     };
     
-    enum Squares {
-        A8, B8, C8, D8, E8, F8, G8, H8,
-        A7, B7, C7, D7, E7, F7, G7, H7,
-        A6, B6, C6, D6, E6, F6, G6, H6,
-        A5, B5, C5, D5, E5, F5, G5, H5,
-        A4, B4, C4, D4, E4, F4, G4, H4,
-        A3, B3, C3, D3, E3, F3, G3, H3,
-        A2, B2, C2, D2, E2, F2, G2, H2,
-        A1, B1, C1, D1, E1, F1, G1, H1,
-        NoSquare
+    enum class MoveNotation {
+        san, coordinate
     };
     
-    
-#define i16 int16_t
-#define u16 uint16_t
-#define i32 int32_t
-#define u32 uint32_t
-#define u8  uint8_t
-#define u64 uint64_t
-#define i64 int64_t
-    
-    enum class FlipMode {
-        none, horizontal, vertical, flipVH, flipHV, rotate90, rotate180, rotate270
-    };
-    
-    /*
-     * The rank and file are actually not full file & rank but only internal bits 9-2=7 & 10-2=8
-     */
-#define isPosValid(pos) ((pos)>=0 && (pos)<90)
-    
-#define getXSide(side) ((side)==Side::white ? Side::black : Side::white)
-    
-#define COL(pos) ((pos)&7)
-#define ROW(pos) ((pos)>>3)
-    
-#define sider(side) (static_cast<int>(side))
-    
-#define CASTLERIGHT_LONG        (1<<0)
-#define CASTLERIGHT_SHORT       (1<<1)
-    
-#define CASTLERIGHT_MASK        (CASTLERIGHT_LONG|CASTLERIGHT_SHORT)
-    
-#define Status_incheck      (1<<4)
-#define Status_notincheck   (1<<5)
+    //    enum Squares {
+    //        A8, B8, C8, D8, E8, F8, G8, H8,
+    //        A7, B7, C7, D7, E7, F7, G7, H7,
+    //        A6, B6, C6, D6, E6, F6, G6, H6,
+    //        A5, B5, C5, D5, E5, F5, G5, H5,
+    //        A4, B4, C4, D4, E4, F4, G4, H4,
+    //        A3, B3, C3, D3, E3, F3, G3, H3,
+    //        A2, B2, C2, D2, E2, F2, G2, H2,
+    //        A1, B1, C1, D1, E1, F1, G1, H1,
+    //        NoSquare
+    //    };
     
     extern bool banksiaVerbose;
     extern const char* pieceTypeName;
     extern const char* reasonStrings[10];
     
-
     std::string getVersion();
     std::string getAppName();
     
     void printText(const std::string& str);
-    void toLower(std::string& str);
-    void toLower(char* str);
+    std::vector<std::string> readTextFileToArray(const std::string& path);
+    
     std::string posToCoordinateString(int pos);
     int coordinateStringToPos(const char* str);
     
+    void toLower(std::string& str);
+    void toLower(char* str);
+    std::string& trim(std::string& s);
+    
     std::string getFileName(const std::string& path);
+    
     std::vector<std::string> splitString(const std::string& string, const std::string& regexString);
     std::vector<std::string> splitString(const std::string &s, char delim);
-    std::string& trim(std::string& s);
-    std::vector<std::string> readTextFileToArray(const std::string& path);
+    
     
 } // namespace banksia
 
 #endif /* Board_hpp */
+
 

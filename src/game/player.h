@@ -55,7 +55,7 @@ namespace banksia {
         virtual std::string toString() const override;
         virtual const char* className() const override { return "Player"; }
         
-        void addMoveReceiver(void* parent, std::function<void(const std::string&, const std::string&, double, EngineComputingState)>);
+        void setMoveReceiver(void* parent, std::function<void(const std::string&, const std::string&, double, EngineComputingState)>);
         
     public:
         virtual bool isHuman() const = 0;
@@ -74,16 +74,17 @@ namespace banksia {
         virtual bool go();
         
     public:
+        int idNumber; // a random number, easier for debugging
         std::string name;
-        PlayerType type;
         
         PlayerState getState() const { return state; }
         void setState(PlayerState st) { state = st; }
+        
     protected:
+        PlayerType type;
         PlayerState state;
         
         std::function<void(const std::string& moveString, const std::string& ponderMoveString, double, EngineComputingState)> moveReceiver = nullptr;
-        
         
         const ChessBoard* board = nullptr;
         const GameTimeController* timeController = nullptr;

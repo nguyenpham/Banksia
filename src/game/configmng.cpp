@@ -699,6 +699,9 @@ bool ConfigMng::update(const Config& config)
 bool ConfigMng::insert(const Config& config)
 {
     if (config.isValid()) {
+        if (configMap.find(config.name) != configMap.end()) {
+            std::cerr << "Warning: configuration name's " << config.name << " is repeated. Override data.\n";
+        }
         configMap[config.name] = config;
         return true;
     }

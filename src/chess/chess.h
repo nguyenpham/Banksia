@@ -45,6 +45,10 @@ namespace banksia {
         virtual std::string toString() const override;
         virtual bool isValid() const override;
         
+        virtual int columnCount() const override;
+        virtual int getColumn(int pos) const override;
+        virtual int getRow(int pos) const override;
+
         virtual void setFen(const std::string& fen) override;
         virtual std::string getFen(int halfCount = 0, int fullMoveCount = 1) const override;
         
@@ -70,6 +74,12 @@ namespace banksia {
         virtual Result rule() override;
         
         bool checkMake(int from, int dest, PieceType promotion);
+        
+        std::string toMoveListString(MoveNotation notation, int itemPerLine, bool moveCounter) const;
+        bool fromSanMoveList(const std::string&);
+
+        PieceType charToPieceType(char ch) const;
+        
     private:
         bool createStringForLastMove(const MoveList& moveList);
         

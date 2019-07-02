@@ -91,7 +91,7 @@ bool UciEngine::goPonder(const Move& pondermove)
 {
     assert(!expectingBestmove && computingState == EngineComputingState::idle);
     
-    Engine::go();
+    Engine::go(); // just for setting flags
     ponderingMove = Move::illegalMove;
     
     if (config.ponderable && pondermove.isValid()) {
@@ -237,6 +237,12 @@ void UciEngine::parseLine(const std::string& str)
         return;
     }
     
+    auto timeCtrl = timeController;
+    auto moveRecv = moveReceiver;
+    if (timeCtrl == nullptr || moveRecv == nullptr) {
+        return;
+    }
+    
     static const char* bestmove = "bestmove ";
     len = strlen(bestmove);
     if (memcmp(str.c_str(), bestmove, len) == 0) {
@@ -248,7 +254,7 @@ void UciEngine::parseLine(const std::string& str)
         auto oldComputingState = computingState;
         computingState = EngineComputingState::idle;
         
-        auto period = timeController->moveTimeConsumed(); // moveTimeConsumed();
+        auto period = timeCtrl->moveTimeConsumed(); // moveTimeConsumed();
         
         auto ss = str.substr(len);
         auto vec = splitString(ss, ' '); assert(vec.size() > 0);
@@ -260,15 +266,15 @@ void UciEngine::parseLine(const std::string& str)
         }
         
         if (!moveString.empty() && moveReceiver != nullptr) {
-            (moveReceiver)(moveString, ponderMoveString, period, oldComputingState);
+            (moveRecv)(moveString, ponderMoveString, period, oldComputingState);
         }
         return;
     }
     
     if (str == "uciok") {
         setState(PlayerState::ready);
-        sendOptions();
         expectingBestmove = false;
+        sendOptions();
         sendPing();
         return;
     }
@@ -277,7 +283,6 @@ void UciEngine::parseLine(const std::string& str)
         sendPong();
         return;
     }
-    
 }
 
 bool UciEngine::parseOption(const std::string& s)

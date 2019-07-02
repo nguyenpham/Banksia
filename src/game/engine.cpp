@@ -68,7 +68,7 @@ bool Engine::isReady() const
     return state > PlayerState::starting && state < PlayerState::stopped;
 }
 
-void Engine::addMessageLogger(std::function<void(const std::string& string, LogType logType)> logger)
+void Engine::setMessageLogger(std::function<void(const std::string& string, LogType logType)> logger)
 {
     messageLogger = logger;
 }
@@ -87,13 +87,19 @@ void Engine::read_stderr(const std::string& str)
 
 void Engine::read_stdout(const std::string& str)
 {
+    // it may being deleted
+    if (board == nullptr || timeController == nullptr) {
+        return;
+    }
+    
     resetPing();
     resetIdle();
 
     auto vec = splitString(str, '\n');
     for(auto && line : vec) {
-        if (!line.empty())
+        if (!line.empty() && timeController) {
             parseLine(line);
+        }
     }
 }
 
@@ -104,7 +110,9 @@ bool Engine::kickStart()
     setState(PlayerState::starting);
     resetPing();
     resetIdle();
-    
+
+    assert(isValid());
+
     if (process == nullptr) {
         
 #if (defined _WIN32) && (defined UNICODE)
@@ -117,6 +125,8 @@ bool Engine::kickStart()
 #endif
 
         std::thread processThread([=]() {
+            TinyProcessLib::Config config;
+            config.buffer_size = 16 * 1024;
             TinyProcessLib::Process engineProcess (
                                                    command,
                                                    workingFolder,
@@ -125,7 +135,7 @@ bool Engine::kickStart()
                                                    }, [=](const char *bytes, size_t n) {
                                                        read_stdout(std::string(bytes, n));
                                                    },
-                                                   true);
+                                                   true, config);
             
             process = &engineProcess;
             

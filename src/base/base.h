@@ -124,26 +124,56 @@ namespace banksia {
             return toString(type, side);
         }
     };
-    
-    
-    class Move {
+
+    class MoveCore {
+    public:
+        MoveCore() {}
+        MoveCore(int from, int dest, PieceType promotion = PieceType::empty)
+        : from(from), dest(dest), promotion(promotion)
+        {}
+
+        std::string toString() const {
+            std::ostringstream stringStream;
+            stringStream << posToCoordinateString(from) << posToCoordinateString(dest);
+            if (promotion != PieceType::empty) {
+                stringStream << "(" << Piece(promotion, Side::white).toString() << ")";
+            }
+            return stringStream.str();
+        }
+        
+        std::string toCoordinateString() const {
+            auto s = posToCoordinateString(from) + posToCoordinateString(dest);
+            if (promotion > PieceType::king && promotion < PieceType::pawn) s += pieceTypeName[static_cast<int>(promotion)];
+            return s;
+        }
+
+        bool isValid() const {
+            return isValid(from, dest);
+        }
+        
+        static bool isValid(int from, int dest) {
+            return from != dest  && from >= 0 && from < 64 && dest >= 0 && dest < 64;
+        }
+
     public:
         int from, dest;
         PieceType promotion;
+    };
+    
+    class Move : public MoveCore {
+    public:
         Piece piece;
-        
-        Move() {}
-        Move(Piece piece, int _from, int _dest, PieceType _promote = PieceType::empty) {
-            set(piece, _from, _dest, _promote);
-        }
-        
         static Move illegalMove;
-        
-        Move(int _from, int _dest, PieceType _promote = PieceType::empty) {
-            from = _from;
-            dest = _dest;
-            promotion = _promote;
-        }
+
+    public:
+        Move() {}
+        Move(Piece piece, int from, int dest, PieceType promotion = PieceType::empty)
+        : piece(piece), MoveCore(from, dest, promotion)
+        {}
+        Move(int from, int dest, PieceType promotion = PieceType::empty)
+        : MoveCore(from, dest, promotion)
+        {}
+
         
         void set(Piece _piece, int _from, int _dest, PieceType _promote = PieceType::empty) {
             piece = _piece;
@@ -158,31 +188,8 @@ namespace banksia {
             promotion = _promote;
         }
         
-        bool isValid() const {
-            return isValid(from, dest);
-        }
-        
-        static bool isValid(int from, int dest) {
-            return from != dest  && from >= 0 && from < 64 && dest >= 0 && dest < 64;
-        }
-        
         bool operator == (const Move& other) const {
             return from == other.from && dest == other.dest && promotion == other.promotion;
-        }
-        
-        std::string toString() const {
-            std::ostringstream stringStream;
-            stringStream << posToCoordinateString(from) << posToCoordinateString(dest);
-            if (promotion != PieceType::empty) {
-                stringStream << "(" << Piece(promotion, Side::white).toString() << ")";
-            }
-            return stringStream.str();
-        }
-        
-        std::string toCoordinateString() const {
-            auto s = posToCoordinateString(from) + posToCoordinateString(dest);
-            if (promotion > PieceType::king && promotion < PieceType::pawn) s += pieceTypeName[static_cast<int>(promotion)];
-            return s;
         }
     };
     
@@ -242,7 +249,7 @@ namespace banksia {
         u64 hashKey;
         int quietCnt;
         double elapsed;
-        std::string moveString;
+        std::string moveString, comment;
         
         void set(const Move& _move) {
             move = _move;
@@ -261,7 +268,7 @@ namespace banksia {
         Side side;
         std::vector<Hist> histList;
         
-        int _status;
+        int status;
         Result result;
         
     public:
@@ -275,6 +282,10 @@ namespace banksia {
             return pos >= 0 && pos < pieces.size();
         }
         
+        virtual int columnCount() const = 0;
+        virtual int getColumn(int pos) const = 0;
+        virtual int getRow(int pos) const = 0;
+
         void setPiece(int pos, Piece piece) {
             assert(isPositionValid(pos));
             pieces[pos] = piece;
@@ -301,6 +312,10 @@ namespace banksia {
             pieces[pos].setEmpty();
         }
         
+        static Side getXSide(Side side) {
+            return side == Side::white ? Side::black : Side::white;
+        }
+
     public:
         BoardCore();
         

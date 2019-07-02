@@ -4,6 +4,8 @@
   "type": "roundrobin",
   "concurrency" : 2,
   "ponder" : false,
+  "game per pair" : 2,
+
   "time control": {
     "mode": "standard",
     "moves": 40,
@@ -11,8 +13,9 @@
     "increment": 0.5,
     "margin": 0.3
   },
+  
   "opening book" : {
-      "mode" : true,
+      "mode" : false,
       "type" : "epd",
       "path" : "c:\\match\\openings.epd"
   },
@@ -20,8 +23,10 @@
   "engine config path": "c:\\match\\engines.json",
   "players": [ "stockfish", "sf", "fruit", "gaviota-1.0" ],
 
-  "pgn path": "c:\\match\\games.pgn",
-
+  "pgn path" : {
+      "mode" : true,
+      "path" : "c:\\match\\games.pgn"
+  },
   "result log": {
     "mode": true,
     "path": "c:\\match\\logresult.txt"

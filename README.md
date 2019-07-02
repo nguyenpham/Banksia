@@ -40,18 +40,18 @@ If you want to compile those code manually, use g++ to compile and link as bello
 
 Using
 -------
-Banksia requires two json files to work. Almost all fields are self-explaination via meanings of their names.
+Banksia requires two json files to work. Almost all fields in those files are self-explaination via meanings of their names.
 
 1) a json file to store engine's configurations
 
-The file has all configurations including engines' options thus users can control all details.
+Configuration of each engine may includ options thus users can control all details.
 
-2) a json file to store information about tournament such as match type, path of engine configure json file (json file 1), log path
+2) a json file to store information about tournament such as match type, path of engine configuration json file (json file 1), log path...
 
 Some important fields:
 - type: type of tournament. At the moment it accepts only value 'roundrobin'
-- time control: second is the unit for all value fields. You can use fractions (such as 1.5 as 1.5 second) for getting more precision.
-- players: names of players will participate the tournament. They must be named in file json 1.
+- time control: second is the unit for all value fields. You can use fractions (such as 1.5 as 1.5 second) for being more precision.
+- players: names of players will participate the tournament. They must be listed in json file 1.
 
       "players" : [ "stockfish", "gaviota", "fruit" ]
 
@@ -61,7 +61,7 @@ Run the app in a console as bellow:
 
 There are two json files come with the project as an example.
 
-When working, the app may display some information into screen as well as saving into some log files (depends on tournament's json file):
+When working, the app may display some information into screen as well as saving into some log files (controlled by tournament's json file 2):
 - results
 - engine input / output log
 - game pgn file
@@ -70,7 +70,7 @@ When working, the app may display some information into screen as well as saving
 Working
 ---------
 - Improve interface
-- Support some diffirent opening book formats such as pgn and Polyglot
+- Support some diffirent opening book formats such as Polyglot
 - Support some different tournament types: knockout, swiss
 - Support Winboard protocol (not soon)
 - Support other chess variants (not soon event it is designed for multi variants - at least from verion 1.0)
@@ -78,7 +78,8 @@ Working
 
 History
 --------
-- 1 July 2019: first release, version 0.01
+- 3 July 2019: v0.03, fix bugs, improve interface, support pgn opening
+- 1 July 2019: version 0.01, first release
 
 
 Terms of use
