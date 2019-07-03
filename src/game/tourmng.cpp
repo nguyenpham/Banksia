@@ -203,7 +203,7 @@ bool TourMng::parseJsonAfterLoading(Json::Value& d)
     if (d.isMember(s)) {
         auto v = d[s];
         logEngineInOutMode = v["mode"].asBool();
-        logEngineInOutShowTime = d.isMember("show time") && v["show time"].asBool();
+        logEngineInOutShowTime = v.isMember("show time") && v["show time"].asBool();
         logEngineInOutPath = v["path"].asString();
     }
     
