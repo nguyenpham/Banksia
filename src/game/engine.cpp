@@ -32,6 +32,8 @@ using namespace banksia;
 ////////////////////////////////////
 void Engine::tickWork()
 {
+    if (deattachTimeout > 0) deattachTimeout--;
+    
     if (tick_stopping > 0) {
         tick_stopping--;
         
@@ -68,7 +70,7 @@ bool Engine::isReady() const
     return state > PlayerState::starting && state < PlayerState::stopped;
 }
 
-void Engine::setMessageLogger(std::function<void(const std::string& string, LogType logType)> logger)
+void Engine::setMessageLogger(std::function<void(const std::string&, const std::string&, LogType)> logger)
 {
     messageLogger = logger;
 }
@@ -77,27 +79,55 @@ void Engine::log(const std::string& line, LogType logType) const
 {
     if (line.empty() || messageLogger == nullptr)
         return;
-    (messageLogger)(line, logType);
+    (messageLogger)(getName(), line, logType);
 }
 
-void Engine::read_stderr(const std::string& str)
+void Engine::read_stderr(const char *bytes, size_t n)
 {
-    std::cout << "read_stderr: " << str << std::endl;
+//    std::cout << "read_stderr: " << str << std::endl;
 }
 
-void Engine::read_stdout(const std::string& str)
+void Engine::read_stdout(const char *bytes, size_t n)
 {
-    // it may being deleted
-    if (board == nullptr || timeController == nullptr) {
+    // it may be being deleted
+    if (!isAttached() || n <= 0) {
         return;
     }
     
     resetPing();
     resetIdle();
+    
+    std::string str;
+    
+    if (n < process_buffer_size) {
+        str = lastIncompletedStdout + std::string(bytes, n);
+        lastIncompletedStdout = "";
+    } else {
+        auto ok = false;
+        for(int i = int(n) - 1; i >= 0; i--) {
+            if (bytes[i] == '\n') {
+                ok = true;
+                str = lastIncompletedStdout + std::string(bytes, i + 1);
+                auto n2 = n - i - 1;
+                if (n2 > 0) {
+                    lastIncompletedStdout = std::string(bytes + i + 1, n2);
+                } else {
+                    lastIncompletedStdout = "";
+                }
+                break;
+            }
+        }
+        
+        if (!ok) {
+            lastIncompletedStdout += std::string(bytes, n);
+            std::cerr << "Error: full buffer but cannot detect end-of-line charactor for input " << lastIncompletedStdout << std::endl;
+            return;
+        }
+    }
 
     auto vec = splitString(str, '\n');
     for(auto && line : vec) {
-        if (!line.empty() && timeController) {
+        if (!line.empty() && isAttached()) {
             parseLine(line);
         }
     }
@@ -126,14 +156,14 @@ bool Engine::kickStart()
 
         std::thread processThread([=]() {
             TinyProcessLib::Config config;
-            config.buffer_size = 16 * 1024;
+            config.buffer_size = process_buffer_size;
             TinyProcessLib::Process engineProcess (
                                                    command,
                                                    workingFolder,
                                                    [=](const char *bytes, size_t n) {
-                                                       read_stdout(std::string(bytes, n));
+                                                       read_stdout(bytes, n);
                                                    }, [=](const char *bytes, size_t n) {
-                                                       read_stdout(std::string(bytes, n));
+                                                       read_stdout(bytes, n);
                                                    },
                                                    true, config);
             
@@ -154,6 +184,11 @@ bool Engine::kickStart()
     
     write(protocolString());
     return true;
+}
+
+bool Engine::isSafeToDeattach() const
+{
+    return computingState == EngineComputingState::idle || !isAttached();
 }
 
 bool Engine::stopThinking()

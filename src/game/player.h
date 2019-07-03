@@ -55,8 +55,10 @@ namespace banksia {
         virtual std::string toString() const override;
         virtual const char* className() const override { return "Player"; }
         
-        void setMoveReceiver(void* parent, std::function<void(const std::string&, const std::string&, double, EngineComputingState)>);
-        
+        std::string getName() const;
+        PlayerState getState() const { return state; }
+        void setState(PlayerState st) { state = st; }
+
     public:
         virtual bool isHuman() const = 0;
         
@@ -66,21 +68,22 @@ namespace banksia {
         virtual bool kill() = 0;
         
         virtual void newGame() {}
-        
-        void setup(const ChessBoard*, const GameTimeController*);
-        bool isAttachedToGame() const;
-        
+
+        void attach(const ChessBoard*, const GameTimeController*, std::function<void(const std::string&, const std::string&, double, EngineComputingState)>);
+        void deattach();
+        bool isAttached() const;
+        virtual bool isSafeToDeattach() const = 0;
+        virtual void prepareToDeattach() = 0;
+
         virtual bool goPonder(const Move& pondermove);
         virtual bool go();
         
-    public:
+    protected:
         int idNumber; // a random number, easier for debugging
         std::string name;
         
-        PlayerState getState() const { return state; }
-        void setState(PlayerState st) { state = st; }
-        
-    protected:
+        int deattachTimeout = -1;
+
         PlayerType type;
         PlayerState state;
         
@@ -105,6 +108,11 @@ namespace banksia {
             return true;
         }
         
+        virtual void tickWork() override {}
+
+        virtual bool isSafeToDeattach() const override { return true; }
+        virtual void prepareToDeattach() override { }
+
     public:
         virtual bool kickStart() override;
         virtual bool stopThinking() override;

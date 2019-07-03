@@ -28,7 +28,7 @@
 using namespace banksia;
 
 static const char* protocalNames[] = {
-    "uci",
+    "uci", "wb",
     nullptr
 };
 

@@ -35,7 +35,7 @@ namespace banksia {
     // TODO: support winboard protocol
     enum class Protocol
     {
-        uci = 0, none
+        uci = 0, wb, none
     };
     
     enum class OptionType {

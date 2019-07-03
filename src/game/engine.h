@@ -54,7 +54,7 @@ namespace banksia {
         
         virtual void tickWork() override;
         
-        void setMessageLogger(std::function<void(const std::string& string, LogType logType)> messageLogger);
+        void setMessageLogger(std::function<void(const std::string&, const std::string&, LogType logType)> messageLogger);
         
     public:
         virtual bool kickStart() override;
@@ -69,9 +69,8 @@ namespace banksia {
         }
         
     public:
-        void read_stdout(const std::string&);
-        void read_stderr(const std::string&);
-        
+        virtual bool isSafeToDeattach() const override;
+
     public:
         virtual void parseLine(const std::string&) = 0;
         
@@ -86,8 +85,11 @@ namespace banksia {
         virtual void resetIdle();
         
         virtual bool sendPing() = 0;
-        virtual bool sendPong() = 0;
         
+        void read_stdout(const char *bytes, size_t n);
+        void read_stderr(const char *bytes, size_t n);
+        
+
     protected:
         bool write(const std::string&);
         
@@ -96,8 +98,10 @@ namespace banksia {
         Config config;
         
     private:
+        const int process_buffer_size = 16 * 1024;
+        std::string lastIncompletedStdout;
         TinyProcessLib::Process* process = nullptr;
-        std::function<void(const std::string& string, LogType engineLog)> messageLogger = nullptr;
+        std::function<void(const std::string&, const std::string&, LogType)> messageLogger = nullptr;
         
         int tick_for_ping, tick_idle = 0, tick_stopping = 0;
     };

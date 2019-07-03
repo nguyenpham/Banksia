@@ -23,8 +23,8 @@
  */
 
 
-#ifndef uciengineplayer_hpp
-#define uciengineplayer_hpp
+#ifndef wbengineplayer_hpp
+#define wbengineplayer_hpp
 
 #include <stdio.h>
 
@@ -32,22 +32,24 @@
 
 namespace banksia {
     
-    class UciEngine : public Engine
+    class WbEngine : public Engine
     {
     public:
-        UciEngine() : Engine() {}
-        UciEngine(const Config& config) : Engine(config) {}
+        WbEngine() : Engine() {}
+        WbEngine(const Config& config) : Engine(config) {}
         
-        virtual const char* className() const override { return "UciEngine"; }
+        virtual const char* className() const override { return "WbEngine"; }
         
         virtual std::string protocolString() const override;
         
         virtual void newGame() override;
         
+        virtual void prepareToDeattach() override;
+
         virtual bool sendQuit() override;
         
         virtual bool sendPing() override;
-        virtual bool sendPong();
+        virtual bool sendPong(const std::string&);
         
         virtual bool goPonder(const Move& pondermove) override;
         virtual bool go() override;
@@ -56,25 +58,17 @@ namespace banksia {
         
         virtual bool stop() override;
         virtual void tickWork() override;
-
-        virtual void prepareToDeattach() override;
-        virtual bool isSafeToDeattach() const override;
-
-    protected:
-        std::string getPositionString(const Move& ponderMove) const;
-        std::string getGoString(Move pondermove);
         
+    protected:
         virtual bool sendOptions();
         
     private:
         std::string timeControlString() const;
-        bool parseOption(const std::string& str);
         
-        bool expectingBestmove = false;
-        Move ponderingMove;
+        int pingCnt = 0;
     };
     
 } // namespace banksia
 
-#endif /* uciengineplayer_hpp */
+#endif /* WbEngineplayer_hpp */
 

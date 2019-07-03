@@ -158,17 +158,17 @@ bool TourMng::parseJsonAfterLoading(Json::Value& d)
     if (d.isMember(s)) {
         gameperpair = std::max(1, d[s].asInt());
     }
-
+    
     if (d.isMember("ponder")) {
         ponderMode = d["ponder"].asBool();
     }
-
+    
     s = "opening book";
     if (d.isMember(s)) {
         auto obj = d[s];
         bookMng.load(obj);
     }
-
+    
     if (d.isMember("event")) {
         eventName = d["event"].asString();
     }
@@ -203,6 +203,7 @@ bool TourMng::parseJsonAfterLoading(Json::Value& d)
     if (d.isMember(s)) {
         auto v = d[s];
         logEngineInOutMode = v["mode"].asBool();
+        logEngineInOutShowTime = d.isMember("show time") && v["show time"].asBool();
         logEngineInOutPath = v["path"].asString();
     }
     
@@ -218,21 +219,31 @@ void TourMng::tickWork()
     
     for(auto && game : gameList) {
         if (game->getState() >= GameState::stopped) {
+            
+            if (game->getStateTick() > 10 && game->getStateTick() < 15) {
+                std::cout << "Trouble: game stucked in stopped state " << game->getStateTick() << std::endl;
+            }
             if (game->getState() == GameState::stopped) {
                 game->setState(GameState::destroyed);
                 matchCompleted(game);
             }
             
-            auto cnt = 0;
+            auto undeattachCnt = 0;
             for(int sd = 0; sd < 2; sd++) {
-                auto player = game->deattachPlayer(static_cast<Side>(sd));
+                auto side = static_cast<Side>(sd);
+                auto player = game->getPlayer(side);
                 if (player) {
-                    playerMng.returnPlayer(player);
-                    cnt++;
+                    if (player->isSafeToDeattach()) {
+                        auto player2 = game->deattachPlayer(side); assert(player == player2);
+                        playerMng.returnPlayer(player2);
+                    } else {
+                        undeattachCnt++;
+                        player->prepareToDeattach();
+                    }
                 }
             }
             
-            if (cnt == 0)
+            if (!undeattachCnt)
                 stoppedGameList.push_back(game);
         } else {
             game->tick();
@@ -259,14 +270,14 @@ static std::string bool2OnOffString(bool b)
 
 void TourMng::showPathInfo(const std::string& name, const std::string& path, bool mode)
 {
-    std::cout << "path of " << name << ": " << (path.empty() ? "<empty>" : path) << ", " << bool2OnOffString(mode) << std::endl;
+    std::cout << " path of " << name << ": " << (path.empty() ? "<empty>" : path) << ", " << bool2OnOffString(mode) << std::endl;
 }
 
 void TourMng::startTournament()
 {
     std::string info =
     "type: " + std::string(tourTypeNames[static_cast<int>(type)])
-    + ", time control: " + timeController.toString()
+    + ", timer: " + timeController.toString()
     + ", players: " + std::to_string(participantList.size())
     + ", matches: " + std::to_string(matchRecordList.size())
     + ", concurrency: " + std::to_string(gameConcurrency)
@@ -274,7 +285,7 @@ void TourMng::startTournament()
     + ", book: " + bool2OnOffString(!bookMng.isEmpty());
     
     matchLog(info);
-
+    
     showPathInfo("pgn", pgnPath, pgnPathMode);
     showPathInfo("log result", logResultPath, logResultMode);
     showPathInfo("log engines' in-output", logEngineInOutPath, logEngineInOutMode);
@@ -560,22 +571,18 @@ bool TourMng::createMatch(int gameIdx, const std::string& whiteName, const std::
     if (engines[0] && engines[1]) {
         auto game = new Game(engines[W], engines[B], timeController, ponderMode);
         game->setStartup(gameIdx, startFen, startMoves);
-
+        
         if (addGame(game)) {
-            for(int sd = 0; sd < 2; sd++) {
-                engines[sd]->setMessageLogger([=](const std::string& line, LogType logType) {
-                    engineLog(engines[sd]->name, line, logType);
-                });
-            }
-            
+            game->setMessageLogger([=](const std::string& name, const std::string& line, LogType logType) {
+                engineLog(name, line, logType);
+            });
             game->start();
             
-            std::string infoString = "Game started " + std::to_string(gameIdx + 1) + " of " + std::to_string(matchRecordList.size())
-            + " (" + whiteName + " vs " + blackName + ")";
+            std::string infoString = std::to_string(gameIdx + 1) + ". " + game->getGameTitleString() + ", started";
             
             printText(infoString);
             engineLog(getAppName(), infoString, LogType::system);
-
+            
             return true;
         }
         delete game;
@@ -666,13 +673,10 @@ void TourMng::matchCompleted(Game* game)
     if (logResultMode || banksiaVerbose) { // log
         auto wplayer = game->getPlayer(Side::white), bplayer = game->getPlayer(Side::black);
         if (wplayer && bplayer) {
-            auto wName = wplayer ? wplayer->name : "";
-            auto bName = bplayer ? bplayer->name : "";
-            std::string infoString = "Game completed " + std::to_string(gIdx + 1) + " of " + std::to_string(matchRecordList.size())
-            + " (" + wName + " vs " + bName + "): " + resultToString(game->board.result);
+            std::string infoString = std::to_string(gIdx + 1) + ") " + game->getGameTitleString() + ": " + resultToString(game->board.result);
             
             matchLog(infoString);
-            // Easier to read log
+            // Add extra info to help understanding log
             engineLog(getAppName(), infoString, LogType::system);
         }
     }
@@ -718,13 +722,21 @@ void TourMng::showEgineInOutToScreen(bool enabled)
 void TourMng::engineLog(const std::string& name, const std::string& line, LogType logType)
 {
     if (line.empty() || !logEngineInOutMode || logEngineInOutPath.empty()) return;
+    
+    std::ostringstream stringStream;
 
-    std::string str = name + (logType == LogType::toEngine ? "< " : "> ") + line;
+    if (logEngineInOutShowTime) {
+        auto tm = localtime_xp(std::time(0));
+        stringStream << std::put_time(&tm, "%H:%M:%S ");
+    }
+    stringStream << name << (logType == LogType::toEngine ? "< " : "> ") << line;
+    
+    auto str = stringStream.str();
     
     if (logScreenEngineInOutMode) {
         printText(str);
     }
-
+    
     std::lock_guard<std::mutex> dolock(logMutex);
     append2TextFile(logEngineInOutPath, str);
 }
@@ -735,5 +747,6 @@ void TourMng::append2TextFile(const std::string& path, const std::string& str)
     ofs << str << std::endl;
     ofs.close();
 }
+
 
 

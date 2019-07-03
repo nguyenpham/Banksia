@@ -27,7 +27,7 @@
 #define game_hpp
 
 #include "../chess/chess.h"
-#include "player.h"
+#include "engine.h"
 
 
 namespace banksia {
@@ -45,8 +45,9 @@ namespace banksia {
         ~Game();
         
         void set(Player*, Player*, const TimeController&, bool);
-        void attach(Player* player, Side side);
+        void attachPlayer(Player* player, Side side);
         Player* deattachPlayer(Side side);
+        void setMessageLogger(std::function<void(const std::string&, const std::string&, LogType)> logger);
         
         void newGame();
         
@@ -69,12 +70,15 @@ namespace banksia {
         Player* getPlayer(Side side);
         
         GameState getState() const { return state; }
-        void setState(GameState st) { state = st; }
+        void setState(GameState st);
         
         void setStartup(int idx, const std::string& startFen, const std::vector<MoveCore>& startMoves);
         int getIdx() const;
+        int getStateTick() const { return stateTick; }
         
         std::string toPgn(std::string event = "", std::string site = "", int round = -1) const;
+        
+        std::string getGameTitleString() const;
         
     public:
         ChessBoard board;
@@ -83,12 +87,14 @@ namespace banksia {
         bool checkTimeOver();
         
     private:
-        int idx;
+        int idx, stateTick = 0;
         GameState state;
         
         Player* players[2];
         GameTimeController timeController;
         bool ponderMode = false;
+
+        std::function<void(const std::string&, const std::string&, LogType)> messageLogger = nullptr;
 
         std::string startFen;
         std::vector<MoveCore> startMoves;

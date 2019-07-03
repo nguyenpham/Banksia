@@ -35,7 +35,7 @@
 #include "../3rdparty/cpptime/cpptime.h"
 
 namespace banksia {
-    // swiss
+    // TODO: swiss
     enum class TourType {
         roundrobin, knockout, none
     };
@@ -176,7 +176,8 @@ namespace banksia {
         
         std::string logEngineInOutPath;
         bool logEngineInOutMode = false;
-        
+        bool logEngineInOutShowTime = false;
+
         bool logScreenEngineInOutMode = false;
     };
     

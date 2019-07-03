@@ -34,6 +34,15 @@ namespace banksia {
     extern const char* originalFen;
     
     class ChessBoard : public BoardCore {
+        
+//#define CASTLERIGHT_LONG        (1<<0)
+//#define CASTLERIGHT_SHORT       (1<<1)
+//#define CASTLERIGHT_MASK        (CASTLERIGHT_LONG|CASTLERIGHT_SHORT)
+
+        const int CASTLERIGHT_LONG =        (1<<0);
+        const int CASTLERIGHT_SHORT = (1<<1);
+        const int CASTLERIGHT_MASK = (CASTLERIGHT_LONG|CASTLERIGHT_SHORT);
+
     protected:
         int enpassant;
         int8_t castleRights[2];

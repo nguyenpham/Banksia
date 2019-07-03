@@ -32,6 +32,7 @@
 #include <sstream>
 #include <algorithm>
 #include <mutex>
+//#include <ctime>
 
 #include <assert.h>
 
@@ -48,10 +49,6 @@ namespace banksia {
 #define u8  uint8_t
 #define u64 uint64_t
 #define i64 int64_t
-    
-#define CASTLERIGHT_LONG        (1<<0)
-#define CASTLERIGHT_SHORT       (1<<1)
-#define CASTLERIGHT_MASK        (CASTLERIGHT_LONG|CASTLERIGHT_SHORT)
     
 #define B                               0
 #define W                               1
@@ -95,7 +92,7 @@ namespace banksia {
                 tickMutex.unlock();
             }
         }
-        virtual void tickWork() {}
+        virtual void tickWork() = 0;
         
     private:
         std::mutex tickMutex;
@@ -149,6 +146,8 @@ namespace banksia {
     std::string getAppName();
     
     void printText(const std::string& str);
+    std::tm localtime_xp(std::time_t timer);
+    
     std::vector<std::string> readTextFileToArray(const std::string& path);
     
     std::string posToCoordinateString(int pos);
@@ -162,10 +161,10 @@ namespace banksia {
     
     std::vector<std::string> splitString(const std::string& string, const std::string& regexString);
     std::vector<std::string> splitString(const std::string &s, char delim);
-    
-    
+
 } // namespace banksia
 
 #endif /* Board_hpp */
+
 
 

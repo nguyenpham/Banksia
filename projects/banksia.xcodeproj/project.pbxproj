@@ -23,6 +23,7 @@
 		B1A7051C22C84E4900013B1C /* process_unix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B1A7051822C84E4900013B1C /* process_unix.cpp */; };
 		B1A7051D22C84E4900013B1C /* process.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B1A7051922C84E4900013B1C /* process.cpp */; };
 		B1A7053D22C9ADA400013B1C /* book.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B1A7053B22C9ADA400013B1C /* book.cpp */; };
+		B1F9B07722CBB26E005E1A3E /* wbengine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B1F9B07522CBB26E005E1A3E /* wbengine.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -74,6 +75,8 @@
 		B1A7053B22C9ADA400013B1C /* book.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = book.cpp; sourceTree = "<group>"; };
 		B1A7053C22C9ADA400013B1C /* book.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = book.h; sourceTree = "<group>"; };
 		B1E0A98922BFC8B20023122C /* Banksia */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Banksia; sourceTree = BUILT_PRODUCTS_DIR; };
+		B1F9B07522CBB26E005E1A3E /* wbengine.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = wbengine.cpp; sourceTree = "<group>"; };
+		B1F9B07622CBB26E005E1A3E /* wbengine.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = wbengine.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -139,8 +142,10 @@
 				B1A704F022C62DE100013B1C /* game.cpp */,
 				B1A704E222C62DE100013B1C /* tourmng.h */,
 				B1A704E522C62DE100013B1C /* tourmng.cpp */,
-				B1A7053B22C9ADA400013B1C /* book.cpp */,
 				B1A7053C22C9ADA400013B1C /* book.h */,
+				B1A7053B22C9ADA400013B1C /* book.cpp */,
+				B1F9B07622CBB26E005E1A3E /* wbengine.h */,
+				B1F9B07522CBB26E005E1A3E /* wbengine.cpp */,
 			);
 			path = game;
 			sourceTree = "<group>";
@@ -270,6 +275,7 @@
 				B1A7050A22C62DE100013B1C /* playermng.cpp in Sources */,
 				B1A7050E22C62DE100013B1C /* time.cpp in Sources */,
 				B1A7050322C62DE100013B1C /* chess.cpp in Sources */,
+				B1F9B07722CBB26E005E1A3E /* wbengine.cpp in Sources */,
 				B1A7051D22C84E4900013B1C /* process.cpp in Sources */,
 				B1A7050B22C62DE100013B1C /* configmng.cpp in Sources */,
 				B1A7050522C62DE100013B1C /* comm.cpp in Sources */,

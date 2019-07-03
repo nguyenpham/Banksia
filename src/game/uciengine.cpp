@@ -71,6 +71,20 @@ void UciEngine::newGame()
     write("ucinewgame");
 }
 
+void UciEngine::prepareToDeattach()
+{
+    if (deattachTimeout >= 0) return;
+    
+    stop();
+    deattachTimeout = 6; // 3s
+}
+
+bool UciEngine::isSafeToDeattach() const
+{
+    return Engine::isSafeToDeattach() || deattachTimeout == 0;
+}
+
+
 bool UciEngine::sendQuit()
 {
     std::string str = "quit";
@@ -85,7 +99,6 @@ bool UciEngine::stop()
     }
     return false;
 }
-
 
 bool UciEngine::goPonder(const Move& pondermove)
 {
@@ -177,8 +190,8 @@ std::string UciEngine::timeControlString() const
         case TimeControlMode::standard:
         {
             // timeController unit: second, here need ms
-            int wtime = int(timeController->timeLeft[W] * 1000);
-            int btime = int(timeController->timeLeft[B] * 1000);
+            int wtime = int(timeController->getTimeLeft(W) * 1000);
+            int btime = int(timeController->getTimeLeft(B) * 1000);
             
             int inc = int(timeController->increment * 1000);
             

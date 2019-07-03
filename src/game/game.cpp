@@ -25,7 +25,6 @@
 
 #include <iostream>
 #include <iomanip>
-#include <ctime>
 
 #include "game.h"
 #include "engine.h"
@@ -59,6 +58,14 @@ std::string Game::toString() const
     return "";
 }
 
+void Game::setState(GameState st)
+{
+    if (state != st) {
+        stateTick = 0;
+    }
+    state = st;
+}
+
 void Game::setStartup(int _idx, const std::string& _startFen, const std::vector<MoveCore>& _startMoves)
 {
     idx = _idx;
@@ -73,22 +80,32 @@ int Game::getIdx() const
 
 void Game::set(Player* player0, Player* player1, const TimeController& _timeController, bool _ponderMode)
 {
-    attach(player0, Side::white);
-    attach(player1, Side::black);
+    attachPlayer(player0, Side::white);
+    attachPlayer(player1, Side::black);
     timeController.cloneFrom(_timeController);
     ponderMode = _ponderMode;
 }
 
-void Game::attach(Player* player, Side side)
+void Game::setMessageLogger(std::function<void(const std::string&, const std::string&, LogType)> logger)
+{
+    messageLogger = logger;
+    
+    for(int sd = 0; sd < 2; sd++) {
+        if (players[sd] && !players[sd]->isHuman()) {
+            ((Engine*)players[sd])->setMessageLogger(logger);
+        }
+    }
+}
+
+void Game::attachPlayer(Player* player, Side side)
 {
     if (player == nullptr || (side != Side::white && side != Side::black)) return;
     auto sd = static_cast<int>(side);
     
     players[sd] = player;
     
-    player->setup(&board, &timeController);
-    
-    player->setMoveReceiver(this, [=](const std::string& moveString, const std::string& ponderMoveString, double timeConsumed, EngineComputingState state) {
+    player->attach(&board, &timeController,
+                   [=](const std::string& moveString, const std::string& ponderMoveString, double timeConsumed, EngineComputingState state) {
         moveFromPlayer(moveString, ponderMoveString, timeConsumed, side, state);
     });
 }
@@ -99,8 +116,7 @@ Player* Game::deattachPlayer(Side side)
     auto player = players[sd];
     players[sd] = nullptr;
     if (player) {
-        player->setup(nullptr, nullptr);
-        player->setMoveReceiver(this, nullptr);
+        player->deattach();
     }
     
     return player;
@@ -121,7 +137,7 @@ void Game::newGame()
                 break;
             }
         }
-        board.histList.back().comment = "End of opening moves";
+        board.histList.back().comment = "End of opening";
     }
     
     for(int i = 0; i < 2; i++) {
@@ -237,9 +253,41 @@ Player* Game::getPlayer(Side side)
     return players[sd];
 }
 
+std::string Game::getGameTitleString() const
+{
+    std::string str;
+    str += players[W] ? players[W]->getName() : "*";
+    str += " vs " + (players[B] ? players[B]->getName() : "*");
+    return str;
+}
+
 bool Game::checkTimeOver()
 {
     if (timeController.isTimeOver(board.side)) {
+        // Report more detail
+        if (messageLogger) {
+            std::ostringstream stringStream;
+            stringStream
+            << std::fixed << std::setprecision(2)
+            << "Timeleft for ";
+            
+            for(int sd = 1; sd >= 0; sd--) {
+                stringStream << players[sd]->getName() << ": " << timeController.getTimeLeft(sd);
+                if (static_cast<int>(board.side) == sd) {
+                    stringStream << ", used: " << timeController.lastQueryConsumed;
+                }
+                if (sd == 1) {
+                    stringStream << ", ";
+                }
+            }
+
+            auto str = stringStream.str();
+            // printText("\t" + str);
+            if (messageLogger) {
+                (messageLogger)(getAppName(), str, LogType::system);
+            }
+        }
+        
         Result result;
         result.result = board.side == Side::white ? ResultType::loss : ResultType::win;
         result.reason = ReasonType::timeout;
@@ -251,6 +299,8 @@ bool Game::checkTimeOver()
 
 void Game::tickWork()
 {
+    stateTick++;
+    
     switch (state) {
         case GameState::begin:
         {
@@ -277,7 +327,7 @@ void Game::tickWork()
                 Result result;
                 result.reason = ReasonType::crash;
                 setState(GameState::stopped);
-                if (stoppedCnt == 2) {
+                if (stoppedCnt == 2) { // both crash
                     result.result = ResultType::draw;
                 } else {
                     result.result =  players[W]->getState() == PlayerState::stopped ? ResultType::loss : ResultType::win;
@@ -294,18 +344,14 @@ void Game::tickWork()
             
         case GameState::playing:
         {
+            // check time over
             auto sd = static_cast<int>(board.side);
             if (!players[sd] || players[sd]->isHuman()) {
                 break;
             }
-            auto engine = (Engine*)players[sd];
-            if (engine->computingState != EngineComputingState::thinking) {
-                break;
-            }
-            
-            // avoid conflict with moveFromPlayer
-            std::lock_guard<std::mutex> dolock(criticalMutex);
-            if (engine->computingState == EngineComputingState::thinking && state == GameState::playing) {
+
+            std::lock_guard<std::mutex> dolock(criticalMutex); // avoid conflicting with moveFromPlayer
+            if (state == GameState::playing) {
                 checkTimeOver();
             }
             break;
@@ -313,22 +359,6 @@ void Game::tickWork()
         default:
             break;
     }
-}
-
-// https://stackoverflow.com/questions/38034033/c-localtime-this-function-or-variable-may-be-unsafe
-inline std::tm localtime_xp(std::time_t timer)
-{
-    std::tm bt{};
-#if defined(__unix__)
-    localtime_r(&timer, &bt);
-#elif defined(_MSC_VER)
-    localtime_s(&bt, &timer);
-#else
-    static std::mutex mtx;
-    std::lock_guard<std::mutex> lock(mtx);
-    bt = *std::localtime(&timer);
-#endif
-    return bt;
 }
 
 
@@ -353,7 +383,7 @@ std::string Game::toPgn(std::string event, std::string site, int round) const
     
     for(int sd = 1; sd >= 0; sd--) {
         if (players[sd]) {
-            stringStream << "[" << (sd == W ? "White" : "Black") << " \t\"" << players[sd]->name << "\"]" << std::endl;
+            stringStream << "[" << (sd == W ? "White" : "Black") << " \t\"" << players[sd]->getName() << "\"]" << std::endl;
         }
     }
     stringStream << "[Result \t\"" << board.result.toShortString() << "\"]" << std::endl;

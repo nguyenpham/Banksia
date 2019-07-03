@@ -33,6 +33,7 @@
   },
   "engine log": {
     "mode": true,
+    "show time": true,
     "path": "c:\\match\\logengine.txt"
   }
 

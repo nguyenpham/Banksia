@@ -78,14 +78,17 @@ namespace banksia {
         void setupClocksBeforeThinking(int halfMoveCnt);
         void udateClockAfterMove(double moveElapse, Side side, int halfMoveCnt);
         
-        double moveTimeConsumed() const;
-        
-        bool isTimeOver(Side side) const;
+        bool isTimeOver(Side side);
         virtual bool isValid() const override;
+        double moveTimeConsumed() const;
 
-        double timeLeft[2];
+        double getTimeLeft(int sd) const;
+
+        double lastQueryConsumed = 0;
         
     private:
+        double timeLeft[2];
+        
         void startMoveTimeClock();
         
         std::chrono::system_clock::time_point moveStartClock;

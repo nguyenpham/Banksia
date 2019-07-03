@@ -26,7 +26,7 @@
 #include <sstream>
 
 #include "playermng.h"
-
+#include "wbengine.h"
 
 using namespace banksia;
 
@@ -48,7 +48,7 @@ void PlayerMng::tickWork()
     
     for(auto && player : playerList) {
         if (player->getState() == PlayerState::stopped) {
-            if (!player->isAttachedToGame()) {
+            if (!player->isAttached()) {
                 removingList.push_back(player);
             }
         } else {
@@ -168,6 +168,10 @@ Engine* PlayerMng::createEngine(const Config& config)
             ePlayer = new UciEngine(config);
             break;
             
+        case Protocol::wb:
+//            ePlayer = new WbEngine(config);
+            break;
+
         default:
             break;
     }

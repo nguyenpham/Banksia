@@ -220,8 +220,13 @@ double GameTimeController::moveTimeConsumed() const
     return double(ms) / 1000; // convert into second
 }
 
+double GameTimeController::getTimeLeft(int sd) const
+{
+    assert(sd == 0 || sd == 1);
+    return timeLeft[sd];
+}
 
-bool GameTimeController::isTimeOver(Side side) const
+bool GameTimeController::isTimeOver(Side side)
 {
     if (mode != TimeControlMode::movetime && mode != TimeControlMode::standard) {
         return false;
@@ -230,8 +235,8 @@ bool GameTimeController::isTimeOver(Side side) const
     auto sd = static_cast<int>(side);
     assert(timeLeft[sd] >= 0);
     
-    auto t = moveTimeConsumed();
-    if (t >= timeLeft[sd] + margin) {
+    lastQueryConsumed = moveTimeConsumed();
+    if (lastQueryConsumed >= timeLeft[sd] + margin) {
         return true;
     }
     return false;

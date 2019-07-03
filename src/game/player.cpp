@@ -56,21 +56,28 @@ std::string Player::toString() const
     return stringStream.str();
 }
 
-void Player::setup(const ChessBoard* _board, const GameTimeController* _timeController)
+std::string Player::getName() const
 {
+    return name;
+}
+
+void Player::attach(const ChessBoard* _board, const GameTimeController* _timeController, std::function<void(const std::string&, const std::string&, double, EngineComputingState)> theFunc)
+{
+    assert(isSafeToDeattach());
     board = _board;
     timeController = _timeController;
-}
-
-bool Player::isAttachedToGame() const
-{
-    return board != nullptr && timeController != nullptr;
-}
-
-void Player::setMoveReceiver(void* parent, std::function<void(const std::string&, const std::string&, double, EngineComputingState)> theFunc)
-{
-    assert(parent);
     moveReceiver = theFunc;
+    deattachTimeout = -1;
+}
+
+void Player::deattach()
+{
+    attach(nullptr, nullptr, nullptr);
+}
+
+bool Player::isAttached() const
+{
+    return board != nullptr && timeController != nullptr && moveReceiver != nullptr;
 }
 
 bool Player::goPonder(const Move& pondermove)
