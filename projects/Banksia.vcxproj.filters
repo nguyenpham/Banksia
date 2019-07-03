@@ -63,6 +63,9 @@
     <ClInclude Include="..\src\game\uciengine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\game\wbengine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\3rdparty\json\jsoncpp.cpp">
@@ -111,6 +114,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\game\wbengine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

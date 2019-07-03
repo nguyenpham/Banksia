@@ -35,6 +35,7 @@
     <ClInclude Include="..\src\game\time.h" />
     <ClInclude Include="..\src\game\tourmng.h" />
     <ClInclude Include="..\src\game\uciengine.h" />
+    <ClInclude Include="..\src\game\wbengine.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\3rdparty\json\jsoncpp.cpp" />
@@ -52,6 +53,7 @@
     <ClCompile Include="..\src\game\time.cpp" />
     <ClCompile Include="..\src\game\tourmng.cpp" />
     <ClCompile Include="..\src\game\uciengine.cpp" />
+    <ClCompile Include="..\src\game\wbengine.cpp" />
     <ClCompile Include="..\src\main.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
