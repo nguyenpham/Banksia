@@ -29,7 +29,6 @@
 
 using namespace banksia;
 
-
 std::string WbEngine::protocolString() const
 {
     return "xboard\nprotover 2";
@@ -67,8 +66,7 @@ void WbEngine::prepareToDeattach()
 
 bool WbEngine::sendQuit()
 {
-    std::string str = "quit";
-    return write(str);
+    return write("quit");
 }
 
 bool WbEngine::stop()
@@ -87,7 +85,8 @@ bool WbEngine::go()
 {
     Engine::go();
     computingState = EngineComputingState::thinking;
-    return write("go");
+
+    return write(timeControlString()) && write("go");
 }
 
 std::string WbEngine::timeControlString() const
@@ -156,6 +155,7 @@ void WbEngine::parseLine(const std::string& str)
     auto cmd = vec.front();
     
     auto ch = cmd.front();
+    
     if (isdigit(ch)) { // it may be thinking output -> ignore
         // 9 156 1084 48000 Nf3 Nc6 Nc3 Nf6
         return;

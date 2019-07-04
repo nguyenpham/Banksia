@@ -270,7 +270,7 @@ static std::string bool2OnOffString(bool b)
 
 void TourMng::showPathInfo(const std::string& name, const std::string& path, bool mode)
 {
-    std::cout << " path of " << name << ": " << (path.empty() ? "<empty>" : path) << ", " << bool2OnOffString(mode) << std::endl;
+    std::cout << " " << name << ": " << (path.empty() ? "<empty>" : path) << ", " << bool2OnOffString(mode) << std::endl;
 }
 
 void TourMng::startTournament()
@@ -287,8 +287,8 @@ void TourMng::startTournament()
     matchLog(info);
     
     showPathInfo("pgn", pgnPath, pgnPathMode);
-    showPathInfo("log result", logResultPath, logResultMode);
-    showPathInfo("log engines' in-output", logEngineInOutPath, logEngineInOutMode);
+    showPathInfo("result", logResultPath, logResultMode);
+    showPathInfo("engines", logEngineInOutPath, logEngineInOutMode);
     std::cout << std::endl;
     
     // tickWork will start the matches
@@ -578,7 +578,7 @@ bool TourMng::createMatch(int gameIdx, const std::string& whiteName, const std::
             });
             game->start();
             
-            std::string infoString = std::to_string(gameIdx + 1) + ". " + game->getGameTitleString() + ", started";
+            std::string infoString = std::to_string(gameIdx + 1) + ". " + game->getGameTitleString();
             
             printText(infoString);
             engineLog(getAppName(), infoString, LogType::system);

@@ -28,13 +28,18 @@ There are some project files for building by Visual Studio or Xcode.
 
 If you want to compile those code manually, use g++ to compile and link as bellow:
 
-    g++ -std=c++11 -c ../src/3rdparty/json/*.cpp -O3 -DNDEBUG
-    g++ -std=c++11 -c ../src/3rdparty/process/process.cpp ../src/3rdparty/process/process_unix.cpp -O3 -DNDEBUG
-    g++ -std=c++11 -c ../src/base/*.cpp -O3 -DNDEBUG
-    g++ -std=c++11 -c ../src/chess/*.cpp -O3 -DNDEBUG
-    g++ -std=c++11 -c ../src/game/*.cpp -O3 -DNDEBUG
-    g++ -std=c++11 -c ../src/*.cpp -O3 -DNDEBUG
+    g++ -std=c++11 -c ../src/3rdparty/process/process.cpp ../src/3rdparty/process/process_unix.cpp -O2 -DNDEBUG
+    g++ -std=c++11 -c ../src/3rdparty/json/*.cpp -O2 -DNDEBUG
+    g++ -std=c++11 -c ../src/base/*.cpp -O2 -DNDEBUG
+    g++ -std=c++11 -c ../src/chess/*.cpp -O2 -DNDEBUG
+    g++ -std=c++11 -c ../src/game/*.cpp -O2 -DNDEBUG
+    g++ -std=c++11 -c ../src/*.cpp -O2 -DNDEBUG
     g++ -o banksia *.o
+
+In MS Windows, the first line needed to change to:
+
+    g++ -std=c++11 -c ../src/3rdparty/process/process.cpp ../src/3rdparty/process/process_win.cpp -O2 -DNDEBUG
+
 
 (you may help me to create a makefile too ;) )
 
@@ -66,6 +71,10 @@ When working, the app may display some information into screen as well as saving
 - engine input / output log
 - game pgn file
 
+
+Bellow is screen of a tournament between 3 chess engines:
+
+![Demo](https://github.com/nguyenpham/Banksia/blob/master/demo.png)
 
 Working
 ---------

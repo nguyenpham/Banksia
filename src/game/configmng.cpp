@@ -236,6 +236,25 @@ void Option::setDefaultValue(const std::string& val, const std::vector<std::stri
     choiceList = choices;
 }
 
+bool Option::isDefaultValue() const
+{
+    switch (type) {
+        case OptionType::spin:
+            return defaultValue == value;
+            
+        case OptionType::combo:
+        case OptionType::string:
+            return string == defaultString;
+            
+        case OptionType::check:
+            return defaultChecked == checked;
+            
+        default:
+            break;
+    }
+    
+    return true;
+}
 
 bool Option::operator == (const Option& other) const
 {
@@ -258,26 +277,6 @@ bool Option::operator == (const Option& other) const
             
         case OptionType::check:
             return defaultChecked == other.defaultChecked && checked == other.checked;
-            
-        default:
-            break;
-    }
-    
-    return true;
-}
-
-bool Option::isDefaultValue() const
-{
-    switch (type) {
-        case OptionType::spin:
-            return defaultValue == value;
-            
-        case OptionType::combo:
-        case OptionType::string:
-            return string == defaultString;
-            
-        case OptionType::check:
-            return defaultChecked == checked;
             
         default:
             break;

@@ -23,8 +23,8 @@
  */
 
 
-#ifndef wbengineplayer_hpp
-#define wbengineplayer_hpp
+#ifndef wbengine_h
+#define wbengine_h
 
 #include <stdio.h>
 

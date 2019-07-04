@@ -169,7 +169,8 @@ Engine* PlayerMng::createEngine(const Config& config)
             break;
             
         case Protocol::wb:
-//            ePlayer = new WbEngine(config);
+            std::cerr << "FATAL ERROR: Winboard protocol is not supported yet!" << std::endl;
+            //ePlayer = new WbEngine(config);
             break;
 
         default:

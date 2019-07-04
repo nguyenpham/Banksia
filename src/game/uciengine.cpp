@@ -189,7 +189,7 @@ std::string UciEngine::timeControlString() const
             
         case TimeControlMode::standard:
         {
-            // timeController unit: second, here need ms
+            // timeController unit: second, here it needs ms
             int wtime = int(timeController->getTimeLeft(W) * 1000);
             int btime = int(timeController->getTimeLeft(B) * 1000);
             
@@ -225,27 +225,26 @@ bool UciEngine::sendPong()
     return write("readyok");
 }
 
-void UciEngine::tickWork()
-{
-    Engine::tickWork();
-}
+//void UciEngine::tickWork()
+//{
+//    Engine::tickWork();
+//}
 
 void UciEngine::parseLine(const std::string& str)
 {
     log(str, LogType::fromEngine);
     
-    static const char* optionName = "option name";
-    auto len = strlen(optionName);
-    if (memcmp(str.c_str(), optionName, len) == 0) {
+    auto p = str.find(' ');
+    auto cmd = p == std::string::npos ? str : str.substr(0, p);
+    
+    if (cmd == "option") {
         if (!parseOption(str)) {
             write("Unknown " + str);
         }
         return;
     }
     
-    static const char* info = "info ";
-    len = strlen(info);
-    if (memcmp(str.c_str(), info, len) == 0) {
+    if (str == "info") {
         // info is useless at the moment - completely ignore
         return;
     }
@@ -256,10 +255,7 @@ void UciEngine::parseLine(const std::string& str)
         return;
     }
     
-    static const char* bestmove = "bestmove ";
-    len = strlen(bestmove);
-    if (memcmp(str.c_str(), bestmove, len) == 0) {
-        
+    if (cmd == "bestmove") {
         assert(expectingBestmove);
         assert(computingState != EngineComputingState::idle);
         
@@ -269,13 +265,15 @@ void UciEngine::parseLine(const std::string& str)
         
         auto period = timeCtrl->moveTimeConsumed(); // moveTimeConsumed();
         
-        auto ss = str.substr(len);
-        auto vec = splitString(ss, ' '); assert(vec.size() > 0);
-        auto moveString = vec.at(0);
+        auto vec = splitString(str, ' ');
+        if (vec.size() < 2) {
+            return;
+        }
+        auto moveString = vec.at(1);
         
         std::string ponderMoveString = "";
-        if (vec.size() > 2 && vec.at(1) == "ponder") {
-            ponderMoveString = vec.at(2);
+        if (vec.size() >= 4 && vec.at(2) == "ponder") {
+            ponderMoveString = vec.at(3);
         }
         
         if (!moveString.empty() && moveReceiver != nullptr) {
@@ -284,7 +282,7 @@ void UciEngine::parseLine(const std::string& str)
         return;
     }
     
-    if (str == "uciok") {
+    if (cmd == "uciok") {
         setState(PlayerState::ready);
         expectingBestmove = false;
         sendOptions();
@@ -292,7 +290,7 @@ void UciEngine::parseLine(const std::string& str)
         return;
     }
     
-    if (str == "isready") {
+    if (cmd == "isready") {
         sendPong();
         return;
     }
@@ -302,7 +300,7 @@ bool UciEngine::parseOption(const std::string& s)
 {
     assert(!s.empty());
     
-    std::regex re("option name (.*) type (combo|spin|button|check|string)(.*)");
+    static const std::regex re("option name (.*) type (combo|spin|button|check|string)(.*)");
     
     try {
         std::smatch match;

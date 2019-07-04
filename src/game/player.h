@@ -79,7 +79,7 @@ namespace banksia {
         virtual bool go();
         
     protected:
-        int idNumber; // a random number, easier for debugging
+        int idNumber; // a random number, main purpose for debugging
         std::string name;
         
         int deattachTimeout = -1;

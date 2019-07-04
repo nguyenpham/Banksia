@@ -55,7 +55,7 @@ namespace banksia {
         virtual void parseLine(const std::string&) override;
         
         virtual bool stop() override;
-        virtual void tickWork() override;
+//        virtual void tickWork() override;
 
         virtual void prepareToDeattach() override;
         virtual bool isSafeToDeattach() const override;
