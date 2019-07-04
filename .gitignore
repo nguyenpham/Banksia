@@ -32,5 +32,6 @@
 *.app
 
 */x64*
+*/.vs*
 */Debug*
 *.DS_Store

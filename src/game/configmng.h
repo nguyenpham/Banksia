@@ -104,7 +104,7 @@ namespace banksia {
         
         bool updateOptionValue(const std::string& name, int val);
         bool updateOptionValue(const std::string& name, bool val);
-        bool updateOptionValue(const std::string& naßme, const std::string& val);
+        bool updateOptionValue(const std::string& name, const std::string& val);
         
         virtual const char* className() const override { return "Config"; }
         virtual bool isValid() const override;
