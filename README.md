@@ -4,9 +4,9 @@
 Overview
 -----------
 
-Banksia (a name of an Australian native wildflowers) is an open source chess tournament manager for chess engines. The code is written in C++ (using standad C++11 library). It can be compiled and run in some popurlar OSs such as Windows (tested, for both 32 and 64 bit app), MacOS (tested), Linux (not tested).
+Banksia (a name of an Australian native wildflowers) is an open source chess tournament manager for chess engines. The code is written in C++ (using standad C++11 library). It can be compiled and run in some popurlar systems such as Windows (tested, for both 32 and 64 bit app), MacOS (tested), Linux (not tested).
 
-To manage engines, games and the complicated events / relationships between them, the app uses a timer with few c++ callback functions. I believe it is one of the simplest way thus it is not hard for programmers to follow, understand, maintain and modify.
+To manage engines, games and the complicated events / relationships between them, the app uses a timer with few c++ callback functions. I believe it is one of the simplest way thus the code is not hard for programmers to follow, understand, maintain and modify.
 
 
 Some features
@@ -14,11 +14,11 @@ Some features
 - Command line interface (cli)
 - Small, fast
 - Simple and short (in term of design and implementation)
-- Support chess engines with UCI protocol
+- Support chess engines with UCI and Winboard protocols
 - Tournament: concurrency, round robin, edp opening, ponderable
 - Controlled mainly by 2 json files (one for configurations of engines, one for tournament management). That is very flexible, easy way to setup and change
 - Controllable by keyboard when games playing (type anything from keyboard to display the help)
-- Written in standard C++ 11
+- Written in standard C++11
 - Open source, MIT license
 
 
@@ -41,7 +41,7 @@ In MS Windows, the first line needed to change to:
     g++ -std=c++11 -c ../src/3rdparty/process/process.cpp ../src/3rdparty/process/process_win.cpp -O2 -DNDEBUG
 
 
-(you may help me to create a makefile too ;) )
+Note: you may help me to create a makefile too ;)
 
 Using
 -------
@@ -81,12 +81,12 @@ Working
 - Improve interface
 - Support some diffirent opening book formats such as Polyglot
 - Support some different tournament types: knockout, swiss
-- Support Winboard protocol (not soon)
-- Support other chess variants (not soon event it is designed for multi variants - at least from verion 1.0)
+- Support other chess variants (not soon event it is designed for multi variants)
 
 
 History
 --------
+- 8 July 2019: v1.00, fix bugs, improve interface, support Winboard protocol
 - 3 July 2019: v0.03, fix bugs, improve interface, support pgn opening
 - 1 July 2019: version 0.01, first release
 

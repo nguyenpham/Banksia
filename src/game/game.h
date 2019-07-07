@@ -33,7 +33,9 @@
 namespace banksia {
     
     enum class GameState {
-        begin, ready, playing, stopped, destroyed
+        none, begin,
+        ready, playing, stopped, // playing
+        ending, ended // last work to remove
     };
     
     class Game : public Obj, public Tickable
@@ -51,11 +53,11 @@ namespace banksia {
         
         void newGame();
         
-        void start();
+        void kickStart();
         void startPlaying();
         void pause();
         void stop();
-        bool make(const Move& move);
+        bool make(const Move& move, const std::string& moveString);
         void startThinking(Move pondermove = Move::illegalMove);
         
         virtual const char* className() const override { return "Game"; }
@@ -63,7 +65,9 @@ namespace banksia {
         virtual std::string toString() const override;
         
         void gameOver(const Result& result);
-        void moveFromPlayer(const std::string& moveString, const std::string& ponderMoveString, double timeConsumed, Side side, EngineComputingState oldState);
+        void gameOver(Side winner, ReasonType reasonType);
+        
+        void moveFromPlayer(const Move& move, const std::string& moveString, const Move& ponderMove, double timeConsumed, Side side, EngineComputingState oldState);
         
         virtual void tickWork() override;
         
@@ -72,7 +76,7 @@ namespace banksia {
         GameState getState() const { return state; }
         void setState(GameState st);
         
-        void setStartup(int idx, const std::string& startFen, const std::vector<MoveCore>& startMoves);
+        void setStartup(int idx, const std::string& startFen, const std::vector<Move>& startMoves);
         int getIdx() const;
         int getStateTick() const { return stateTick; }
         
@@ -97,7 +101,7 @@ namespace banksia {
         std::function<void(const std::string&, const std::string&, LogType)> messageLogger = nullptr;
 
         std::string startFen;
-        std::vector<MoveCore> startMoves;
+        std::vector<Move> startMoves;
         std::mutex criticalMutex;
     };
     

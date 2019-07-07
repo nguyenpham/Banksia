@@ -61,18 +61,18 @@ std::string Player::getName() const
     return name;
 }
 
-void Player::attach(const ChessBoard* _board, const GameTimeController* _timeController, std::function<void(const std::string&, const std::string&, double, EngineComputingState)> theFunc)
+void Player::attach(ChessBoard* _board, const GameTimeController* _timeController, std::function<void(const Move&, const std::string&, const Move&, double, EngineComputingState)> _moveReceiver, std::function<void()> _resignFunc)
 {
     assert(isSafeToDeattach());
     board = _board;
     timeController = _timeController;
-    moveReceiver = theFunc;
-    deattachTimeout = -1;
+    moveReceiver = _moveReceiver;
+    resignFunc = _resignFunc;
 }
 
 void Player::deattach()
 {
-    attach(nullptr, nullptr, nullptr);
+    attach(nullptr, nullptr, nullptr, nullptr);
 }
 
 bool Player::isAttached() const
@@ -91,29 +91,8 @@ bool Player::go()
     return true;
 }
 
-/////////////////////////////////////
-
-bool Human::kickStart()
+bool Player::oppositeMadeMove(const Move&, const std::string&)
 {
-    setState(PlayerState::ready);
-    return true;
+    return false;
 }
-
-bool Human::stopThinking()
-{
-    return true;
-}
-
-bool Human::quit()
-{
-    setState(PlayerState::stopped);
-    return true;
-}
-
-bool Human::kill()
-{
-    setState(PlayerState::stopped);
-    return true;
-}
-
 

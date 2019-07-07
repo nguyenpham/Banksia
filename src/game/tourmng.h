@@ -63,7 +63,7 @@ namespace banksia {
         std::string playernames[2];
         
         std::string startFen;
-        std::vector<MoveCore> startMoves;
+        std::vector<Move> startMoves;
         
         ResultType resultType = ResultType::noresult;
         MatchState state = MatchState::none;
@@ -103,7 +103,7 @@ namespace banksia {
         bool createMatchList();
         bool createMatchList(const std::vector<std::string>& nameList, TourType type);
         void createMatch(MatchRecord&);
-        bool createMatch(int gameIdx, const std::string& whiteName, const std::string& blackName, const std::string& startFen, const std::vector<MoveCore>& startMoves);
+        bool createMatch(int gameIdx, const std::string& whiteName, const std::string& blackName, const std::string& startFen, const std::vector<Move>& startMoves);
         
         void startTournament();
         

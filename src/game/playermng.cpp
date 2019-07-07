@@ -136,23 +136,10 @@ bool PlayerMng::killPlayer(Player* player)
     return true;
 }
 
-Player* PlayerMng::createPlayer(const std::string& name)
-{
-    auto config = configMng.get(name);
-    if (config.isValid()) {
-        return createEngine(config);
-    }
-    
-    auto s = name.empty() ? "Human" : name;
-    auto player = new Human(name);
-    add(player);
-    return player;
-}
-
 Engine* PlayerMng::createEngine(const std::string& name)
 {
     auto config = configMng.get(name);
-    return createEngine(config);
+    return config.isValid() ? createEngine(config) : nullptr;
 }
 
 Engine* PlayerMng::createEngine(const Config& config)
@@ -160,17 +147,16 @@ Engine* PlayerMng::createEngine(const Config& config)
     if (!config.isValid()) {
         return nullptr;
     }
-    
+
     Engine* ePlayer = nullptr;
-    
+
     switch (config.protocol) {
         case Protocol::uci:
             ePlayer = new UciEngine(config);
             break;
             
         case Protocol::wb:
-            std::cerr << "FATAL ERROR: Winboard protocol is not supported yet!" << std::endl;
-            //ePlayer = new WbEngine(config);
+            ePlayer = new WbEngine(config);
             break;
 
         default:

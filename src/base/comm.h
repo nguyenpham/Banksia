@@ -40,7 +40,7 @@
 
 namespace banksia {
     
-    const int BANKSIA_VERSION = 0x003;
+    const int BANKSIA_VERSION = 0x100;
     
 #define i16 int16_t
 #define u16 uint16_t
@@ -49,10 +49,10 @@ namespace banksia {
 #define u8  uint8_t
 #define u64 uint64_t
 #define i64 int64_t
-    
+
 #define B                               0
 #define W                               1
-    
+
     class Obj {
     public:
         virtual const char* className() const { return "Obj"; }
@@ -115,6 +115,7 @@ namespace banksia {
         mate,
         stalemate,
         repetition,
+        resign,
         fiftymoves,
         insufficientmaterial,
         illegalmove,
@@ -140,7 +141,7 @@ namespace banksia {
     
     extern bool banksiaVerbose;
     extern const char* pieceTypeName;
-    extern const char* reasonStrings[10];
+    extern const char* reasonStrings[11];
     
     std::string getVersion();
     std::string getAppName();
@@ -161,10 +162,11 @@ namespace banksia {
     
     std::vector<std::string> splitString(const std::string& string, const std::string& regexString);
     std::vector<std::string> splitString(const std::string &s, char delim);
-
+    
 } // namespace banksia
 
 #endif /* Board_hpp */
+
 
 
 

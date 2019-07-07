@@ -144,7 +144,8 @@ namespace banksia {
         bool empty() const;
         
         bool isNameExistent(const std::string& name) const;
-        
+        std::vector<std::string> nameList() const;
+
     protected:
         virtual Json::Value createJsonForSaving() override;
         

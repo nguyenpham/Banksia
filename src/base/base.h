@@ -124,14 +124,16 @@ namespace banksia {
             return toString(type, side);
         }
     };
-
-    class MoveCore {
+    
+    class Move {
     public:
-        MoveCore() {}
-        MoveCore(int from, int dest, PieceType promotion = PieceType::empty)
+        Move() {}
+        Move(int from, int dest, PieceType promotion = PieceType::empty)
         : from(from), dest(dest), promotion(promotion)
         {}
-
+        
+        static Move illegalMove;
+        
         std::string toString() const {
             std::ostringstream stringStream;
             stringStream << posToCoordinateString(from) << posToCoordinateString(dest);
@@ -146,7 +148,7 @@ namespace banksia {
             if (promotion > PieceType::king && promotion < PieceType::pawn) s += pieceTypeName[static_cast<int>(promotion)];
             return s;
         }
-
+        
         bool isValid() const {
             return isValid(from, dest);
         }
@@ -154,26 +156,26 @@ namespace banksia {
         static bool isValid(int from, int dest) {
             return from != dest  && from >= 0 && from < 64 && dest >= 0 && dest < 64;
         }
-
+        
     public:
         int from, dest;
         PieceType promotion;
     };
     
-    class Move : public MoveCore {
+    class MoveFull : public Move {
     public:
         Piece piece;
-        static Move illegalMove;
-
+        static MoveFull illegalMove;
+        
     public:
-        Move() {}
-        Move(Piece piece, int from, int dest, PieceType promotion = PieceType::empty)
-        : piece(piece), MoveCore(from, dest, promotion)
+        MoveFull() {}
+        MoveFull(Piece piece, int from, int dest, PieceType promotion = PieceType::empty)
+        : piece(piece), Move(from, dest, promotion)
         {}
-        Move(int from, int dest, PieceType promotion = PieceType::empty)
-        : MoveCore(from, dest, promotion)
+        MoveFull(int from, int dest, PieceType promotion = PieceType::empty)
+        : Move(from, dest, promotion)
         {}
-
+        
         
         void set(Piece _piece, int _from, int _dest, PieceType _promote = PieceType::empty) {
             piece = _piece;
@@ -188,6 +190,9 @@ namespace banksia {
             promotion = _promote;
         }
         
+        bool operator == (const MoveFull& other) const {
+            return from == other.from && dest == other.dest && promotion == other.promotion;
+        }
         bool operator == (const Move& other) const {
             return from == other.from && dest == other.dest && promotion == other.promotion;
         }
@@ -197,7 +202,7 @@ namespace banksia {
     public:
         static const int MaxMoveNumber = 250;
         
-        Move list[MaxMoveNumber];
+        MoveFull list[MaxMoveNumber];
         int end;
         
         MoveList() {
@@ -216,7 +221,7 @@ namespace banksia {
             return end >= MaxMoveNumber - 2;
         }
         
-        void add(const Move& move) {
+        void add(const MoveFull& move) {
             list[end] = move;
             end++;
         }
@@ -242,7 +247,7 @@ namespace banksia {
     
     class Hist {
     public:
-        Move move;
+        MoveFull move;
         Piece movep, cap;
         int enpassant, status;
         int8_t castleRights[2];
@@ -251,7 +256,7 @@ namespace banksia {
         double elapsed;
         std::string moveString, comment;
         
-        void set(const Move& _move) {
+        void set(const MoveFull& _move) {
             move = _move;
         }
         
@@ -285,7 +290,7 @@ namespace banksia {
         virtual int columnCount() const = 0;
         virtual int getColumn(int pos) const = 0;
         virtual int getRow(int pos) const = 0;
-
+        
         void setPiece(int pos, Piece piece) {
             assert(isPositionValid(pos));
             pieces[pos] = piece;
@@ -315,7 +320,7 @@ namespace banksia {
         static Side getXSide(Side side) {
             return side == Side::white ? Side::black : Side::white;
         }
-
+        
     public:
         BoardCore();
         
@@ -334,11 +339,11 @@ namespace banksia {
         
         void newGame(std::string fen = "");
         
-        Move createMove(int from, int dest, PieceType promote) const;
+        MoveFull createMove(int from, int dest, PieceType promote) const;
         static PieceType charactorToPieceType(char ch);
         static Move moveFromCoordiateString(const std::string& moveString);
         
-        bool isValidPromotion(PieceType promotion, Side side) const;
+        static bool isValidPromotion(PieceType promotion);
         
         virtual Result rule() = 0;
         
@@ -358,4 +363,5 @@ namespace banksia {
 } // namespace banksia
 
 #endif /* board_hpp */
+
 

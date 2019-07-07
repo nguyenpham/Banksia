@@ -373,15 +373,24 @@ Config::Config()
 
 bool Config::load(const Json::Value& obj)
 {
-    if (!obj.isMember("protocol") || !obj.isMember("name") || !obj.isMember("command")) {
+    if (!obj.isMember("command")) {
         return false;
     }
     
-    protocol = protocolFromString(obj["protocol"].asString());
+    protocol = Protocol::none;
+    if (obj.isMember("protocol")) {
+        protocol = protocolFromString(obj["protocol"].asString());
+    }
+    if (protocol == Protocol::none) protocol = Protocol::uci;
     
-    name = obj["name"].asString();
     command = obj["command"].asString();
     
+    if (obj.isMember("name") && obj["name"].isString()) {
+        name = obj["name"].asString();
+    } else {
+        name = getFileName(command);
+    }
+
     if (protocol == Protocol::none || name.empty() || command.empty()) {
         protocol = Protocol::none;
         return false;
@@ -442,13 +451,13 @@ bool Config::load(const Json::Value& obj)
 Json::Value Config::saveToJson() const
 {
     Json::Value obj;
-    
+
     obj["protocol"] = nameFromProtocol(protocol);
     obj["name"] = name;
     obj["command"] = command;
     obj["working folder"] = workingFolder;
     obj["ponderable"] = ponderable;
-    
+
     if (!variantSet.empty()) {
         Json::Value array;
         for(auto && s : variantSet) {
@@ -458,7 +467,7 @@ Json::Value Config::saveToJson() const
         }
         obj["variants"] = array;
     }
-    
+
     if (!argumentList.empty()) {
         Json::Value array;
         for(auto && s : argumentList) {
@@ -635,6 +644,15 @@ bool ConfigMng::empty() const
 bool ConfigMng::isNameExistent(const std::string& name) const
 {
     return configMap.find(name) != configMap.end();
+}
+
+std::vector<std::string> ConfigMng::nameList() const
+{
+    std::vector<std::string> list;
+    for(auto && c : configMap) {
+        list.push_back(c.first);
+    }
+    return list;
 }
 
 bool ConfigMng::parseJsonAfterLoading(Json::Value& jsonData)

@@ -33,13 +33,13 @@ namespace banksia {
     bool banksiaVerbose = false;
     
     extern const char* pieceTypeName;
-    extern const char* reasonStrings[10];
+    extern const char* reasonStrings[11];
     
     const char* pieceTypeName = ".kqrbnp";
     const char* reasonStrings[] = {
-        "*", "mate", "stalemate", "threefold repetition", "fifty moves", "insufficient material", "illegal move", "timeout", "crash", nullptr
+        "*", "mate", "stalemate", "threefold repetition", "resign", "fifty moves", "insufficient material", "illegal move", "timeout", "crash", nullptr
     };
-
+    
     static std::mutex consoleMutex;
     
     void printText(const std::string& str)
@@ -153,7 +153,7 @@ namespace banksia {
         }
         return vec;
     }
-
+    
     // https://stackoverflow.com/questions/38034033/c-localtime-this-function-or-variable-may-be-unsafe
     std::tm localtime_xp(std::time_t timer)
     {
@@ -169,12 +169,11 @@ namespace banksia {
 #endif
         return bt;
     }
-
 }
 
 
+////////////////////////
 using namespace banksia;
-
 
 void Obj::printOut(const char* msg) const
 {
@@ -237,4 +236,5 @@ bool JsonSavable::saveToJsonFile(const std::string& path, Json::Value& jsonData)
     outFile.close();
     return r;
 }
+
 

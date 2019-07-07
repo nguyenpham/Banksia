@@ -32,8 +32,21 @@ using namespace banksia;
 ////////////////////////////////////
 void Engine::tickWork()
 {
-    if (deattachTimeout > 0) deattachTimeout--;
+    if (state == PlayerState::stopped) {
+        return;
+    }
     
+    tick_idle++;
+    
+    if (isIdleCrash()) {
+        std::string str = name + " is stopped because of being stalled too long!";
+        (messageLogger)(getAppName(), str, LogType::system);
+        setState(PlayerState::stopped);
+        return;
+    }
+    
+    if (tick_deattach > 0) tick_deattach--;
+
     if (tick_stopping > 0) {
         tick_stopping--;
         
@@ -44,20 +57,27 @@ void Engine::tickWork()
         return;
     }
     
-    if (!isReady()) {
-        return;
-    }
-    
-    tick_for_ping--;
-    if (tick_for_ping < 0) {
+    // Ping
+    tick_ping++;
+    if (tick_ping >= tick_period_ping) {
         resetPing();
         sendPing();
     }
 }
 
+bool Engine::isIdleCrash() const
+{
+    return tick_idle > tick_period_idle_dead;
+}
+
+bool Engine::isExited() const
+{
+    return process == nullptr;
+}
+
 void Engine::resetPing()
 {
-    tick_for_ping = tick_ping;
+    tick_ping = 0;
 }
 
 void Engine::resetIdle()
@@ -65,9 +85,10 @@ void Engine::resetIdle()
     tick_idle = 0;
 }
 
-bool Engine::isReady() const
+void Engine::engineSentCorrectCmds()
 {
-    return state > PlayerState::starting && state < PlayerState::stopped;
+    resetIdle();
+    resetPing();
 }
 
 void Engine::setMessageLogger(std::function<void(const std::string&, const std::string&, LogType)> logger)
@@ -84,66 +105,82 @@ void Engine::log(const std::string& line, LogType logType) const
 
 void Engine::read_stderr(const char *bytes, size_t n)
 {
-//    std::cout << "read_stderr: " << str << std::endl;
+    assert(false); // don't use
 }
 
 void Engine::read_stdout(const char *bytes, size_t n)
 {
-    // it may be being deleted
+    // check before use since it may be being deleted
     if (!isAttached() || n <= 0) {
         return;
     }
     
-    resetPing();
-    resetIdle();
-    
-    std::string str;
-    
-    if (n < process_buffer_size) {
-        str = lastIncompletedStdout + std::string(bytes, n);
-        lastIncompletedStdout = "";
-    } else {
-        auto ok = false;
-        for(int i = int(n) - 1; i >= 0; i--) {
-            if (bytes[i] == '\n') {
-                ok = true;
-                str = lastIncompletedStdout + std::string(bytes, i + 1);
-                auto n2 = n - i - 1;
-                if (n2 > 0) {
-                    lastIncompletedStdout = std::string(bytes + i + 1, n2);
-                } else {
-                    lastIncompletedStdout = "";
-                }
-                break;
+    std::vector<std::string> vec;
+    auto k = 0;
+    for(int i = 0; i < n; i++) {
+        if (bytes[i] == '\n') {
+            std::string str;
+            if (i == 0) {
+                str += lastIncompletedStdout;
+                lastIncompletedStdout = "";
             }
-        }
-        
-        if (!ok) {
-            lastIncompletedStdout += std::string(bytes, n);
-            std::cerr << "Error: full buffer but cannot detect end-of-line charactor for input " << lastIncompletedStdout << std::endl;
-            return;
+            
+            if (i > k) {
+                str += std::string(bytes + k, i + 1 - k);
+            }
+            
+            std::replace(str.begin(), str.end(), '\t', ' ');
+            trim(str);
+            if (!str.empty()) {
+                vec.push_back(str);
+            }
+            
+            k = i + 1;
         }
     }
-
-    auto vec = splitString(str, '\n');
+    
+    if (k < n) {
+        lastIncompletedStdout = std::string(bytes + k, n - k);
+    }
+    
+    // something wrong, try to do
+    if (vec.empty() && lastIncompletedStdout.length() > 1024) {
+        vec.push_back(lastIncompletedStdout);
+    }
+    
     for(auto && line : vec) {
-        if (!line.empty() && isAttached()) {
-            parseLine(line);
-        }
+        parseLine(line);
     }
+}
+
+void Engine::parseLine(const std::string& line)
+{
+    log(line, LogType::fromEngine);
+    
+    auto p = line.find(' ');
+    auto cmdString = p == std::string::npos ? line : line.substr(0, p);
+    
+    auto engineCmdMap = getEngineCmdMap();
+    auto it = engineCmdMap.find(cmdString);
+    if (it == engineCmdMap.end()) { // bad cmd
+        parseLine(-1, cmdString, line);
+        return;
+    }
+    
+    engineSentCorrectCmds();
+    parseLine(it->second, cmdString, line);
 }
 
 bool Engine::kickStart()
 {
     assert(config.isValid());
-
-    setState(PlayerState::starting);
+    
     resetPing();
-    resetIdle();
-
+    
     assert(isValid());
-
+    
     if (process == nullptr) {
+        setState(PlayerState::none);
         
 #if (defined _WIN32) && (defined UNICODE)
         std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
@@ -153,7 +190,7 @@ bool Engine::kickStart()
         auto command = config.command;
         auto workingFolder = config.workingFolder;
 #endif
-
+        
         std::thread processThread([=]() {
             TinyProcessLib::Config config;
             config.buffer_size = process_buffer_size;
@@ -169,15 +206,16 @@ bool Engine::kickStart()
             
             process = &engineProcess;
             
+            setState(PlayerState::starting);
             write(protocolString());
             
-            auto exit_status = engineProcess.get_exit_status();
+            engineProcess.get_exit_status();
             
-            // engine exited
+            // engine has just exited
             process = nullptr;
             setState(PlayerState::stopped);
         });
-
+        
         processThread.detach();
         return true;
     }
@@ -186,14 +224,26 @@ bool Engine::kickStart()
     return true;
 }
 
+void Engine::attach(ChessBoard* board, const GameTimeController* timeController, std::function<void(const Move&, const std::string&, const Move&, double, EngineComputingState)> moveFunc, std::function<void()> resignFunc)
+{
+    Player::attach(board, timeController, moveFunc, resignFunc);
+    tick_deattach = -1;
+    tick_idle = 0;
+}
+
 bool Engine::isSafeToDeattach() const
 {
-    return computingState == EngineComputingState::idle || !isAttached();
+    return computingState == EngineComputingState::idle || !isAttached() || tick_deattach == 0;
 }
 
 bool Engine::stopThinking()
 {
     return stop();
+}
+
+bool Engine::isWritable() const
+{
+    return state > PlayerState::starting && state < PlayerState::stopped;
 }
 
 bool Engine::write(const std::string& str)
@@ -225,3 +275,5 @@ bool Engine::kill()
     setState(PlayerState::stopped);
     return true;
 }
+
+

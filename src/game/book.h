@@ -47,9 +47,10 @@ namespace banksia {
         virtual std::string toString() const override;
         
         bool isEmpty() const;
-        
+        size_t size() const;
+
         bool setupOpening(ChessBoard& board, int randomIdx) const;
-        bool getRandomBook(std::string& fenString, std::vector<MoveCore>& moves) const;
+        bool getRandomBook(std::string& fenString, std::vector<Move>& moves) const;
 
     public:
         void load(const std::string& path);
@@ -64,7 +65,7 @@ namespace banksia {
         
         std::string path;
         std::vector<std::string> stringVec;
-        std::vector<std::vector<MoveCore>> moves;
+        std::vector<std::vector<Move>> moves;
     };
     
     class BookMng : public Jsonable
@@ -81,12 +82,13 @@ namespace banksia {
         
         virtual bool load(const Json::Value& obj) override;
         virtual Json::Value saveToJson() const override;
-        bool getRandomBook(std::string& fenString, std::vector<MoveCore>& moves) const;
+        bool getRandomBook(std::string& fenString, std::vector<Move>& moves) const;
 
         static BookType string2BookType(const std::string& name);
         
         bool isEmpty() const;
-        
+        size_t size() const;
+
     private:
         bool mode = true;
         std::vector<Book> bookList;

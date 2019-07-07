@@ -54,9 +54,9 @@ bool Book::addPgnMoves(const std::string& str)
         ChessBoard board;
         board.newGame();
         if (board.fromSanMoveList(str) && !board.histList.empty()) {
-            std::vector<MoveCore> list;
+            std::vector<Move> list;
             for(auto hist : board.histList) {
-                MoveCore m = hist.move;
+                Move m = hist.move;
                 list.push_back(m);
             }
             
@@ -131,6 +131,11 @@ bool Book::isEmpty() const
     return stringVec.empty() && moves.empty();
 }
 
+size_t Book::size() const
+{
+    return stringVec.size() + moves.size();
+}
+
 
 bool Book::setupOpening(ChessBoard& board, int randomIdx) const
 {
@@ -164,7 +169,7 @@ bool Book::setupOpening(ChessBoard& board, int randomIdx) const
     return false;
 }
 
-bool Book::getRandomBook(std::string& fenString, std::vector<MoveCore>& moveList) const
+bool Book::getRandomBook(std::string& fenString, std::vector<Move>& moveList) const
 {
     if (type == BookType::pgn) {
         if (moves.empty()) {
@@ -216,6 +221,15 @@ bool BookMng::isEmpty() const
     return true;
 }
 
+size_t BookMng::size() const
+{
+    size_t sz = 0;
+    for(auto && book : bookList) {
+        sz += book.size();
+    }
+    return sz;
+}
+
 bool BookMng::isValid() const
 {
     return true;
@@ -253,6 +267,8 @@ bool BookMng::load(const Json::Value& obj)
         if (!book.isEmpty()) {
             bookList.push_back(book);
         }
+        
+        std::cout << "opening books loaded, total items: " << size() << std::endl;
         return true;
     }
     
@@ -265,7 +281,7 @@ Json::Value BookMng::saveToJson() const
     return obj;
 }
 
-bool BookMng::getRandomBook(std::string& fenString, std::vector<MoveCore>& moves) const
+bool BookMng::getRandomBook(std::string& fenString, std::vector<Move>& moves) const
 {
     return mode && !bookList.empty() && bookList.front().getRandomBook(fenString, moves);
 }

@@ -34,6 +34,11 @@ namespace banksia {
     
     class UciEngine : public Engine
     {
+    private:
+        enum class UciEngineCmd {
+            uciok, readyok, option, info, bestmove, theId, copyprotection, registration
+        };
+        
     public:
         UciEngine() : Engine() {}
         UciEngine(const Config& config) : Engine(config) {}
@@ -52,17 +57,17 @@ namespace banksia {
         virtual bool goPonder(const Move& pondermove) override;
         virtual bool go() override;
         
-        virtual void parseLine(const std::string&) override;
-        
         virtual bool stop() override;
-//        virtual void tickWork() override;
 
         virtual void prepareToDeattach() override;
-        virtual bool isSafeToDeattach() const override;
 
+        
     protected:
+        virtual const std::unordered_map<std::string, int>& getEngineCmdMap() const override;
+        virtual void parseLine(int, const std::string&, const std::string&) override;
+
         std::string getPositionString(const Move& ponderMove) const;
-        std::string getGoString(Move pondermove);
+        std::string getGoString(const Move& pondermove);
         
         virtual bool sendOptions();
         
@@ -72,6 +77,7 @@ namespace banksia {
         
         bool expectingBestmove = false;
         Move ponderingMove;
+        static const std::unordered_map<std::string, int> uciEngineCmd;
     };
     
 } // namespace banksia

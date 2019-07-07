@@ -45,8 +45,6 @@ namespace banksia {
         
         virtual void tickWork() override;
         
-        //    protected:
-        Player* createPlayer(const std::string& name);
         Engine* createEngine(const std::string& name);
         Engine* createEngine(const Config& config);
         

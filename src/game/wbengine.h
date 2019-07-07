@@ -34,6 +34,13 @@ namespace banksia {
     
     class WbEngine : public Engine
     {
+    private:
+        enum class WbEngineCmd {
+            feature, move, resign, offer,
+            illegal, error, ping, pong,
+            tellopponent, tellothers, tellall, telluser, tellusererror, tellicsnoalias,
+        };
+
     public:
         WbEngine() : Engine() {}
         WbEngine(const Config& config) : Engine(config) {}
@@ -54,18 +61,36 @@ namespace banksia {
         virtual bool goPonder(const Move& pondermove) override;
         virtual bool go() override;
         
-        virtual void parseLine(const std::string&) override;
-        
         virtual bool stop() override;
         virtual void tickWork() override;
         
+        virtual bool oppositeMadeMove(const Move& move, const std::string& sanMoveString) override;
+        
     protected:
         virtual bool sendOptions();
+        virtual const std::unordered_map<std::string, int>& getEngineCmdMap() const override;
+        virtual void parseLine(int, const std::string&, const std::string&) override;
+
+        virtual std::string parseFeatures(const std::string& line);
+        bool engineMove(const std::string& moveString, bool mustSend);
+        bool isFeatureOn(const std::string& featureName, bool defaultValue = false);
+        
+        virtual bool isIdleCrash() const override;
         
     private:
         std::string timeControlString() const;
         
+        std::map<std::string, std::string> featureMap;
+        
         int pingCnt = 0;
+        static const std::unordered_map<std::string, int> wbEngineCmd;
+        int tick_delay_2_ready = -1;
+        
+        bool feature_san = false, feature_usermove = false, feature_setboard = false;
+        
+        bool feature_done_finished = true;
+        
+        std::set<std::string> variantSet;
     };
     
 } // namespace banksia

@@ -33,13 +33,13 @@ using namespace banksia;
 
 Game::Game()
 {
-    state = GameState::begin;
+    state = GameState::none;
     players[0] = players[1] = nullptr;
 }
 
 Game::Game(Player* player0, Player* player1, const TimeController& timeController, bool ponderMode)
 {
-    state = GameState::begin;
+    state = GameState::none;
     players[0] = players[1] = nullptr;
     set(player0, player1, timeController, ponderMode);
 }
@@ -66,7 +66,7 @@ void Game::setState(GameState st)
     state = st;
 }
 
-void Game::setStartup(int _idx, const std::string& _startFen, const std::vector<MoveCore>& _startMoves)
+void Game::setStartup(int _idx, const std::string& _startFen, const std::vector<Move>& _startMoves)
 {
     idx = _idx;
     startFen = _startFen;
@@ -80,10 +80,11 @@ int Game::getIdx() const
 
 void Game::set(Player* player0, Player* player1, const TimeController& _timeController, bool _ponderMode)
 {
-    attachPlayer(player0, Side::white);
-    attachPlayer(player1, Side::black);
     timeController.cloneFrom(_timeController);
     ponderMode = _ponderMode;
+    
+    attachPlayer(player0, Side::white);
+    attachPlayer(player1, Side::black);
 }
 
 void Game::setMessageLogger(std::function<void(const std::string&, const std::string&, LogType)> logger)
@@ -91,7 +92,7 @@ void Game::setMessageLogger(std::function<void(const std::string&, const std::st
     messageLogger = logger;
     
     for(int sd = 0; sd < 2; sd++) {
-        if (players[sd] && !players[sd]->isHuman()) {
+        if (players[sd]) {
             ((Engine*)players[sd])->setMessageLogger(logger);
         }
     }
@@ -104,10 +105,15 @@ void Game::attachPlayer(Player* player, Side side)
     
     players[sd] = player;
     
+    player->setPonderMode(ponderMode);
     player->attach(&board, &timeController,
-                   [=](const std::string& moveString, const std::string& ponderMoveString, double timeConsumed, EngineComputingState state) {
-        moveFromPlayer(moveString, ponderMoveString, timeConsumed, side, state);
-    });
+                   [=](const Move& move, const std::string& moveString, const Move& ponderMove, double timeConsumed, EngineComputingState state) {
+                       moveFromPlayer(move, moveString, ponderMove, timeConsumed, side, state);
+                   },
+                   [=]() {
+                       gameOver(BoardCore::getXSide(board.side), ReasonType::resign);
+                   }
+                   );
 }
 
 Player* Game::deattachPlayer(Side side)
@@ -120,6 +126,24 @@ Player* Game::deattachPlayer(Side side)
     }
     
     return player;
+}
+
+void Game::kickStart()
+{
+    for(int sd = 0; sd < 2; sd++) {
+        players[sd]->kickStart();
+    }
+    setState(GameState::begin);
+}
+
+void Game::startPlaying()
+{
+    assert(state == GameState::ready);
+    
+    newGame();
+    setState(GameState::playing);
+    
+    startThinking();
 }
 
 void Game::newGame()
@@ -145,19 +169,6 @@ void Game::newGame()
             players[i]->newGame();
         }
     }
-    
-    setState(GameState::begin);
-}
-
-void Game::startPlaying()
-{
-    assert(state == GameState::ready);
-    
-    newGame();
-    
-    setState(GameState::playing);
-    
-    startThinking();
 }
 
 void Game::startThinking(Move pondermove)
@@ -172,13 +183,6 @@ void Game::startThinking(Move pondermove)
     players[sd]->go();
 }
 
-void Game::start()
-{
-    for(int sd = 0; sd < 2; sd++) {
-        players[sd]->kickStart();
-    }
-}
-
 void Game::pause()
 {
 }
@@ -187,28 +191,30 @@ void Game::stop()
 {
 }
 
-void Game::moveFromPlayer(const std::string& moveString, const std::string& ponderMoveString, double timeConsumed, Side side, EngineComputingState oldState)
+void Game::moveFromPlayer(const Move& move, const std::string& moveString, const Move& ponderMove, double timeConsumed, Side side, EngineComputingState oldState)
 {
+    if (state != GameState::playing || board.side != side) {
+        return;
+    }
+    
     // avoid conflicting between this function and one called by tickWork
     std::lock_guard<std::mutex> dolock(criticalMutex);
     
     if (state != GameState::playing || checkTimeOver() || board.side != side) {
+        (messageLogger)(getAppName(), "Game::moveFromPlayer, TimeOver for " + move.toString(), LogType::system);
         return;
     }
     
-    auto move = ChessBoard::moveFromCoordiateString(moveString);
-    Move pondermove = ponderMode ? ChessBoard::moveFromCoordiateString(ponderMoveString) : Move::illegalMove;
-    
     assert(board.side == side);
     if (oldState == EngineComputingState::thinking) {
-        if (make(move)) {
+        if (make(move, moveString)) {
             assert(board.side != side);
             
             auto lastHist = board.histList.back();
             lastHist.elapsed = timeConsumed;
             timeController.udateClockAfterMove(timeConsumed, lastHist.move.piece.side, int(board.histList.size()));
             
-            startThinking(pondermove);
+            startThinking(ponderMode ? ponderMove : Move::illegalMove);
         }
     } else if (oldState == EngineComputingState::pondering) { // missed ponderhit, stop called
         auto sd = static_cast<int>(board.side);
@@ -216,9 +222,10 @@ void Game::moveFromPlayer(const std::string& moveString, const std::string& pond
     }
 }
 
-bool Game::make(const Move& move)
+bool Game::make(const Move& move, const std::string& moveString)
 {
     if (board.checkMake(move.from, move.dest, move.promotion)) {
+        assert(ChessBoard::isValidPromotion(move.promotion));
         auto result = board.rule();
         if (result.result != ResultType::noresult) {
             gameOver(result);
@@ -226,13 +233,24 @@ bool Game::make(const Move& move)
         }
         
         assert(board.isValid());
+        
+        auto sanMoveString = board.histList.back().moveString;
+        players[static_cast<int>(board.side)]->oppositeMadeMove(move, sanMoveString);
         return true;
     } else {
-        Result result(board.side == Side::white ? ResultType::loss : ResultType::win, ReasonType::illegalmove);
-        gameOver(result);
+        auto playerName = players[static_cast<int>(board.side)]->getName();
+        std::string msg = "Illegal move " + moveString + " from " + playerName;
+        (messageLogger)(getAppName(), msg, LogType::system);
+        gameOver(BoardCore::getXSide(board.side), ReasonType::illegalmove);
         return false;
     }
     return false;
+}
+
+void Game::gameOver(Side winner, ReasonType reasonType)
+{
+    Result result(winner == Side::white ? ResultType::win : ResultType::loss, reasonType);
+    gameOver(result);
 }
 
 void Game::gameOver(const Result& result)
@@ -280,7 +298,7 @@ bool Game::checkTimeOver()
                     stringStream << ", ";
                 }
             }
-
+            
             auto str = stringStream.str();
             // printText("\t" + str);
             if (messageLogger) {
@@ -288,10 +306,7 @@ bool Game::checkTimeOver()
             }
         }
         
-        Result result;
-        result.result = board.side == Side::white ? ResultType::loss : ResultType::win;
-        result.reason = ReasonType::timeout;
-        gameOver(result);
+        gameOver(BoardCore::getXSide(board.side), ReasonType::timeout);
         return true;
     }
     return false;
@@ -330,7 +345,7 @@ void Game::tickWork()
                 if (stoppedCnt == 2) { // both crash
                     result.result = ResultType::draw;
                 } else {
-                    result.result =  players[W]->getState() == PlayerState::stopped ? ResultType::loss : ResultType::win;
+                    result.result = players[W]->getState() == PlayerState::stopped ? ResultType::loss : ResultType::win;
                 }
                 
                 gameOver(result);
@@ -346,16 +361,37 @@ void Game::tickWork()
         {
             // check time over
             auto sd = static_cast<int>(board.side);
-            if (!players[sd] || players[sd]->isHuman()) {
+            if (!players[sd]) {
                 break;
             }
-
-            std::lock_guard<std::mutex> dolock(criticalMutex); // avoid conflicting with moveFromPlayer
-            if (state == GameState::playing) {
-                checkTimeOver();
+            
+            // std::lock_guard<std::mutex> dolock(criticalMutex); // avoid conflicting with moveFromPlayer
+            if (criticalMutex.try_lock()) {
+                if (state == GameState::playing) {
+                    checkTimeOver();
+                }
+                criticalMutex.unlock();
             }
             break;
         }
+            
+        case GameState::ending: // state set by TourMng AFTER getting stats
+        {
+            auto cnt = 0;
+            for(int sd = 0; sd < 2; sd++) {
+                if (players[sd] && !players[sd]->isSafeToDeattach()) {
+                    cnt++;
+                    players[sd]->prepareToDeattach();
+                }
+            }
+            
+            if (!cnt) {
+                setState(GameState::ended); // ok for deleting
+            }
+            
+            break;
+        }
+            
         default:
             break;
     }
@@ -412,5 +448,7 @@ std::string Game::toPgn(std::string event, std::string site, int round) const
     
     return stringStream.str();
 }
+
+
 
 

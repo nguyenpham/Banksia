@@ -33,7 +33,6 @@ using namespace banksia;
 
 TourMng* TourMng::instance = nullptr;
 
-
 bool MatchRecord::isValid() const
 {
     return !playernames[0].empty() && !playernames[1].empty() && gameCount >= 0;
@@ -106,33 +105,14 @@ bool TourMng::parseJsonAfterLoading(Json::Value& d)
         }
     }
     
-    if (type == TourType::none) {
-        std::cerr << "Error: missing parametter \"type\" or it is incorrect (should be \"roundrobin\", \"knockout\")!" << std::endl;
-        return false;
-    }
-    
-    std::vector<std::string> nameList;
-    if (d.isMember("players")) {
-        const Json::Value& array = d["players"];
-        for (int i = 0; i < int(array.size()); i++){
-            auto str = array[i].asString();
-            if (!str.empty()) {
-                nameList.push_back(str);
-            }
-        }
-    }
-    if (nameList.size() < 2) {
-        std::cerr << "Error: missing parametter \"players\" or number < 2 (that is an array of player's names)" << std::endl;
-        return false;
-    }
-    
-    participantList = nameList;
-    
-    
+    // Engine configurations
     std::string enginConfigJsonPath = "./engines.json";
-    auto s = "engine config path";
+    bool enginConfigUpdate = false;
+    auto s = "engine configurations";
     if (d.isMember(s)) {
-        enginConfigJsonPath = d[s].asString();
+        auto v = d[s];
+        enginConfigUpdate = v["update"].isBool() && v["update"].asBool();
+        enginConfigJsonPath = v["path"].asString();
     }
     
     if (enginConfigJsonPath.empty() || !ConfigMng::instance->loadFromJsonFile(enginConfigJsonPath) || ConfigMng::instance->empty()) {
@@ -140,6 +120,34 @@ bool TourMng::parseJsonAfterLoading(Json::Value& d)
         return false;
     }
     
+    // Participants
+    participantList.clear();
+    if (d.isMember("players")) {
+        const Json::Value& array = d["players"];
+        for (int i = 0; i < int(array.size()); i++) {
+            auto str = array[i].isString() ? array[i].asString() : "";
+            if (!str.empty()) {
+                if (ConfigMng::instance->isNameExistent(str)) {
+                    participantList.push_back(str);
+                } else {
+                    std::cerr << "Error: player " << str << " (in \"players\") is not existent in engine configure file." << std::endl;
+                }
+            }
+        }
+    }
+    
+    if (participantList.empty()) {
+        std::cerr << "Warning: missing parametter \"players\". Will use all players in configure instead." << std::endl;
+        participantList = ConfigMng::instance->nameList();
+    }
+
+    if (participantList.size() < 2) {
+        std::cerr << "Error: number of players in parametter \"players\" is not enough for a tournament!" << std::endl;
+        return false;
+    }
+    
+
+    // time control
     auto ok = false;
     s = "time control";
     if (d.isMember(s)) {
@@ -150,6 +158,12 @@ bool TourMng::parseJsonAfterLoading(Json::Value& d)
         std::cerr << "Error: missing parametter \"" << s << "\" or corrupted data" << std::endl;
         return false;
     }
+
+    if (type == TourType::none) {
+        std::cerr << "Error: missing parametter \"type\" or it is incorrect (should be \"roundrobin\", \"knockout\")!" << std::endl;
+        return false;
+    }
+    
     
     //
     // Less inportance
@@ -158,7 +172,7 @@ bool TourMng::parseJsonAfterLoading(Json::Value& d)
     if (d.isMember(s)) {
         gameperpair = std::max(1, d[s].asInt());
     }
-    
+
     if (d.isMember("ponder")) {
         ponderMode = d["ponder"].asBool();
     }
@@ -218,39 +232,32 @@ void TourMng::tickWork()
     std::vector<Game*> stoppedGameList;
     
     for(auto && game : gameList) {
-        if (game->getState() >= GameState::stopped) {
-            
-            if (game->getStateTick() > 10 && game->getStateTick() < 15) {
-                std::cout << "Trouble: game stucked in stopped state " << game->getStateTick() << std::endl;
-            }
-            if (game->getState() == GameState::stopped) {
-                game->setState(GameState::destroyed);
+        game->tick();
+        auto st = game->getState();
+        switch (st) {
+            case GameState::stopped:
+                game->setState(GameState::ending);
                 matchCompleted(game);
-            }
-            
-            auto undeattachCnt = 0;
-            for(int sd = 0; sd < 2; sd++) {
-                auto side = static_cast<Side>(sd);
-                auto player = game->getPlayer(side);
-                if (player) {
-                    if (player->isSafeToDeattach()) {
-                        auto player2 = game->deattachPlayer(side); assert(player == player2);
-                        playerMng.returnPlayer(player2);
-                    } else {
-                        undeattachCnt++;
-                        player->prepareToDeattach();
-                    }
-                }
-            }
-            
-            if (!undeattachCnt)
+                break;
+                
+            case GameState::ended:
                 stoppedGameList.push_back(game);
-        } else {
-            game->tick();
+                break;
+            default:
+                break;
         }
     }
     
     for(auto && game : stoppedGameList) {
+        for(int sd = 0; sd < 2; sd++) {
+            auto side = static_cast<Side>(sd);
+            auto player = game->getPlayer(side);
+            if (player) {
+                auto player2 = game->deattachPlayer(side); assert(player == player2);
+                playerMng.returnPlayer(player2);
+            }
+        }
+
         auto it = std::find(gameList.begin(), gameList.end(), game);
         if (it != gameList.end()) {
             gameList.erase(it);
@@ -303,7 +310,8 @@ void TourMng::finishTournament()
         return;
     }
     
-    static const char* separateLine = "----------------------------------";
+    static const char* separateLine = "-------------------------------------";
+    matchLog("\n");
     matchLog(separateLine);
     
     auto str = createTournamentStats();
@@ -369,20 +377,21 @@ std::string TourMng::createTournamentStats()
     
     std::stringstream stringStream;
     
-    stringStream << "rank name games wins draws" << std::endl;
+    stringStream << "rank name games wins draws losses" << std::endl;
     
     for(int i = 0; i < resultList.size(); i++) {
         auto r = resultList.at(i);
         
         auto d = double(std::max(1, r.gameCnt));
-        double win = double(r.winCnt * 100) / d, draw = double(r.drawCnt * 100) / d;
+        double win = double(r.winCnt * 100) / d, draw = double(r.drawCnt * 100) / d, loss = double(r.lossCnt * 100) / d;
+        
         //        auto errorMagins = calcErrorMargins(r.winCnt, r.drawCnt, r.lossCnt);
         stringStream
         << (i + 1) << ". "
         << r.name << " \t" << r.gameCnt << " \t"
         // << (errorMagins > 0 ? "+" : "") << errorMagins << " "
         << std::fixed << std::setprecision(1)
-        << win << "% \t" << draw << "%"
+        << win << "% \t" << draw << "% \t" << loss << "%"
         << std::endl;
     }
     
@@ -516,7 +525,7 @@ bool TourMng::createMatchList(const std::vector<std::string>& nameList, TourType
                 for(int j = i + 1; j < nameList.size(); j++) {
                     auto name1 = nameList.at(j);
                     if (!ConfigMng::instance->isNameExistent(name1)) {
-                        err = true; missingName = name0;
+                        err = true; missingName = name1;
                         break;
                     }
                     
@@ -562,7 +571,7 @@ void TourMng::createMatch(MatchRecord& record)
 }
 
 bool TourMng::createMatch(int gameIdx, const std::string& whiteName, const std::string& blackName,
-                          const std::string& startFen, const std::vector<MoveCore>& startMoves)
+                          const std::string& startFen, const std::vector<Move>& startMoves)
 {
     Engine* engines[2];
     engines[W] = playerMng.createEngine(whiteName);
@@ -576,12 +585,12 @@ bool TourMng::createMatch(int gameIdx, const std::string& whiteName, const std::
             game->setMessageLogger([=](const std::string& name, const std::string& line, LogType logType) {
                 engineLog(name, line, logType);
             });
-            game->start();
+            game->kickStart();
             
             std::string infoString = std::to_string(gameIdx + 1) + ". " + game->getGameTitleString();
             
             printText(infoString);
-            engineLog(getAppName(), infoString, LogType::system);
+            engineLog(getAppName(), "\n" + infoString + "\n", LogType::system);
             
             return true;
         }

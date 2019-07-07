@@ -36,21 +36,24 @@
 #include "configmng.h"
 
 namespace banksia {
-    const int tick_ping = 60; // 30s
-    
     enum class LogType {
         toEngine, fromEngine, system
     };
     
     class Engine : public Player
     {
+    protected:
+        const int tick_period_ping = 30; // 20s
+        const int tick_period_deattach = 6; // 3s
+        const int tick_period_idle_dead = 60; // 30s
+
     public:
         Engine() : Player("", PlayerType::engine) {}
         Engine(const Config& config) : Player(config.name, PlayerType::engine), config(config) {}
         
         virtual const char* className() const override { return "Engine"; }
         
-        bool isReady() const;
+        bool isWritable() const;
         
         virtual void tickWork() override;
         
@@ -64,16 +67,15 @@ namespace banksia {
         virtual bool quit() override;
         virtual bool kill() override;
 
-        virtual bool isHuman() const override {
-            return false;
-        }
-        
     public:
+        virtual void attach(ChessBoard*, const GameTimeController*, std::function<void(const Move&, const std::string&, const Move&, double, EngineComputingState)>, std::function<void()>) override;
+
         virtual bool isSafeToDeattach() const override;
 
-    public:
-        virtual void parseLine(const std::string&) = 0;
-        
+    protected:
+        virtual void parseLine(const std::string&);
+        virtual void parseLine(int, const std::string&, const std::string&) {}
+
     protected:
         virtual void log(const std::string& line, LogType engineLog) const;
         
@@ -83,27 +85,33 @@ namespace banksia {
         
         virtual void resetPing();
         virtual void resetIdle();
-        
+        virtual void engineSentCorrectCmds();
+
         virtual bool sendPing() = 0;
         
         void read_stdout(const char *bytes, size_t n);
         void read_stderr(const char *bytes, size_t n);
         
-
-    protected:
-        bool write(const std::string&);
+        bool isExited() const;
+        
+        virtual bool isIdleCrash() const;
+        
+        virtual const std::unordered_map<std::string, int>& getEngineCmdMap() const = 0;
         
     public:
         EngineComputingState computingState = EngineComputingState::idle;
         Config config;
         
+    protected:
+        bool write(const std::string&);
+        int tick_deattach = -1;
+        int tick_ping, tick_idle, tick_stopping = 0;
+        std::function<void(const std::string&, const std::string&, LogType)> messageLogger = nullptr;
+
     private:
         const int process_buffer_size = 16 * 1024;
         std::string lastIncompletedStdout;
         TinyProcessLib::Process* process = nullptr;
-        std::function<void(const std::string&, const std::string&, LogType)> messageLogger = nullptr;
-        
-        int tick_for_ping, tick_idle = 0, tick_stopping = 0;
     };
     
     

@@ -35,13 +35,9 @@ namespace banksia {
     
     class ChessBoard : public BoardCore {
         
-//#define CASTLERIGHT_LONG        (1<<0)
-//#define CASTLERIGHT_SHORT       (1<<1)
-//#define CASTLERIGHT_MASK        (CASTLERIGHT_LONG|CASTLERIGHT_SHORT)
-
-        const int CASTLERIGHT_LONG =        (1<<0);
+        const int CASTLERIGHT_LONG  = (1<<0);
         const int CASTLERIGHT_SHORT = (1<<1);
-        const int CASTLERIGHT_MASK = (CASTLERIGHT_LONG|CASTLERIGHT_SHORT);
+        const int CASTLERIGHT_MASK  = (CASTLERIGHT_LONG|CASTLERIGHT_SHORT);
 
     protected:
         int enpassant;
@@ -74,10 +70,10 @@ namespace banksia {
         virtual bool beAttacked(int pos, Side attackerSide) const;
         void genLegal(MoveList& moves, Side side, int from, int dest, PieceType promotion);
         
-        virtual void make(const Move& move, Hist& hist);
+        virtual void make(const MoveFull& move, Hist& hist);
         virtual void takeBack(const Hist& hist);
         
-        virtual void make(const Move& move);
+        virtual void make(const MoveFull& move);
         virtual void takeBack();
         
         virtual Result rule() override;
@@ -85,9 +81,17 @@ namespace banksia {
         bool checkMake(int from, int dest, PieceType promotion);
         
         std::string toMoveListString(MoveNotation notation, int itemPerLine, bool moveCounter) const;
+        
+        Move fromSanString(const std::string&);
         bool fromSanMoveList(const std::string&);
 
         PieceType charToPieceType(char ch) const;
+        
+        u64 perft(int depth);
+        
+        virtual u64 initHashKey() const override;
+        virtual u64 xorHashKey(int pos) const override;
+        u64 hashKeyEnpassant(int enpassant) const;
         
     private:
         bool createStringForLastMove(const MoveList& moveList);

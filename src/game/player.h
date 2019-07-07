@@ -58,10 +58,9 @@ namespace banksia {
         std::string getName() const;
         PlayerState getState() const { return state; }
         void setState(PlayerState st) { state = st; }
+        void setPonderMode(bool mode) { ponderMode = mode; }
 
     public:
-        virtual bool isHuman() const = 0;
-        
         virtual bool kickStart() = 0;
         virtual bool stopThinking() = 0;
         virtual bool quit() = 0;
@@ -69,58 +68,32 @@ namespace banksia {
         
         virtual void newGame() {}
 
-        void attach(const ChessBoard*, const GameTimeController*, std::function<void(const std::string&, const std::string&, double, EngineComputingState)>);
-        void deattach();
-        bool isAttached() const;
+        virtual void attach(ChessBoard*, const GameTimeController*, std::function<void(const Move&, const std::string&, const Move&, double, EngineComputingState)>, std::function<void()>);
+        virtual void deattach();
+        virtual bool isAttached() const;
         virtual bool isSafeToDeattach() const = 0;
         virtual void prepareToDeattach() = 0;
 
         virtual bool goPonder(const Move& pondermove);
         virtual bool go();
-        
+        virtual bool oppositeMadeMove(const Move& move, const std::string& sanMoveString);
+
     protected:
         int idNumber; // a random number, main purpose for debugging
         std::string name;
         
-        int deattachTimeout = -1;
-
         PlayerType type;
         PlayerState state;
         
-        std::function<void(const std::string& moveString, const std::string& ponderMoveString, double, EngineComputingState)> moveReceiver = nullptr;
+        bool ponderMode = false;
         
-        const ChessBoard* board = nullptr;
+        std::function<void(const Move&, const std::string&, const Move&, double, EngineComputingState)> moveReceiver = nullptr;
+        std::function<void()> resignFunc = nullptr;
+        
+        ChessBoard* board = nullptr;
         const GameTimeController* timeController = nullptr;
     };
-    
-    /////////////////////////////////////
-    class Human : public Player
-    {
-    public:
-        Human() : Player("", PlayerType::human) {}
-        Human(const std::string& name) : Player(name, PlayerType::human) {}
-        
-        virtual const char* className() const override { return "Human"; }
-        
-        virtual void tick() override {}
-        
-        virtual bool isHuman() const override {
-            return true;
-        }
-        
-        virtual void tickWork() override {}
 
-        virtual bool isSafeToDeattach() const override { return true; }
-        virtual void prepareToDeattach() override { }
-
-    public:
-        virtual bool kickStart() override;
-        virtual bool stopThinking() override;
-        
-        virtual bool quit() override;
-        virtual bool kill() override;
-    };
-    
 } // namespace banksia
 
 

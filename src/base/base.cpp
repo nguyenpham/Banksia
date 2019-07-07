@@ -27,6 +27,7 @@
 using namespace banksia;
 
 Move Move::illegalMove(-1, -1);
+MoveFull MoveFull::illegalMove(-1, -1);
 
 u64 BoardCore::hashForSide;
 std::vector<u64> BoardCore::hashTable;
@@ -44,9 +45,9 @@ std::string BoardCore::getStartingFen() const
     return startFen;
 }
 
-Move BoardCore::createMove(int from, int dest, PieceType promote) const
+MoveFull BoardCore::createMove(int from, int dest, PieceType promote) const
 {
-    Move move(from, dest, promote);
+    MoveFull move(from, dest, promote);
     if (isPositionValid(from)) {
         move.piece = getPiece(from);
     }
@@ -74,16 +75,18 @@ Move BoardCore::moveFromCoordiateString(const std::string& moveString)
     auto promotion = PieceType::empty;
     if (moveString.length() > 4) {
         char ch = moveString.at(4);
+        if (ch == '=' && moveString.length() > 5) ch = moveString.at(5);
         if (ch>='A' && ch <='Z') {
             ch += 'a' - 'A';
         }
-        promotion = charactorToPieceType(ch);
+        auto t = charactorToPieceType(ch);
+        if (isValidPromotion(t)) promotion = t;
     }
     
     return Move(from, dest, promotion);
 }
 
-bool BoardCore::isValidPromotion(PieceType promotion, Side side) const
+bool BoardCore::isValidPromotion(PieceType promotion)
 {
     return promotion == PieceType::empty || (promotion > PieceType::king && promotion < PieceType::pawn);
 }
@@ -102,9 +105,9 @@ u64 BoardCore::initHashKey() const
         }
     }
     
-    //    if (side == Side::black) {
-    //        key ^= hashForSide;
-    //    }
+    if (side == Side::black) {
+        key ^= hashForSide;
+    }
     return key;
 }
 
@@ -125,4 +128,5 @@ bool BoardCore::istHashKeyValid() const
 {
     return hashKey == initHashKey();
 }
+
 

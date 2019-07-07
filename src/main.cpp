@@ -42,9 +42,9 @@ int main(int argc, const char * argv[])
     // SIGPIPE 13      write on a pipe with no one to read it
 #define SIGPIPE     13
     signal(SIGPIPE, SIG_IGN);
-
+    
     std::cout << "Banksia, Chess Tournament Manager, by Nguyen Pham - version " << banksia::getVersion() << std::endl;
-
+    
     if (argc < 2) {
         show_usage(banksia::getAppName());
         return 1;
@@ -76,12 +76,12 @@ int main(int argc, const char * argv[])
         }
         argmap[arg] = str;
     }
-
+    
     std::string mainJsonPath;
     if (argmap.find("-jsonpath") != argmap.end()) {
         mainJsonPath = argmap["-jsonpath"];
     }
-
+    
     banksia::TourMng tourMng;
     if (!tourMng.loadFromJsonFile(mainJsonPath)) {
         return -1;
@@ -124,7 +124,7 @@ int main(int argc, const char * argv[])
             tourMng.showEgineInOutToScreen(str == "on");
             continue;
         }
-
+        
         if (cmd == "quit") {
             break;
         }
@@ -159,3 +159,4 @@ void show_help()
     << "  quit                    quit\n"
     << std::endl;
 }
+

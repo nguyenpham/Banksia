@@ -24,11 +24,27 @@
 
 
 #include <regex>
+#include <map>
 
 #include "uciengine.h"
 
 using namespace banksia;
 
+const std::unordered_map<std::string, int> UciEngine::uciEngineCmd {
+    { "uciok",          static_cast<int>(UciEngine::UciEngineCmd::uciok) },
+    { "readyok",          static_cast<int>(UciEngine::UciEngineCmd::readyok) },
+    { "option",         static_cast<int>(UciEngine::UciEngineCmd::option) },
+    { "info",           static_cast<int>(UciEngine::UciEngineCmd::info) },
+    { "bestmove",       static_cast<int>(UciEngine::UciEngineCmd::bestmove) },
+    { "id",             static_cast<int>(UciEngine::UciEngineCmd::theId) },
+    { "copyprotection", static_cast<int>(UciEngine::UciEngineCmd::copyprotection) },
+    { "registration",   static_cast<int>(UciEngine::UciEngineCmd::registration) }
+};
+
+const std::unordered_map<std::string, int>& UciEngine::getEngineCmdMap() const
+{
+    return uciEngineCmd;
+}
 
 std::string UciEngine::protocolString() const
 {
@@ -37,11 +53,11 @@ std::string UciEngine::protocolString() const
 
 bool UciEngine::sendOptions()
 {
-    if (!isReady()) {
-        return false;
-    }
-    
     for(auto && o : config.optionList) {
+        if (!isWritable()) {
+            return false;
+        }
+        
         if (o.isDefaultValue()) {
             continue;
         }
@@ -65,7 +81,7 @@ bool UciEngine::sendOptions()
 
 void UciEngine::newGame()
 {
-    ponderingMove = Move::illegalMove;
+    ponderingMove = MoveFull::illegalMove;
     expectingBestmove = false;
     computingState = EngineComputingState::idle;
     write("ucinewgame");
@@ -73,17 +89,10 @@ void UciEngine::newGame()
 
 void UciEngine::prepareToDeattach()
 {
-    if (deattachTimeout >= 0) return;
-    
+    if (tick_deattach >= 0) return;
     stop();
-    deattachTimeout = 6; // 3s
+    tick_deattach = tick_period_deattach;
 }
-
-bool UciEngine::isSafeToDeattach() const
-{
-    return Engine::isSafeToDeattach() || deattachTimeout == 0;
-}
-
 
 bool UciEngine::sendQuit()
 {
@@ -105,7 +114,7 @@ bool UciEngine::goPonder(const Move& pondermove)
     assert(!expectingBestmove && computingState == EngineComputingState::idle);
     
     Engine::go(); // just for setting flags
-    ponderingMove = Move::illegalMove;
+    ponderingMove = MoveFull::illegalMove;
     
     if (config.ponderable && pondermove.isValid()) {
         ponderingMove = pondermove;
@@ -122,7 +131,7 @@ bool UciEngine::goPonder(const Move& pondermove)
 bool UciEngine::go()
 {
     Engine::go();
-    ponderingMove = Move::illegalMove;
+    ponderingMove = MoveFull::illegalMove;
     
     // Check for ponderhit
     if (computingState == EngineComputingState::pondering) {
@@ -136,7 +145,7 @@ bool UciEngine::go()
     }
 
     assert(!expectingBestmove && computingState == EngineComputingState::idle);
-    auto goString = getGoString(Move::illegalMove);
+    auto goString = getGoString(MoveFull::illegalMove);
     expectingBestmove = true;
     computingState = EngineComputingState::thinking;
     return write(goString);
@@ -164,7 +173,7 @@ std::string UciEngine::getPositionString(const Move& pondermove) const
     return str;
 }
 
-std::string UciEngine::getGoString(Move pondermove)
+std::string UciEngine::getGoString(const Move& pondermove)
 {
     std::string str = getPositionString(pondermove) + "\ngo ";
     if (pondermove.isValid()) {
@@ -225,74 +234,67 @@ bool UciEngine::sendPong()
     return write("readyok");
 }
 
-//void UciEngine::tickWork()
-//{
-//    Engine::tickWork();
-//}
-
-void UciEngine::parseLine(const std::string& str)
+void UciEngine::parseLine(int cmdInt, const std::string& cmdString, const std::string& line)
 {
-    log(str, LogType::fromEngine);
+    if (cmdInt < 0) return;
     
-    auto p = str.find(' ');
-    auto cmd = p == std::string::npos ? str : str.substr(0, p);
-    
-    if (cmd == "option") {
-        if (!parseOption(str)) {
-            write("Unknown " + str);
+    auto cmd = static_cast<UciEngineCmd>(cmdInt);
+    switch (cmd) {
+        case UciEngineCmd::option:
+            if (!parseOption(line)) {
+                write("Unknown option " + line);
+            }
+            break;
+            
+        case UciEngineCmd::bestmove:
+        {
+            auto timeCtrl = timeController;
+            auto moveRecv = moveReceiver;
+            if (timeCtrl == nullptr || moveRecv == nullptr) {
+                return;
+            }
+            
+            assert(expectingBestmove);
+            assert(computingState != EngineComputingState::idle);
+            
+            expectingBestmove = false;
+            auto oldComputingState = computingState;
+            computingState = EngineComputingState::idle;
+            
+            auto period = timeCtrl->moveTimeConsumed(); // moveTimeConsumed();
+            
+            auto vec = splitString(line, ' ');
+            if (vec.size() < 2) {
+                return;
+            }
+            auto moveString = vec.at(1);
+            
+            std::string ponderMoveString = "";
+            if (vec.size() >= 4 && vec.at(2) == "ponder") {
+                ponderMoveString = vec.at(3);
+            }
+            
+            if (!moveString.empty() && moveReceiver != nullptr) {
+                auto move = board->moveFromCoordiateString(moveString);
+                auto ponderMove = board->moveFromCoordiateString(ponderMoveString);
+
+                (moveRecv)(move, moveString, ponderMove, period, oldComputingState);
+            }
+
+            break;
         }
-        return;
-    }
-    
-    if (str == "info") {
-        // info is useless at the moment - completely ignore
-        return;
-    }
-    
-    auto timeCtrl = timeController;
-    auto moveRecv = moveReceiver;
-    if (timeCtrl == nullptr || moveRecv == nullptr) {
-        return;
-    }
-    
-    if (cmd == "bestmove") {
-        assert(expectingBestmove);
-        assert(computingState != EngineComputingState::idle);
-        
-        expectingBestmove = false;
-        auto oldComputingState = computingState;
-        computingState = EngineComputingState::idle;
-        
-        auto period = timeCtrl->moveTimeConsumed(); // moveTimeConsumed();
-        
-        auto vec = splitString(str, ' ');
-        if (vec.size() < 2) {
-            return;
+
+        case UciEngineCmd::uciok:
+        {
+            setState(PlayerState::ready);
+            expectingBestmove = false;
+            sendOptions();
+            sendPing();
+            break;
         }
-        auto moveString = vec.at(1);
-        
-        std::string ponderMoveString = "";
-        if (vec.size() >= 4 && vec.at(2) == "ponder") {
-            ponderMoveString = vec.at(3);
-        }
-        
-        if (!moveString.empty() && moveReceiver != nullptr) {
-            (moveRecv)(moveString, ponderMoveString, period, oldComputingState);
-        }
-        return;
-    }
-    
-    if (cmd == "uciok") {
-        setState(PlayerState::ready);
-        expectingBestmove = false;
-        sendOptions();
-        sendPing();
-        return;
-    }
-    
-    if (cmd == "isready") {
-        sendPong();
-        return;
+            
+        default:
+            break;
     }
 }
 
@@ -348,7 +350,7 @@ bool UciEngine::parseOption(const std::string& s)
             }
             
             if (type == "spin") {
-                std::regex re("(.*)default (.+) min (.+) max (.+)");
+                static const std::regex re("(.*)default (.+) min (.+) max (.+)");
                 if (std::regex_search(rest, match, re) && match.size() > 4) {
                     auto dString = match.str(2);
                     auto minString = match.str(3);
@@ -366,7 +368,7 @@ bool UciEngine::parseOption(const std::string& s)
             }
             
             if (type == "combo") {
-                std::regex re("(.*)default (.+) (var (.+))+");
+                static const std::regex re("(.*)default (.+) (var (.+))+");
                 if (std::regex_search(rest, match, re) && match.size() > 3) {
                     auto dString = match.str(2);
                     std::vector<std::string> list;
