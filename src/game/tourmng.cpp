@@ -194,7 +194,7 @@ bool TourMng::parseJsonAfterLoading(Json::Value& d)
         gameConcurrency = std::max(1, d["concurrency"].asInt());
     }
     
-    s = "pgn path";
+    s = "pgn";
     if (d.isMember(s)) {
         if (d[s].isString()) {
             pgnPath = d[s].asString();

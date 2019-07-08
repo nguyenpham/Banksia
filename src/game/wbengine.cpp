@@ -71,6 +71,9 @@ void WbEngine::newGame()
     computingState = EngineComputingState::idle;
     
     write("force"); // we don't want engine start calculating right now
+    
+    sendMemoryAndScoreOptions();
+    
     write(ponderMode ? "hard" : "easy");
     write("post"); // write("nopost");
     write("new");
@@ -87,7 +90,7 @@ void WbEngine::newGame()
     if (!board->fromOriginPosition()) {
         write("setboard " + board->getStartingFen());
     }
-    
+
     if (!board->histList.empty()) {
         write("force"); // we don't want engine start calculating right now
         for (auto && hist : board->histList) {
@@ -203,57 +206,119 @@ bool WbEngine::isFeatureOn(const std::string& featureName, bool defaultValue)
     return p == featureMap.end() ? defaultValue : p->second == "1";
 }
 
-std::string WbEngine::parseFeatures(const std::string& line)
+bool WbEngine::sendMemoryAndScoreOptions()
 {
+    // cores N, memory N
     std::string str;
-    auto vec = splitString(line, ' ');
-    
-    for(int i = 1; i < vec.size(); i++) {
-        auto s = vec.at(i);
-        auto p = s.find('=');
-        if (p == std::string::npos) {
-            continue;
-        }
-        auto s0 = s.substr(0, p), s1 = s.substr(p + 1);
-        if (!s0.empty() && !s1.empty()) {
-            if (s0 == "san") {
-                feature_san = s1 == "1";
-            } else if (s0 == "usermove") {
-                feature_usermove = s1 == "1";
-            } else if (s0 == "setboard") {
-                feature_setboard = s1 == "1";
-            } else if (s0 == "variants") {
-                size_t pos;
-                // Search for the substring in string in a loop untill nothing is found
-                while ((pos  = s1.find("\"") )!= std::string::npos) {
-                    s1.erase(pos, 1);
-                }
-
-                auto varList = splitString(s1, ',');
-                for(auto && s : varList) {
-                    trim(s);
-                    if (!s.empty()) {
-                        variantSet.insert(s);
-                    }
-                }
-            } else if (s0 == "done") {
-                if (s1 == "0") {
-                    tick_delay_2_ready = 60 * 60 * 2; // 1h
-                    feature_done_finished = false;
-                } else {
-                    setState(PlayerState::ready);
-                    feature_done_finished = true;
-                }
-                continue;
-            }
+    for(auto && o : config.optionList) {
+        if (o.name == "memory" || o.name == "cores") {
             if (!str.empty()) str += "\n";
-            str += "accepted " + s0;
-
-            featureMap[s0] = s1;
+            str += o.name + " " + o.getValueAsString();
         }
     }
 
-    return str;
+    return !str.empty() && write(str);
+}
+
+bool WbEngine::parseFeature(const std::string& name, const std::string& content, bool quote)
+{
+    if (name.empty() || content.empty()) {
+        return false;
+    }
+    
+    if (name == "option") {
+        auto vec = splitString(content, ' ');
+        if (vec.size() < 2) return true;
+        auto optionName = vec.front();
+
+        for(auto && o : config.optionList) {
+            if (o.name != optionName) {
+                continue;
+            }
+            
+            if (!isWritable() || o.isDefaultValue() || o.name == "memory" || o.name == "cores") {
+                break;
+            }
+            
+            std::string str = "option " + o.name + "=" + o.getValueAsString();
+            write(str);
+            break;
+        }
+        
+        return true;
+    }
+    
+    if (name == "san") {
+        feature_san = content == "1";
+    } else if (name == "usermove") {
+        feature_usermove = content == "1";
+    } else if (name == "setboard") {
+        feature_setboard = content == "1";
+    } else if (name == "variants") {
+        auto varList = splitString(content, ',');
+        for(auto && s : varList) {
+            trim(s);
+            if (!s.empty()) {
+                variantSet.insert(s);
+            }
+        }
+    } else if (name == "done") {
+        if (content == "0") {
+            tick_delay_2_ready = 60 * 60 * 2; // 1h
+            feature_done_finished = false;
+        } else {
+            setState(PlayerState::ready);
+            feature_done_finished = true;
+        }
+        return true;
+    }
+    
+    write("accepted " + name);
+
+    featureMap[name] = content;
+
+    return true;
+}
+
+void WbEngine::parseFeatures(const std::string& line)
+{
+    // "feature " length = 8
+    std::string featureName;
+    for(int i = 8, k = -1, quote = 0; i < line.size(); i++) {
+        auto ch = line[i];
+        if (ch == '=') {
+            if (k < 0 || i <= k) break; // somethings wrong
+            featureName = line.substr(k, i - k);
+            k = i + 1;
+            continue;
+        }
+        if (ch == '"') {
+            if (quote == 0) {
+                quote++;
+                k = i + 1;
+            } else {
+                if (!featureName.empty() && k > 0 && i > k + 1) {
+                    auto content = line.substr(k, i - 1 - k);
+                    parseFeature(featureName, content, true);
+                }
+                featureName = "";
+                quote = 0;
+                k = -1;
+                continue;
+            }
+        }
+        if ((ch == ' ' || i + 1 == line.size()) && quote == 0) {
+            if (!featureName.empty() && k > 0) {
+                auto content = line.substr(k, i - k);
+                parseFeature(featureName, content, false);
+            }
+            featureName = "";
+            quote = 0;
+            k = -1;
+            continue;
+        }
+        if (k < 0) k = i;
+    }
 }
 
 bool WbEngine::oppositeMadeMove(const Move& move, const std::string& sanMoveString)
@@ -336,11 +401,8 @@ void WbEngine::parseLine(int cmdInt, const std::string& cmdString, const std::st
             
         case WbEngineCmd::feature:
         {
-            tick_delay_2_ready = std::max(3, tick_delay_2_ready);
-            auto str = parseFeatures(line);
-            if (!str.empty()) {
-                write(str);
-            }
+            tick_delay_2_ready = std::max(3, tick_delay_2_ready); // extent init time a bit
+            parseFeatures(line);
             break;
         }
             

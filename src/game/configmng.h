@@ -38,8 +38,9 @@ namespace banksia {
         uci = 0, wb, none
     };
     
+    // reset, save, file, path: for Winboard protocol
     enum class OptionType {
-        check, spin, combo, button, string, none
+        check, spin, combo, button, reset, save, string, file, path, none
     };
     
     class Option : public Jsonable {
@@ -79,6 +80,7 @@ namespace banksia {
         virtual Json::Value saveToJson() const override;
         
         bool isDefaultValue() const;
+        std::string getValueAsString() const;
         
     public:
         OptionType type;

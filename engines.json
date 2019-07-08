@@ -129,6 +129,30 @@
     "ponderable": true
   },
   {
+      "name" : "crafty",
+      "protocol" : "wb",
+      "command" : "c:\\match\\crafty",
+      "ponderable" : true,
+      "options" : [
+          {
+              "name" : "cores",
+              "type" : "spin",
+              "value" : 1,
+              "default" : 1,
+              "min" : 1,
+              "max" : 1000
+          },
+          {
+              "name" : "memory",
+              "type" : "spin",
+              "value" : 1,
+              "default" : 1,
+              "min" : 1,
+              "max" : 512
+          }
+      ]
+  },
+  {
     "name": "gaviota-1.0",
     "protocol": "uci",
     "command": "C:\\match\\gaviota-1.0\\gaviota-1.0-win32",

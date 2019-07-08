@@ -62,18 +62,7 @@ bool UciEngine::sendOptions()
             continue;
         }
         
-        std::string str = "setoption name " + o.name + " value ";
-        switch (o.type) {
-            case OptionType::spin:
-                str += std::to_string(o.value);
-                break;
-            case OptionType::check:
-                str += o.checked ? "true" : "false";
-                break;
-            default: // combo, string
-                str += o.string;
-                break;
-        }
+        std::string str = "setoption name " + o.name + " value " + o.getValueAsString();
         write(str);
     }
     return true;

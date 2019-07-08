@@ -66,6 +66,10 @@
             argument = "-jsonpath /Users/nguyenpham/workspace/BanksiaMatch/match.json"
             isEnabled = "YES">
          </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-jsonpath /Users/nguyenpham/workspace/Banksia/tour.json"
+            isEnabled = "NO">
+         </CommandLineArgument>
       </CommandLineArguments>
       <AdditionalOptions>
       </AdditionalOptions>

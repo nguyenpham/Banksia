@@ -62,7 +62,7 @@ std::vector<std::string> protocolList()
 
 
 static const char* OptionNames[] = {
-    "check", "spin", "combo", "button", "string",
+    "check", "spin", "combo", "button", "reset", "save", "string", "file", "path",
     nullptr, nullptr
 };
 
@@ -87,13 +87,11 @@ const char* Option::getName(OptionType type)
 Option::Option()
 :type(OptionType::none)
 {
-    
 }
 
 Option::Option(OptionType type, const std::string& name)
 :type(type), name(name)
 {
-    
 }
 
 Option::Option(const Json::Value& obj)
@@ -115,7 +113,7 @@ bool Option::load(const Json::Value& obj)
         return false;
     }
     
-    if (type == OptionType::button) {
+    if (type == OptionType::button || type == OptionType::reset || type == OptionType::save) {
         return true;
     }
     
@@ -174,6 +172,8 @@ Json::Value Option::saveToJson() const
             break;
             
         case OptionType::string:
+        case OptionType::file:
+        case OptionType::path:
             obj["value"] = string;
             obj["default"] = defaultString;
             break;
@@ -244,6 +244,8 @@ bool Option::isDefaultValue() const
             
         case OptionType::combo:
         case OptionType::string:
+        case OptionType::file:
+        case OptionType::path:
             return string == defaultString;
             
         case OptionType::check:
@@ -273,6 +275,8 @@ bool Option::operator == (const Option& other) const
             && choiceList == other.choiceList;
             
         case OptionType::string:
+        case OptionType::file:
+        case OptionType::path:
             return string == other.string;
             
         case OptionType::check:
@@ -319,6 +323,8 @@ std::string Option::toString() const
             break;
             
         case OptionType::string:
+        case OptionType::file:
+        case OptionType::path:
             stringStream << "string: " << string;
             break;
             
@@ -357,6 +363,8 @@ bool Option::isValid() const
         case OptionType::check:
         case OptionType::button:
         case OptionType::string:
+        case OptionType::file:
+        case OptionType::path:
             return true;
             
         default:
@@ -364,6 +372,21 @@ bool Option::isValid() const
     }
 }
 
+
+std::string Option::getValueAsString() const
+{
+    switch (type) {
+    case OptionType::spin:
+        return std::to_string(value);
+        break;
+    case OptionType::check:
+        return checked ? "true" : "false";
+        break;
+    default: // combo, string
+        break;
+    }
+    return string;
+}
 
 /////////////////////////////////
 
@@ -696,7 +719,6 @@ Config ConfigMng::get(int idx) const
     return Config();
 }
 
-
 bool ConfigMng::update(const std::string& oldname, const Config& config)
 {
     if (!oldname.empty() && oldname != config.name) {
@@ -724,6 +746,4 @@ bool ConfigMng::insert(const Config& config)
     }
     return false;
 }
-
-
 

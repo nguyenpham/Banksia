@@ -20,10 +20,14 @@
       "path" : "c:\\match\\openings.epd"
   },
 
-  "engine config path": "c:\\match\\engines.json",
-  "players": [ "stockfish", "sf", "fruit", "gaviota-1.0" ],
+  "engine configurations" : {
+      "update" : true,
+      "path" : "c:\\match\\engines.json"
+  },
 
-  "pgn path" : {
+  "players": [ "stockfish", "sf", "fruit", "gaviota-1.0", "crafty" ],
+
+  "pgn" : {
       "mode" : true,
       "path" : "c:\\match\\games.pgn"
   },
