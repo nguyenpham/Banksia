@@ -38,10 +38,10 @@ const std::unordered_map<std::string, int> WbEngine::wbEngineCmd {
     { "illegal",    static_cast<int>(WbEngine::WbEngineCmd::illegal) },
     { "Illegal",    static_cast<int>(WbEngine::WbEngineCmd::illegal) },
     { "Error",      static_cast<int>(WbEngine::WbEngineCmd::error) },
-
+    
     { "ping",       static_cast<int>(WbEngine::WbEngineCmd::ping) },
     { "pong",       static_cast<int>(WbEngine::WbEngineCmd::pong) },
-
+    
     { "tellopponent", static_cast<int>(WbEngine::WbEngineCmd::tellopponent) },
     { "tellothers", static_cast<int>(WbEngine::WbEngineCmd::tellothers) },
     { "tellall",    static_cast<int>(WbEngine::WbEngineCmd::tellall) },
@@ -74,28 +74,37 @@ void WbEngine::newGame()
     
     sendMemoryAndScoreOptions();
     
+    // Crafty has a bug to work with command variant -> no send
+    // http://talkchess.com/forum3/viewtopic.php?f=7&p=804398#p804398
+    //    if (!variantSet.empty()) {
+    //        if (variantSet.find("normal") == variantSet.end()) {
+    //            (resignFunc)();
+    //            return;
+    //        }
+    //        write("variant normal");
+    //    }
+    
     write(ponderMode ? "hard" : "easy");
     write("post"); // write("nopost");
     write("new");
     
-    if (!variantSet.empty()) {
-        if (variantSet.find("normal") == variantSet.end()) {
-            (resignFunc)();
-            return;
-        }
-        write("variant normal");
-    }
-    
     write("force"); // we don't want engine start calculating right now
+    auto haveSetup = false;
     if (!board->fromOriginPosition()) {
         write("setboard " + board->getStartingFen());
+        haveSetup = true;
     }
-
+    
     if (!board->histList.empty()) {
         write("force"); // we don't want engine start calculating right now
         for (auto && hist : board->histList) {
             write(hist.move.toCoordinateString());
         }
+        haveSetup = true;
+    }
+    
+    if (haveSetup) {
+        write("force"); // crazy called again
     }
 }
 
@@ -126,7 +135,7 @@ bool WbEngine::go()
 {
     Engine::go();
     computingState = EngineComputingState::thinking;
-
+    
     return write(timeControlString()) && write("go");
 }
 
@@ -211,12 +220,12 @@ bool WbEngine::sendMemoryAndScoreOptions()
     // cores N, memory N
     std::string str;
     for(auto && o : config.optionList) {
-        if (o.name == "memory" || o.name == "cores") {
+        if ((o.name == "memory" && isFeatureOn("memory")) || (o.name == "cores" && isFeatureOn("smp"))) {
             if (!str.empty()) str += "\n";
             str += o.name + " " + o.getValueAsString();
         }
     }
-
+    
     return !str.empty() && write(str);
 }
 
@@ -230,7 +239,7 @@ bool WbEngine::parseFeature(const std::string& name, const std::string& content,
         auto vec = splitString(content, ' ');
         if (vec.size() < 2) return true;
         auto optionName = vec.front();
-
+        
         for(auto && o : config.optionList) {
             if (o.name != optionName) {
                 continue;
@@ -274,9 +283,9 @@ bool WbEngine::parseFeature(const std::string& name, const std::string& content,
     }
     
     write("accepted " + name);
-
+    
     featureMap[name] = content;
-
+    
     return true;
 }
 
@@ -324,12 +333,12 @@ void WbEngine::parseFeatures(const std::string& line)
 bool WbEngine::oppositeMadeMove(const Move& move, const std::string& sanMoveString)
 {
     write("force"); // we don't want this engine starts calculating after this move
-
+    
     std::string str;
     if (feature_usermove) {
         str += "usermove ";
     }
-
+    
     if (feature_san) {
         str += sanMoveString;
     } else {
@@ -355,18 +364,18 @@ bool WbEngine::engineMove(const std::string& moveString, bool mustSend)
     if (!move.isValid()) {
         move = board->fromSanString(moveString);
     }
-
+    
     if (mustSend || move.isValid()) {
         auto period = timeCtrl->moveTimeConsumed(); // moveTimeConsumed();
         
         auto oldComputingState = computingState;
         computingState = EngineComputingState::idle;
-
+        
         (moveRecv)(move, moveString, Move::illegalMove, period, oldComputingState);
-
+        
         return true;
     }
-
+    
     return false;
 }
 
@@ -394,7 +403,7 @@ void WbEngine::parseLine(int cmdInt, const std::string& cmdString, const std::st
             if (vec.size() < 2) { // something wrong
                 return;
             }
-
+            
             engineMove(vec.at(1), true);
             break;
         }
@@ -412,7 +421,7 @@ void WbEngine::parseLine(int cmdInt, const std::string& cmdString, const std::st
             sendPong(vec.size() >= 2 ? vec.at(1) : "");
             break;
         }
-
+            
         case WbEngineCmd::resign:
         {
             if (resignFunc != nullptr) {
@@ -425,4 +434,6 @@ void WbEngine::parseLine(int cmdInt, const std::string& cmdString, const std::st
             break;
     }
 }
+
+
 

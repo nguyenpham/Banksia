@@ -133,6 +133,8 @@ int main(int argc, const char * argv[])
         show_help();
     }
     
+    tourMng.shutdown();
+    
     return 0;
 }
 

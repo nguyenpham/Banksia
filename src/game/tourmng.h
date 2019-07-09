@@ -116,7 +116,8 @@ namespace banksia {
         std::string createTournamentStats();
         
         void showEgineInOutToScreen(bool enabled);
-        
+        void shutdown();
+
     protected:
         virtual bool parseJsonAfterLoading(Json::Value&) override;
         
@@ -128,7 +129,7 @@ namespace banksia {
         void finishTournament();
         
         void append2TextFile(const std::string& path, const std::string& str);
-        void engineLog(const std::string& name, const std::string& line, LogType logType);
+        void engineLog(int gameIdx, const std::string& name, const std::string& line, LogType logType);
         
         void createKnockoutMatchList(const std::vector<std::string>& nameList, int round);
         void createNextKnockoutMatchList();
@@ -145,6 +146,7 @@ namespace banksia {
         std::string eventName = "Chess Tournament", siteName;
         
         CppTime::Timer timer;
+        CppTime::timer_id mainTimerId;
         
         TourType type = TourType::none;
         TourState state = TourState::none;
@@ -164,7 +166,10 @@ namespace banksia {
 
         static void showPathInfo(const std::string& name, const std::string& path, bool mode);
         
-    protected:
+    private:
+
+        time_t startTime;
+        
         // for logging
         std::mutex matchMutex, logMutex;
 

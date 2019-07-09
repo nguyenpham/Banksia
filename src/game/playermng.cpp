@@ -168,3 +168,10 @@ Engine* PlayerMng::createEngine(const Config& config)
     return ePlayer;
 }
 
+void PlayerMng::shutdown()
+{
+    for(auto && player : playerList) {
+        player->quit();
+        player->kill();
+    }
+}

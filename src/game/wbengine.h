@@ -40,7 +40,7 @@ namespace banksia {
             illegal, error, ping, pong,
             tellopponent, tellothers, tellall, telluser, tellusererror, tellicsnoalias,
         };
-
+        
     public:
         WbEngine() : Engine() {}
         WbEngine(const Config& config) : Engine(config) {}
@@ -52,7 +52,7 @@ namespace banksia {
         virtual void newGame() override;
         
         virtual void prepareToDeattach() override;
-
+        
         virtual bool sendQuit() override;
         
         virtual bool sendPing() override;
@@ -70,10 +70,10 @@ namespace banksia {
         virtual bool sendOptions();
         virtual const std::unordered_map<std::string, int>& getEngineCmdMap() const override;
         virtual void parseLine(int, const std::string&, const std::string&) override;
-
+        
         void parseFeatures(const std::string& line);
         bool parseFeature(const std::string& featureName, const std::string& content, bool quote);
-
+        
         bool engineMove(const std::string& moveString, bool mustSend);
         bool isFeatureOn(const std::string& featureName, bool defaultValue = false);
         bool sendMemoryAndScoreOptions();
@@ -99,4 +99,5 @@ namespace banksia {
 } // namespace banksia
 
 #endif /* WbEngineplayer_hpp */
+
 

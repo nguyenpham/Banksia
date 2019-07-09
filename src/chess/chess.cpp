@@ -159,7 +159,8 @@ std::string ChessBoard::toString() const {
         }
     }
     
-    stringStream << "a b c d e f g h \n"; // << (side == Side::white ? "w turns" : "b turns") << "\n";
+    stringStream << "a b c d e f g h \n";
+    stringStream << "key: " << key() << std::endl;
     
     return stringStream.str();
 }
@@ -224,14 +225,6 @@ void ChessBoard::setFen(const std::string& fen) {
             ch += 'a' - 'A';
         }
         
-        //        auto pieceType = PieceType::empty;
-        //        const char* p = strchr(pieceTypeName, ch);
-        //        if (p != NULL) {
-        //            int k = (int)(p - pieceTypeName);
-        //            pieceType = static_cast<PieceType>(k);
-        //
-        //        }
-        
         auto pieceType = charToPieceType(ch);
         
         if (pieceType != PieceType::empty) {
@@ -280,8 +273,6 @@ void ChessBoard::setFen(const std::string& fen) {
             enpassant = pos;
         }
     }
-    
-    
     
     checkEnpassant();
     
@@ -1674,4 +1665,5 @@ u64 polyglotRandom64[781] = {
     U64(0xCF3145DE0ADD4289), U64(0xD0E4427A5514FB72), U64(0x77C621CC9FB3A483), U64(0x67A34DAC4356550B),
     U64(0xF8D626AAAF278509),
 };
+
 

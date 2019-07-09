@@ -74,7 +74,7 @@ bool TourResult::smaller(const TourResult& other) const {
 TourMng::TourMng()
 {
     instance = this;
-    timer.add(std::chrono::milliseconds(500), [=](CppTime::timer_id) { tick(); }, std::chrono::milliseconds(500));
+    mainTimerId = timer.add(std::chrono::milliseconds(500), [=](CppTime::timer_id) { tick(); }, std::chrono::milliseconds(500));
 }
 
 TourMng::TourMng(const std::string& jsonPath)
@@ -177,7 +177,7 @@ bool TourMng::parseJsonAfterLoading(Json::Value& d)
         ponderMode = d["ponder"].asBool();
     }
     
-    s = "opening book";
+    s = "opening books";
     if (d.isMember(s)) {
         auto obj = d[s];
         bookMng.load(obj);
@@ -282,6 +282,8 @@ void TourMng::showPathInfo(const std::string& name, const std::string& path, boo
 
 void TourMng::startTournament()
 {
+    startTime = time(nullptr);
+    
     std::string info =
     "type: " + std::string(tourTypeNames[static_cast<int>(type)])
     + ", timer: " + timeController.toString()
@@ -305,22 +307,22 @@ void TourMng::startTournament()
 void TourMng::finishTournament()
 {
     state = TourState::done;
-    
-    if (matchRecordList.empty()) {
-        return;
+    auto elapsed_secs = static_cast<int>(time(nullptr) - startTime);
+
+    if (!matchRecordList.empty()) {
+        static const char* separateLine = "-------------------------------------";
+        matchLog("\n");
+        matchLog(separateLine);
+        
+        auto str = createTournamentStats();
+        matchLog(str);
+        
+        matchLog(separateLine);
     }
     
-    static const char* separateLine = "-------------------------------------";
-    matchLog("\n");
-    matchLog(separateLine);
-    
-    auto str = createTournamentStats();
+    auto str = "Tournamemt finished! Elapsed: " + formatPeriod(elapsed_secs);
     matchLog(str);
-    
-    matchLog(separateLine);
-    matchLog("\n");
-    std::cout << "Tournamemt finished!\n";
-    
+
     // WARNING: exit the app here after completed the tournament
     exit(0);
 }
@@ -583,14 +585,14 @@ bool TourMng::createMatch(int gameIdx, const std::string& whiteName, const std::
         
         if (addGame(game)) {
             game->setMessageLogger([=](const std::string& name, const std::string& line, LogType logType) {
-                engineLog(name, line, logType);
+                engineLog(gameIdx, name, line, logType);
             });
             game->kickStart();
             
             std::string infoString = std::to_string(gameIdx + 1) + ". " + game->getGameTitleString();
             
             printText(infoString);
-            engineLog(getAppName(), "\n" + infoString + "\n", LogType::system);
+            engineLog(gameIdx, getAppName(), "\n" + infoString + "\n", LogType::system);
             
             return true;
         }
@@ -612,6 +614,7 @@ std::string TourMng::resultToString(const Result& result)
     return str;
 }
 
+// TODO: make it work!
 // http://www.open-aurec.com/wbforum/viewtopic.php?t=949
 //1) Use number of wins, loss, and draws
 //W = number of wins, L = number of lost, D = number of draws
@@ -686,7 +689,7 @@ void TourMng::matchCompleted(Game* game)
             
             matchLog(infoString);
             // Add extra info to help understanding log
-            engineLog(getAppName(), infoString, LogType::system);
+            engineLog(game->getIdx(), getAppName(), infoString, LogType::system);
         }
     }
 }
@@ -728,12 +731,16 @@ void TourMng::showEgineInOutToScreen(bool enabled)
     logScreenEngineInOutMode = enabled;
 }
 
-void TourMng::engineLog(const std::string& name, const std::string& line, LogType logType)
+void TourMng::engineLog(int gameIdx, const std::string& name, const std::string& line, LogType logType)
 {
     if (line.empty() || !logEngineInOutMode || logEngineInOutPath.empty()) return;
     
     std::ostringstream stringStream;
 
+    if (gameIdx >= 0 && gameConcurrency > 1) {
+        stringStream << (gameIdx + 1) << ".";
+    }
+    
     if (logEngineInOutShowTime) {
         auto tm = localtime_xp(std::time(0));
         stringStream << std::put_time(&tm, "%H:%M:%S ");
@@ -758,4 +765,8 @@ void TourMng::append2TextFile(const std::string& path, const std::string& str)
 }
 
 
-
+void TourMng::shutdown()
+{
+    timer.remove(mainTimerId);
+    playerMng.shutdown();
+}

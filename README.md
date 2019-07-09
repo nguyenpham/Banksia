@@ -8,6 +8,7 @@ Banksia (a name of an Australian native wildflowers) is an open source chess tou
 
 To manage engines, games and the complicated events / relationships between them, the app uses a timer with few c++ callback functions. I believe it is one of the simplest way thus the code is not hard for programmers to follow, understand, maintain and modify.
 
+![Demo](banksia.jpg)
 
 Some features
 -----------
@@ -15,7 +16,8 @@ Some features
 - Small, fast
 - Simple and short (in term of design and implementation)
 - Support chess engines with UCI and Winboard protocols
-- Tournament: concurrency, round robin, edp opening, ponderable
+- Support opening book formats edp, pgn, bin (Polyglot)
+- Tournament: concurrency, round robin, ponderable
 - Controlled mainly by 2 json files (one for configurations of engines, one for tournament management). That is very flexible, easy way to setup and change
 - Controllable by keyboard when games playing (type anything from keyboard to display the help)
 - Written in standard C++11
@@ -74,20 +76,21 @@ When working, the app may display some information into screen as well as saving
 
 Bellow is screen of a tournament between 3 chess engines:
 
-![Demo](https://github.com/nguyenpham/Banksia/blob/master/demo.png)
+![Demo](demo.png)
 
 Working
 ---------
 - Improve interface
-- Support some diffirent opening book formats such as Polyglot
+- Auto create or update json files
 - Support some different tournament types: knockout, swiss
-- Support other chess variants (not soon event it is designed for multi variants)
+- Support other chess variants (not soon event it is designed for multi-variants)
 
 
 History
 --------
-- 8 July 2019: v1.00, fix bugs, improve interface, support Winboard protocol
-- 3 July 2019: v0.03, fix bugs, improve interface, support pgn opening
+- 10 July 2019: v1.50, fixed some problems of Winboard protocol,  support Polyglot's opening books
+- 8 July 2019: v1.00, fixed bugs, improve interface, support Winboard protocol
+- 3 July 2019: v0.03, fixed bugs, improve interface, support pgn opening
 - 1 July 2019: version 0.01, first release
 
 

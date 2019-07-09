@@ -61,7 +61,9 @@ std::string Player::getName() const
     return name;
 }
 
-void Player::attach(ChessBoard* _board, const GameTimeController* _timeController, std::function<void(const Move&, const std::string&, const Move&, double, EngineComputingState)> _moveReceiver, std::function<void()> _resignFunc)
+void Player::attach(ChessBoard* _board, const GameTimeController* _timeController,
+                    std::function<void(const Move&, const std::string&, const Move&, double, EngineComputingState)> _moveReceiver,
+                    std::function<void()> _resignFunc)
 {
     assert(isSafeToDeattach());
     board = _board;

@@ -38,7 +38,7 @@ namespace banksia {
         const int CASTLERIGHT_LONG  = (1<<0);
         const int CASTLERIGHT_SHORT = (1<<1);
         const int CASTLERIGHT_MASK  = (CASTLERIGHT_LONG|CASTLERIGHT_SHORT);
-
+        
     protected:
         int enpassant;
         int8_t castleRights[2];
@@ -53,7 +53,7 @@ namespace banksia {
         virtual int columnCount() const override;
         virtual int getColumn(int pos) const override;
         virtual int getRow(int pos) const override;
-
+        
         virtual void setFen(const std::string& fen) override;
         virtual std::string getFen(int halfCount = 0, int fullMoveCount = 1) const override;
         
@@ -84,7 +84,7 @@ namespace banksia {
         
         Move fromSanString(const std::string&);
         bool fromSanMoveList(const std::string&);
-
+        
         PieceType charToPieceType(char ch) const;
         
         u64 perft(int depth);
@@ -104,4 +104,5 @@ namespace banksia {
 } // namespace banksia
 
 #endif /* board_hpp */
+
 

@@ -233,7 +233,6 @@ bool GameTimeController::isTimeOver(Side side)
     }
     
     auto sd = static_cast<int>(side);
-//    assert(timeLeft[sd] >= 0);
     
     lastQueryConsumed = moveTimeConsumed();
     if (lastQueryConsumed >= timeLeft[sd] + margin) {
@@ -263,8 +262,6 @@ void GameTimeController::udateClockAfterMove(double moveElapse, Side side, int h
     auto sd = static_cast<int>(side);
     timeLeft[sd] += increment - moveElapse;
     
-//    assert(timeLeft[sd] >= 0);
-    
     if (moves == 0) {
         return;
     }
@@ -279,4 +276,5 @@ bool GameTimeController::isValid() const
 {
     return TimeController::isValid() && timeLeft[0] >= 0 && timeLeft[1] >= 0;
 }
+
 

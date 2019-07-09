@@ -52,6 +52,8 @@ namespace banksia {
         bool add(Player* player);
         bool returnPlayer(Player* player);
         
+        void shutdown();
+        
     private:
         bool killPlayer(Player* player);
         

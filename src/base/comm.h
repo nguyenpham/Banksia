@@ -40,7 +40,7 @@
 
 namespace banksia {
     
-    const int BANKSIA_VERSION = 0x100;
+    const int BANKSIA_VERSION = (1 << 8) + 50;
     
 #define i16 int16_t
 #define u16 uint16_t
@@ -49,10 +49,7 @@ namespace banksia {
 #define u8  uint8_t
 #define u64 uint64_t
 #define i64 int64_t
-
-#define B                               0
-#define W                               1
-
+    
     class Obj {
     public:
         virtual const char* className() const { return "Obj"; }
@@ -70,7 +67,6 @@ namespace banksia {
     
     class JsonSavable {
     public:
-        
         virtual bool loadFromJsonFile(const std::string& jsonPath);
         virtual bool saveToJsonFile();
         
@@ -97,6 +93,9 @@ namespace banksia {
     private:
         std::mutex tickMutex;
     };
+    
+    const int B = 0;
+    const int W = 1;
     
     enum class Side {
         black = 0, white = 1, none = 2
@@ -139,6 +138,7 @@ namespace banksia {
     //        NoSquare
     //    };
     
+    // Some useful / library functions
     extern bool banksiaVerbose;
     extern const char* pieceTypeName;
     extern const char* reasonStrings[11];
@@ -148,6 +148,7 @@ namespace banksia {
     
     void printText(const std::string& str);
     std::tm localtime_xp(std::time_t timer);
+    std::string formatPeriod(int seconds);
     
     std::vector<std::string> readTextFileToArray(const std::string& path);
     
@@ -166,6 +167,7 @@ namespace banksia {
 } // namespace banksia
 
 #endif /* Board_hpp */
+
 
 
 

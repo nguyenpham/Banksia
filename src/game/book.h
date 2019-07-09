@@ -32,42 +32,105 @@
 
 namespace banksia {
     
+    const int PologlotDefaultMaxPly = 20;
     enum class BookType {
         edp, pgn, polygot, none
     };
-    
+
     class Book : public Obj
     {
     public:
-        Book();
-        ~Book();
+        Book(BookType t) : type(t) {}
+        virtual ~Book() {}
         
-        virtual const char* className() const override { return "Book"; }
-        virtual bool isValid() const override;
-        virtual std::string toString() const override;
-        
-        bool isEmpty() const;
-        size_t size() const;
+        virtual bool isEmpty() const = 0;
+        virtual size_t size() const = 0;
 
-        bool setupOpening(ChessBoard& board, int randomIdx) const;
-        bool getRandomBook(std::string& fenString, std::vector<Move>& moves) const;
+        virtual bool getRandomBook(std::string& fenString, std::vector<Move>& moves) const = 0;
 
     public:
-        void load(const std::string& path);
+        virtual void load(const std::string& path, int maxPly, int top100) = 0;
         BookType type;
+        
+    protected:
+        std::string path;
+        int maxPly = PologlotDefaultMaxPly, top100 = 0;
+    };
+    
+    class BookEdp : public Book
+    {
+    public:
+        BookEdp() : Book(BookType::edp) {}
+        virtual ~BookEdp() {}
+        
+        virtual const char* className() const override { return "BookEdp"; }
+        bool isEmpty() const override;
+        size_t size() const override;
+        
+        bool getRandomBook(std::string& fenString, std::vector<Move>& moves) const override;
+        void load(const std::string& path, int maxPly, int top100) override;
         
     private:
         std::string getRandomFEN() const;
-        void loadEdpBook(const std::string& path);
+        std::vector<std::string> stringVec;
+    };
+
+    class BookPgn : public Book
+    {
+    public:
+        BookPgn() : Book(BookType::pgn) {}
+        virtual ~BookPgn() {}
         
+        virtual const char* className() const override { return "BookPgn"; }
+        
+        bool isEmpty() const override;
+        size_t size() const override;
+        bool getRandomBook(std::string& fenString, std::vector<Move>& moves) const override;
+        void load(const std::string& path, int maxPly, int top100) override;
+        
+    private:
         void loadPgnBook(const std::string& path);
         bool addPgnMoves(const std::string& s);
         
-        std::string path;
-        std::vector<std::string> stringVec;
         std::vector<std::vector<Move>> moves;
     };
     
+    class BookPolyglotItem {
+    public:
+        Move getMove() const;
+        void convertToLittleEndian();
+        std::string toString() const;
+    public:
+        u64 key;
+        u16 move;
+        u16 weight;
+        u32 learn;
+    };
+    
+    class BookPolyglot : public Book
+    {
+    public:
+        BookPolyglot() : Book(BookType::polygot) {}
+        virtual ~BookPolyglot();
+        
+        virtual const char* className() const override { return "BookPolyglot"; }
+        virtual bool isValid() const override;
+
+        bool isEmpty() const override;
+        size_t size() const override;
+        bool getRandomBook(std::string& fenString, std::vector<Move>& moves) const override;
+        void load(const std::string& path, int maxPly, int top100) override;
+        
+        std::vector<BookPolyglotItem> search(u64 key) const;
+        
+    private:
+        i64 binarySearch(u64 key) const;
+        
+        u64 itemCnt = 0;
+        BookPolyglotItem* items = nullptr;
+    };
+    
+
     class BookMng : public Jsonable
     {
     public:
@@ -90,8 +153,10 @@ namespace banksia {
         size_t size() const;
 
     private:
+        bool loadSingle(const Json::Value& obj);
+
         bool mode = true;
-        std::vector<Book> bookList;
+        std::vector<Book*> bookList;
     };
     
     

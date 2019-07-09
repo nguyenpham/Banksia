@@ -97,9 +97,9 @@ namespace banksia {
         Player* players[2];
         GameTimeController timeController;
         bool ponderMode = false;
-
+        
         std::function<void(const std::string&, const std::string&, LogType)> messageLogger = nullptr;
-
+        
         std::string startFen;
         std::vector<Move> startMoves;
         std::mutex criticalMutex;
@@ -108,4 +108,5 @@ namespace banksia {
 } // namespace banksia
 
 #endif /* game_hpp */
+
 

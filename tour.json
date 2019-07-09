@@ -13,13 +13,25 @@
     "increment": 0.5,
     "margin": 0.3
   },
-  
-  "opening book" : {
-      "mode" : false,
-      "type" : "epd",
-      "path" : "c:\\match\\openings.epd"
-  },
-
+  "opening books" : [
+      {
+          "mode" : true,
+          "type" : "epd",
+          "path" : "c:\\match\\openings.epd"
+      },
+      {
+          "mode" : false,
+          "type" : "pgn",
+          "path" : "c:\\match\\openings.pgn"
+      },
+      {
+          "mode" : false,
+          "type" : "polyglot",
+          "maxply" : 12,
+          "top100" : 20,
+          "path" : "c:\\match\\openings.bin"
+      }
+  ],
   "engine configurations" : {
       "update" : true,
       "path" : "c:\\match\\engines.json"

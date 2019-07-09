@@ -26,6 +26,7 @@
 #include <cstdarg>
 #include <regex>
 #include <fstream>
+#include <iomanip> // for setfill, setw
 
 #include "comm.h"
 
@@ -37,7 +38,7 @@ namespace banksia {
     
     const char* pieceTypeName = ".kqrbnp";
     const char* reasonStrings[] = {
-        "*", "mate", "stalemate", "threefold repetition", "resign", "fifty moves", "insufficient material", "illegal move", "timeout", "crash", nullptr
+        "*", "mate", "stalemate", "repetition", "resign", "fifty moves", "insufficient material", "illegal move", "timeout", "crash", nullptr
     };
     
     static std::mutex consoleMutex;
@@ -154,6 +155,25 @@ namespace banksia {
         return vec;
     }
     
+    std::string formatPeriod(int seconds)
+    {
+        int s = seconds % 60, minutes = seconds / 60, m = minutes % 60, hours = minutes / 60, h = hours % 24, d = hours / 24;
+        
+        std::ostringstream stringStream;
+        if (d > 0) {
+            stringStream << d << " d ";
+        }
+        if (h > 0) {
+            stringStream << h << ":";
+        }
+        
+        stringStream
+        << std::setfill('0') << std::setw(2)
+        << m << ":" << s
+        << std::setfill(' ') << std::setw(0);
+        return stringStream.str();
+    }
+    
     // https://stackoverflow.com/questions/38034033/c-localtime-this-function-or-variable-may-be-unsafe
     std::tm localtime_xp(std::time_t timer)
     {
@@ -236,5 +256,6 @@ bool JsonSavable::saveToJsonFile(const std::string& path, Json::Value& jsonData)
     outFile.close();
     return r;
 }
+
 
 
