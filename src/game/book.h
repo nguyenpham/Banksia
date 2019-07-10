@@ -155,7 +155,6 @@ namespace banksia {
     private:
         bool loadSingle(const Json::Value& obj);
 
-        bool mode = true;
         std::vector<Book*> bookList;
     };
     

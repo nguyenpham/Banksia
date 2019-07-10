@@ -40,7 +40,7 @@
 
 namespace banksia {
     
-    const int BANKSIA_VERSION = (1 << 8) + 50;
+    const int BANKSIA_VERSION = (1 << 8) + 51;
     
 #define i16 int16_t
 #define u16 uint16_t

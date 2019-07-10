@@ -334,7 +334,7 @@ BookMng::~BookMng()
 
 bool BookMng::isEmpty() const
 {
-    if (mode && !bookList.empty()) {
+    if (!bookList.empty()) {
         for(auto && book : bookList) {
             if (!book->isEmpty()) {
                 return false;
@@ -376,7 +376,8 @@ bool BookMng::load(const Json::Value& obj)
         r = loadSingle(obj);
     }
     
-    return r;
+	std::cout << "opening books loaded, total items: " << size() << std::endl;
+	return r;
 }
 
 bool BookMng::loadSingle(const Json::Value& obj)
@@ -386,7 +387,7 @@ bool BookMng::loadSingle(const Json::Value& obj)
         return false;
     }
     
-    mode = obj.isMember("mode") && obj["mode"].asBool();
+    auto mode = obj.isMember("mode") && obj["mode"].asBool();
     
     if (!mode) {
         return false;
@@ -425,7 +426,6 @@ bool BookMng::loadSingle(const Json::Value& obj)
             bookList.push_back(book);
         }
         
-        std::cout << "opening books loaded, total items: " << size() << std::endl;
         return true;
     }
     
@@ -440,5 +440,5 @@ Json::Value BookMng::saveToJson() const
 
 bool BookMng::getRandomBook(std::string& fenString, std::vector<Move>& moves) const
 {
-    return mode && !bookList.empty() && bookList.front()->getRandomBook(fenString, moves);
+    return !bookList.empty() && bookList.front()->getRandomBook(fenString, moves);
 }

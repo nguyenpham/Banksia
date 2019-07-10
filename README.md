@@ -74,7 +74,7 @@ When working, the app may display some information into screen as well as saving
 - game pgn file
 
 
-Bellow is screen of a tournament between 3 chess engines:
+Bellow is the screen of a tournament between 3 chess engines:
 
 ![Demo](demo.png)
 
@@ -88,9 +88,9 @@ Working
 
 History
 --------
-- 10 July 2019: v1.50, fixed some problems of Winboard protocol,  support Polyglot's opening books
-- 8 July 2019: v1.00, fixed bugs, improve interface, support Winboard protocol
-- 3 July 2019: v0.03, fixed bugs, improve interface, support pgn opening
+- 10 July 2019: v1.50, supported Polyglot's opening books
+- 8 July 2019: v1.00, supported Winboard protocol
+- 3 July 2019: v0.03, supported pgn opening
 - 1 July 2019: version 0.01, first release
 
 

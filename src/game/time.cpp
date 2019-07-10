@@ -217,6 +217,7 @@ double GameTimeController::moveTimeConsumed() const
 {
     auto diff = std::chrono::system_clock::now() - moveStartClock;
     auto ms = std::chrono::duration <double, std::milli> (diff).count();
+	assert(ms >= 0);
     return double(ms) / 1000; // convert into second
 }
 

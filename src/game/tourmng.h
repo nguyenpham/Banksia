@@ -118,6 +118,8 @@ namespace banksia {
         void showEgineInOutToScreen(bool enabled);
         void shutdown();
 
+		static void append2TextFile(const std::string& path, const std::string& str);
+
     protected:
         virtual bool parseJsonAfterLoading(Json::Value&) override;
         
@@ -128,7 +130,6 @@ namespace banksia {
         
         void finishTournament();
         
-        void append2TextFile(const std::string& path, const std::string& str);
         void engineLog(int gameIdx, const std::string& name, const std::string& line, LogType logType);
         
         void createKnockoutMatchList(const std::vector<std::string>& nameList, int round);
