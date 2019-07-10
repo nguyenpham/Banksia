@@ -35,3 +35,14 @@
 */.vs*
 */Debug*
 *.DS_Store
+
+# CMake build files
+build/
+
+# Emacs auto save files
+*~
+
+# Eclipse project files
+/.cproject
+/.project
+/.settings
