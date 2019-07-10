@@ -161,15 +161,17 @@ namespace banksia {
         
         std::ostringstream stringStream;
         if (d > 0) {
-            stringStream << d << " d ";
+            stringStream << d << "d ";
         }
         if (h > 0) {
-            stringStream << h << ":";
+            stringStream << h << ":"
+            << std::setfill('0') << std::setw(2);
         }
         
         stringStream
+        << m << ":"
         << std::setfill('0') << std::setw(2)
-        << m << ":" << s
+        << s
         << std::setfill(' ') << std::setw(0);
         return stringStream.str();
     }
