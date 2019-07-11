@@ -1,0 +1,12 @@
+add_library(game OBJECT
+  book.cpp book.h
+  configmng.cpp configmng.h
+  engine.cpp engine.h
+  game.cpp game.h
+  player.cpp player.h
+  playermng.cpp playermng.h
+  time.cpp time.h
+  tourmng.cpp tourmng.h
+  uciengine.cpp uciengine.h
+  wbengine.cpp wbengine.h)
+#target_include_directories(game .)

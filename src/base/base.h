@@ -170,7 +170,7 @@ namespace banksia {
     public:
         MoveFull() {}
         MoveFull(Piece piece, int from, int dest, PieceType promotion = PieceType::empty)
-        : piece(piece), Move(from, dest, promotion)
+        : Move(from, dest, promotion), piece(piece)
         {}
         MoveFull(int from, int dest, PieceType promotion = PieceType::empty)
         : Move(from, dest, promotion)

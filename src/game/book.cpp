@@ -203,7 +203,7 @@ void BookPolyglot::load(const std::string& _path, int _maxPly, int _top100)
     
     i64 length = 0;
     if (ifs.is_open()) {
-        length = std::max(0LL, (i64)ifs.tellg());
+        length = std::max((i64)0, (i64)ifs.tellg());
     }
 
     assert(sizeof(BookPolyglotItem) == 16);
