@@ -87,34 +87,32 @@ Bellow is the screen of a tournament between 3 chess engines:
 
 Auto generate JSON files
 --------------------------
-A chess tournament may have tens or even hundreds chess engines. Each engine has name, command folder, working folder and may have tens parrammeters. Any wrong in data may lead engines refuse to run, crash or run with wrong performances. Writing down manually all information into a command line and/or some JSON files is a so boring, hard job and easy to make mistake (from my experience, it is not easy to find and fix those mistakes). Defend on experience, it may takes from hours to days to create a runable configuration for a new tournament. Furthermore, new engines may frequently add or change parrammeters without noticing to users.
+A chess tournament may have tens or even hundreds of chess engines. Each engine has name, command line, working folder and may have tens parameters. Any wrong in data may cause engines to refuse to run, crash or run with wrong performances. However, writing down manually all information into a command line and/or some JSON files is so boring, hard job and easy to make mistake (from my experience, it is not easy to find and fix those mistakes). Defend on experience, it may take from hours to days to create a runnable configuration for a new tournament. Furthermore, new engines may frequently add or change parameters without notice to users.
 
-Banksia can help to solve above problems by generating/updating automatically all data needed for a tournament. If the old data exists, Banksia can update it without erasing nor modifying non-involving information. Thus users can update frequently their data.
+Banksia can help to solve the above problems by generating/updating automatically all data needed for a tournament. If the old data exists, Banksia can update it without erasing nor modifying non-involving information. Thus users can update frequently their data.
 
 What a user should do to generate or update JSON files:
 - copy all engines into a folder (including their belonging files as well as all subfolders)
-- run Banksia with that folder as a parrammeter. That all!
+- run Banksia with that folder as a parameter and wait for few minutes. That all!
 
 For example:
 
     banksia -u -c 4 -d c:\allenginefolder
 
-Bankisa scans all files in that given folder, including subfolder for all executable files, then it runs those files to detect if they are chess engines, what are their protocol and options. Bankisa can run and test concurrently those files (the parrammeter -c 4 means that is concurrency of 4) to speed up the process (for a tourmanent within 20 engines, 4 concurrencies all may take about 1 - 5 minutes). All information are saved or updated into two key JSON files (if their paths are not specifyied, they will be stored in current worrking folder).
+Bankisa scans all files in that given folder, including subfolder for all executable files, then runs those files to detect if they are chess engines, what are their chess protocols and options. Bankisa can run and test concurrently those files (the parameter -c 4 means that is concurrency of 4) to speed up the process (for a tournament within 20 engines, 4 concurrencies all may take about 1 - 5 minutes). All information is saved or updated into two key JSON files (if their paths are not specified, they will be created in the current working folder).
 
-If users don't want banksia to scan (or engines are not scanable, or engines located in different folders/drivers) and run all executable files in that folder, they can create a simple and short JSON file (file engines.json) with commands of engines they need. Banksia will verify and fill information.
+If users don't want Banksia to scan (or engines are not scannable, or engines located in different folders/drivers) or run all not-involving executable files, they can create a simple and short JSON file (file engines.json) with commands of engines they need. Banksia will verify and fill all other information.
 
     [
-      { "command" : "d:/stockfish/stockfish.exe" },
-      { "command" : "c:/match/crafty25.3" }
+        { "command" : "d:/stockfish/stockfish.exe" },
+        { "command" : "c:/match/crafty25.3" }
     ]
-
 
 Right after generating JSON files, users can start their tournaments:
 
     banksia -jsonpath c:\tour.json
 
-Of course users can edit those JSON files such as removing redundant, unuse fields, re-order them to be easier to read! Some data fields are written down but empty (such as opening book folders) and need to fill in.
-
+Of course, users can edit those JSON files such as removing redundant, unused fields, re-order them to be easier to read! Some data fields are written down in empty forms (such as opening book folders) and need to fill in.
 
 Working
 ---------
