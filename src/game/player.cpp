@@ -29,10 +29,6 @@
 
 using namespace banksia;
 
-//static const char* playerTypeNames[] = {
-//    "human", "engine", "none", nullptr
-//};
-
 Player::Player()
 : type(PlayerType::none)
 {
@@ -40,7 +36,7 @@ Player::Player()
 }
 
 Player::Player(const std::string& name, PlayerType type)
-: name(name), type(type), idNumber(std::rand())
+: idNumber(std::rand()), name(name), type(type)
 {
 }
 

@@ -43,7 +43,13 @@ In MS Windows, the first line needed to change to:
 
     g++ -std=c++11 -c ../src/3rdparty/process/process.cpp ../src/3rdparty/process/process_win.cpp -O2 -DNDEBUG
 
-Note: you may help me to create a makefile too ;)
+You can also use CMake (at least version 3.7 is required) to build banksia:
+
+    mkdir build
+    cd build
+    cmake ..
+    make -j4
+
 
 Using
 -------

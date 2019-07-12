@@ -69,15 +69,15 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-u -c 4"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-d /Users/nguyenpham/workspace/BanksiaMatch"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-jsonpath /Users/nguyenpham/workspace/BanksiaMatch/tour.json"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-jsonpath /Users/nguyenpham/workspace/Banksia/tour.json"
