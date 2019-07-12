@@ -87,7 +87,7 @@ Bellow is the screen of a tournament between 3 chess engines:
 
 Auto generate JSON files
 --------------------------
-A chess tournament may have tens or even hundreds chess engines. Each engine has name, command folder, working folder and may have tens parrammeters. Any wrong in data may lead engines refuse to run, crash or run with wrong performances. Writing down manually all information into a command line and/or some JSON files is a so boring, hard job and easy to make mistake (from my experience, it is not easy to find and fix those mistakes). Furthermore, new engines may frequently add or change parrammeters without noticing to users.
+A chess tournament may have tens or even hundreds chess engines. Each engine has name, command folder, working folder and may have tens parrammeters. Any wrong in data may lead engines refuse to run, crash or run with wrong performances. Writing down manually all information into a command line and/or some JSON files is a so boring, hard job and easy to make mistake (from my experience, it is not easy to find and fix those mistakes). Defend on experience, it may takes from hours to days to create a runable configuration for a new tournament. Furthermore, new engines may frequently add or change parrammeters without noticing to users.
 
 Banksia can help to solve above problems by generating/updating automatically all data needed for a tournament. If the old data exists, Banksia can update it without erasing nor modifying non-involving information. Thus users can update frequently their data.
 

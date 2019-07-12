@@ -271,7 +271,7 @@ std::vector<BookPolyglotItem> BookPolyglot::search(u64 key) const
     if (k >= 0) {
         for(; k > 0 && items[k - 1].key == key; k--) {}
 
-        for(; k < itemCnt && items[k].key == key; k++) {
+        for(; k < i64(itemCnt) && items[k].key == key; k++) {
             vec.push_back(items[k]);
         }
     }

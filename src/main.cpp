@@ -24,8 +24,7 @@
 
 #include <csignal>
 
-#include "jsonmaker.h"
-
+#include "game/jsonmaker.h"
 #include "game/uciengine.h"
 #include "game/playermng.h"
 #include "game/tourmng.h"

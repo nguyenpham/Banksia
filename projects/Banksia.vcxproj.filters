@@ -66,6 +66,12 @@
     <ClInclude Include="..\src\game\wbengine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\game\jsonengine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\game\jsonmaker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\3rdparty\json\jsoncpp.cpp">
@@ -117,6 +123,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\game\wbengine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\game\jsonmaker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\game\jsonengine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -291,8 +291,7 @@ i64 JsonMaker::getFileSize(const std::string& path)
 
 bool JsonMaker::isExecutable(const std::string& path)
 {
-    auto p = path.find(".exe");
-    return p == path.length() - 4;
+    return path.find(".exe") != std::string::npos;
 }
 
 
@@ -362,6 +361,8 @@ bool JsonMaker::isExecutable(const std::string& path)
     return true;
 }
 
+#endif
+
 std::vector<std::string> JsonMaker::listExcecutablePaths(const std::string& dirname)
 {
     std::vector<std::string> v;
@@ -375,13 +376,12 @@ std::vector<std::string> JsonMaker::listExcecutablePaths(const std::string& dirn
     return v;
 }
 
-#endif
-
 std::string JsonMaker::currentWorkingFolder()
 {
+#define PATH_MAX 255
     char buf[PATH_MAX];
     
-#ifdef WINDOWS
+#ifdef _WIN32
     auto r = _getcwd(buf, sizeof(buf));
 #else
     auto r = getcwd(buf, sizeof(buf));
