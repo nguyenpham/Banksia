@@ -26,12 +26,12 @@
 #include <fstream>
 #include <iomanip> // for setprecision
 #include <cmath>
+#include <algorithm>
+#include <random>
 
 #include "tourmng.h"
 
 using namespace banksia;
-
-TourMng* TourMng::instance = nullptr;
 
 bool MatchRecord::isValid() const
 {
@@ -73,13 +73,6 @@ bool TourResult::smaller(const TourResult& other) const {
 //////////////////////////////
 TourMng::TourMng()
 {
-    instance = this;
-    mainTimerId = timer.add(std::chrono::milliseconds(500), [=](CppTime::timer_id) { tick(); }, std::chrono::milliseconds(500));
-}
-
-TourMng::TourMng(const std::string& jsonPath)
-{
-    loadFromJsonFile(jsonPath);
 }
 
 TourMng::~TourMng()
@@ -89,6 +82,95 @@ TourMng::~TourMng()
 static const char* tourTypeNames[] = {
     "roundrobin", "knockout", nullptr
 };
+
+// To create json file
+void TourMng::fixJson(Json::Value& d, const std::string& path)
+{
+    if (!d.isMember("type")) {
+        d["type"] = tourTypeNames[0];
+    }
+    
+    auto s = "time control";
+    if (!d.isMember(s)) {
+        Json::Value v;
+        v["mode"] = "standard";
+        v["moves"] = 40;
+        v["time"] = 5.5;
+        v["increment"] = 0.5;
+        v["margin"] = 0.8;
+        d[s] = v;
+    }
+    s = "games per pair";
+    if (!d.isMember(s)) {
+        d[s] = 2;
+    }
+    
+    if (!d.isMember("ponder")) {
+        d["ponder"] = false;
+    }
+    
+    s = "shuffle players";
+    if (!d.isMember(s)) {
+        d[s] = false;
+    }
+
+    s = "opening books";
+    if (!d.isMember(s)) {
+        Json::Value v;
+        for(int i = 0; i < 3; i++) {
+            auto bookType = static_cast<BookType>(i);
+            
+            Json::Value b;
+            b["mode"] = false;
+            b["type"] = BookMng::bookType2String(bookType);
+            b["path"] = "";
+            
+            if (bookType == BookType::polygot) {
+                b["maxply"] = 12;
+                b["top100"] = 20;
+            }
+            v.append(b);
+        }
+        d[s] = v;
+    }
+    
+    if (!d.isMember("event")) {
+        d["event"] = "Computer event";
+    }
+    if (!d.isMember("site")) {
+        d["site"] = "Play on Earth";
+    }
+    
+    if (!d.isMember("concurrency")) {
+        d["concurrency"] = 2;
+    }
+    
+    s = "pgn";
+    if (!d.isMember(s)) {
+        Json::Value v;
+        v["mode"] = true;
+        v["path"] = path + folderSlash + "games.pgn";
+        d[s] = v;
+    }
+    
+    s = "result log";
+    if (!d.isMember(s)) {
+        Json::Value v;
+        v["mode"] = true;
+        v["path"] = path + folderSlash + "resultlog.txt";
+        d[s] = v;
+    }
+    
+    s = "engine log";
+    if (!d.isMember(s)) {
+        Json::Value v;
+        v["mode"] = true;
+        v["show time"] = true;
+        v["path"] = path + folderSlash + "enginelog.txt";
+        d[s] = v;
+    }
+    
+}
 
 bool TourMng::parseJsonAfterLoading(Json::Value& d)
 {
@@ -136,17 +218,6 @@ bool TourMng::parseJsonAfterLoading(Json::Value& d)
         }
     }
     
-    if (participantList.empty()) {
-        std::cerr << "Warning: missing parametter \"players\". Will use all players in configure instead." << std::endl;
-        participantList = ConfigMng::instance->nameList();
-    }
-
-    if (participantList.size() < 2) {
-        std::cerr << "Error: number of players in parametter \"players\" is not enough for a tournament!" << std::endl;
-        return false;
-    }
-    
-
     // time control
     auto ok = false;
     s = "time control";
@@ -154,11 +225,22 @@ bool TourMng::parseJsonAfterLoading(Json::Value& d)
         auto obj = d[s];
         ok = timeController.load(obj) && timeController.isValid();
     }
+
     if (!ok) {
         std::cerr << "Error: missing parametter \"" << s << "\" or corrupted data" << std::endl;
         return false;
     }
-
+    
+    if (participantList.empty()) {
+        std::cerr << "Warning: missing parametter \"players\". Will use all players in configure instead." << std::endl;
+        participantList = ConfigMng::instance->nameList();
+    }
+    
+    if (participantList.size() < 2) {
+        std::cerr << "Error: number of players in parametter \"players\" is not enough for a tournament!" << std::endl;
+        return false;
+    }
+    
     if (type == TourType::none) {
         std::cerr << "Error: missing parametter \"type\" or it is incorrect (should be \"roundrobin\", \"knockout\")!" << std::endl;
         return false;
@@ -168,11 +250,14 @@ bool TourMng::parseJsonAfterLoading(Json::Value& d)
     //
     // Less inportance
     //
-    s = "game per pair";
+    s = "games per pair";
     if (d.isMember(s)) {
         gameperpair = std::max(1, d[s].asInt());
     }
-
+    
+    s = "shuffle players";
+    shufflePlayers = d.isMember(s) && d[s].asBool();
+    
     if (d.isMember("ponder")) {
         ponderMode = d["ponder"].asBool();
     }
@@ -257,7 +342,7 @@ void TourMng::tickWork()
                 playerMng.returnPlayer(player2);
             }
         }
-
+        
         auto it = std::find(gameList.begin(), gameList.end(), game);
         if (it != gameList.end()) {
             gameList.erase(it);
@@ -302,13 +387,16 @@ void TourMng::startTournament()
     
     // tickWork will start the matches
     state = TourState::playing;
+    
+    
+    mainTimerId = timer.add(std::chrono::milliseconds(500), [=](CppTime::timer_id) { tick(); }, std::chrono::milliseconds(500));
 }
 
 void TourMng::finishTournament()
 {
     state = TourState::done;
     auto elapsed_secs = static_cast<int>(time(nullptr) - startTime);
-
+    
     if (!matchRecordList.empty()) {
         static const char* separateLine = "-------------------------------------";
         matchLog("\n");
@@ -322,8 +410,9 @@ void TourMng::finishTournament()
     
     auto str = "Tournamemt finished! Elapsed: " + formatPeriod(elapsed_secs);
     matchLog(str);
-
+    
     // WARNING: exit the app here after completed the tournament
+    shutdown();
     exit(0);
 }
 
@@ -379,7 +468,7 @@ std::string TourMng::createTournamentStats()
     
     std::stringstream stringStream;
     
-    stringStream << "rank name games wins draws losses" << std::endl;
+    stringStream << "rank name games wins draws losses score" << std::endl;
     
     for(int i = 0; i < resultList.size(); i++) {
         auto r = resultList.at(i);
@@ -387,13 +476,15 @@ std::string TourMng::createTournamentStats()
         auto d = double(std::max(1, r.gameCnt));
         double win = double(r.winCnt * 100) / d, draw = double(r.drawCnt * 100) / d, loss = double(r.lossCnt * 100) / d;
         
+        auto score = r.winCnt + r.drawCnt / 2;
         //        auto errorMagins = calcErrorMargins(r.winCnt, r.drawCnt, r.lossCnt);
         stringStream
         << (i + 1) << ". "
         << r.name << " \t" << r.gameCnt << " \t"
         // << (errorMagins > 0 ? "+" : "") << errorMagins << " "
         << std::fixed << std::setprecision(1)
-        << win << "% \t" << draw << "% \t" << loss << "%"
+        << win << "% \t" << draw << "% \t" << loss << "% \t"
+        << score
         << std::endl;
     }
     
@@ -451,22 +542,13 @@ void TourMng::createNextKnockoutMatchList()
     }
 }
 
-void TourMng::addMatchRecord(MatchRecord& record, bool returnMatch)
-{
-    addMatchRecord(record);
-    
-    if (returnMatch) {
-        record.swapPlayers();
-        addMatchRecord(record);
-    }
-}
-
 void TourMng::addMatchRecord(MatchRecord& record)
 {
     for(int i = 0; i < gameperpair; i++) {
         record.gameIdx = int(matchRecordList.size());
         bookMng.getRandomBook(record.startFen, record.startMoves);
         matchRecordList.push_back(record);
+        record.swapPlayers();
     }
 }
 
@@ -482,11 +564,7 @@ void TourMng::createKnockoutMatchList(const std::vector<std::string>& nameList, 
         record.round = round;
         record.state = MatchState::completed;
         record.resultType = ResultType::win; // win
-        addMatchRecord(record, false);
-        
-        record.swapPlayers();
-        record.resultType = ResultType::loss;
-        addMatchRecord(record, false);
+        addMatchRecord(record);
     }
     
     for(int i = 0; i < n; i++) {
@@ -495,7 +573,7 @@ void TourMng::createKnockoutMatchList(const std::vector<std::string>& nameList, 
         
         MatchRecord record(name0, name1);
         record.round = round;
-        addMatchRecord(record, true);
+        addMatchRecord(record);
     }
 }
 
@@ -504,13 +582,18 @@ bool TourMng::createMatchList()
     return createMatchList(participantList, type);
 }
 
-bool TourMng::createMatchList(const std::vector<std::string>& nameList, TourType tourType)
+bool TourMng::createMatchList(std::vector<std::string> nameList, TourType tourType)
 {
     matchRecordList.clear();
     
     if (nameList.size() < 2) {
         std::cerr << "Error: not enough players (" << nameList.size() << ") and/or unknown tournament type" << std::endl;
         return false;
+    }
+    
+    if (shufflePlayers) {
+        auto rng = std::default_random_engine {};
+        std::shuffle(std::begin(nameList), std::end(nameList), rng);
     }
     
     std::string missingName;
@@ -533,7 +616,7 @@ bool TourMng::createMatchList(const std::vector<std::string>& nameList, TourType
                     
                     MatchRecord record(name0, name1);
                     record.round = 1;
-                    addMatchRecord(record, true);
+                    addMatchRecord(record);
                 }
             }
             
@@ -685,7 +768,7 @@ void TourMng::matchCompleted(Game* game)
     if (logResultMode || banksiaVerbose) { // log
         auto wplayer = game->getPlayer(Side::white), bplayer = game->getPlayer(Side::black);
         if (wplayer && bplayer) {
-            std::string infoString = std::to_string(gIdx + 1) + ") " + game->getGameTitleString() + ": " + resultToString(game->board.result);
+            std::string infoString = std::to_string(gIdx + 1) + ") " + game->getGameTitleString() + ", #" + std::to_string(game->board.histList.size()) + ", " + resultToString(game->board.result);
             
             matchLog(infoString);
             // Add extra info to help understanding log
@@ -736,7 +819,7 @@ void TourMng::engineLog(int gameIdx, const std::string& name, const std::string&
     if (line.empty() || !logEngineInOutMode || logEngineInOutPath.empty()) return;
     
     std::ostringstream stringStream;
-
+    
     if (gameIdx >= 0 && gameConcurrency > 1) {
         stringStream << (gameIdx + 1) << ".";
     }
@@ -770,3 +853,4 @@ void TourMng::shutdown()
     timer.remove(mainTimerId);
     playerMng.shutdown();
 }
+

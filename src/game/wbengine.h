@@ -76,24 +76,34 @@ namespace banksia {
         
         bool engineMove(const std::string& moveString, bool mustSend);
         bool isFeatureOn(const std::string& featureName, bool defaultValue = false);
-        bool sendMemoryAndScoreOptions();
+        bool sendMemoryAndCoreOptions();
         
         virtual bool isIdleCrash() const override;
+        void tickPing() override;
         
     private:
         std::string timeControlString() const;
+        std::string timeLeftString() const;
         
         std::map<std::string, std::string> featureMap;
         
-        int pingCnt = 0;
+        int pingCnt = 0, expectingPongCnt = 0, pongCnt = 0;
         static const std::unordered_map<std::string, int> wbEngineCmd;
         int tick_delay_2_ready = -1;
         
-        bool feature_san = false, feature_usermove = false, feature_setboard = false;
+        bool feature_san = false, feature_usermove = false;
         
         bool feature_done_finished = true;
         
-        std::set<std::string> variantSet;
+        enum class SyncTask {
+            newgame, go
+        };
+        
+    private:
+        bool candoSyncTaskNow(SyncTask task);
+
+        std::mutex syncMutex;
+        std::vector<SyncTask> syncTasks;
     };
     
 } // namespace banksia

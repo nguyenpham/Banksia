@@ -25,40 +25,45 @@
 
 #include "configmng.h"
 
-using namespace banksia;
-
-static const char* protocalNames[] = {
-    "uci", "wb",
-    nullptr
-};
-
-Protocol protocolFromString(const std::string& string)
-{
-    for(int i = 0; protocalNames[i]; i++) {
-        if (strcmp(protocalNames[i], string.c_str()) == 0) {
-            return static_cast<Protocol>(i);
+namespace banksia {
+    
+    static const char* protocalNames[] = {
+        "uci", "wb", "none",
+        nullptr
+    };
+    
+    Protocol protocolFromString(const std::string& string)
+    {
+        for(int i = 0; protocalNames[i]; i++) {
+            if (strcmp(protocalNames[i], string.c_str()) == 0) {
+                return static_cast<Protocol>(i);
+            }
         }
+        return Protocol::none;
     }
-    return Protocol::none;
+    
+    const char* nameFromProtocol(Protocol protocol)
+    {
+        auto k = static_cast<int>(protocol);
+        if (k >= 0 && protocol <= Protocol::none) {
+            return protocalNames[k];
+        }
+        return nullptr;
+    }
+    
+    std::vector<std::string> protocolList()
+    {
+        std::vector<std::string> list;
+        for(int i = 0; protocalNames[i]; i++) {
+            list.push_back(protocalNames[i]);
+        }
+        return list;
+    }
+    
+    ConfigMng configMng;
 }
 
-const char* nameFromProtocol(Protocol protocol)
-{
-    auto k = static_cast<int>(protocol);
-    if (k >= 0 && protocol < Protocol::none) {
-        return protocalNames[k];
-    }
-    return nullptr;
-}
-
-std::vector<std::string> protocolList()
-{
-    std::vector<std::string> list;
-    for(int i = 0; protocalNames[i]; i++) {
-        list.push_back(protocalNames[i]);
-    }
-    return list;
-}
+using namespace banksia;
 
 
 static const char* OptionNames[] = {
@@ -376,14 +381,14 @@ bool Option::isValid() const
 std::string Option::getValueAsString() const
 {
     switch (type) {
-    case OptionType::spin:
-        return std::to_string(value);
-        break;
-    case OptionType::check:
-        return checked ? "true" : "false";
-        break;
-    default: // combo, string
-        break;
+        case OptionType::spin:
+            return std::to_string(value);
+            break;
+        case OptionType::check:
+            return checked ? "true" : "false";
+            break;
+        default: // combo, string
+            break;
     }
     return string;
 }
@@ -404,23 +409,27 @@ bool Config::load(const Json::Value& obj)
     if (obj.isMember("protocol")) {
         protocol = protocolFromString(obj["protocol"].asString());
     }
-    if (protocol == Protocol::none) protocol = Protocol::uci;
     
     command = obj["command"].asString();
     
     if (obj.isMember("name") && obj["name"].isString()) {
         name = obj["name"].asString();
-    } else {
-        name = getFileName(command);
-    }
-
-    if (protocol == Protocol::none || name.empty() || command.empty()) {
-        protocol = Protocol::none;
-        return false;
     }
     
-    if (obj.isMember("working folder")) workingFolder = obj["working folder"].asString();
+    if (name.empty()) {
+        name = "<<<" + getFileName(command) + ">>>";
+    }
+    
+    if (obj.isMember("working folder")) {
+        workingFolder = obj["working folder"].asString();
+    } else {
+        workingFolder = getFolder(command);
+    }
+    
+    if (obj.isMember("comment")) comment = obj["comment"].asString();
     if (obj.isMember("ponderable")) ponderable = obj["ponderable"].asBool();
+    
+    if (obj.isMember("elo")) elo = obj["elo"].asInt();
     
     variantSet.clear();
     if (obj.isMember("variants")) {
@@ -431,8 +440,6 @@ bool Config::load(const Json::Value& obj)
                 variantSet.insert(str);
             }
         }
-    } else {
-        variantSet.insert("standard");
     }
     
     argumentList.clear();
@@ -474,13 +481,18 @@ bool Config::load(const Json::Value& obj)
 Json::Value Config::saveToJson() const
 {
     Json::Value obj;
-
+    
     obj["protocol"] = nameFromProtocol(protocol);
     obj["name"] = name;
     obj["command"] = command;
     obj["working folder"] = workingFolder;
-    obj["ponderable"] = ponderable;
-
+    obj["comment"] = comment;
+    obj["elo"] = elo;
+    
+    if (protocol == Protocol::wb) { // useful for Winboard only
+        obj["ponderable"] = ponderable;
+    }
+    
     if (!variantSet.empty()) {
         Json::Value array;
         for(auto && s : variantSet) {
@@ -490,8 +502,10 @@ Json::Value Config::saveToJson() const
         }
         obj["variants"] = array;
     }
-
-    if (!argumentList.empty()) {
+    
+    if (argumentList.empty()){
+        obj["arguments"] = Json::arrayValue;
+    } else {
         Json::Value array;
         for(auto && s : argumentList) {
             if (!s.empty()) {
@@ -501,7 +515,9 @@ Json::Value Config::saveToJson() const
         obj["arguments"] = array;
     }
     
-    if (!initStringList.empty()) {
+    if (initStringList.empty()){
+        obj["initStrings"] = Json::arrayValue;
+    } else {
         Json::Value array;
         for(auto && s : initStringList) {
             if (!s.empty()) {
@@ -511,7 +527,9 @@ Json::Value Config::saveToJson() const
         obj["initStrings"] = array;
     }
     
-    if (!optionList.empty()) {
+    if (optionList.empty()){
+        obj["options"] = Json::arrayValue;
+    } else {
         Json::Value array;
         for(auto && option : optionList) {
             auto o = option.saveToJson();
@@ -525,7 +543,7 @@ Json::Value Config::saveToJson() const
 
 bool Config::isValid() const
 {
-    if (protocol == Protocol::none || name.empty() || command.empty() || variantSet.empty()) {
+    if (protocol == Protocol::none || name.empty() || command.empty()) { //  || variantSet.empty()
         return false;
     }
     for(auto && option : optionList) {
@@ -539,7 +557,9 @@ bool Config::isValid() const
 std::string Config::toString() const
 {
     std::ostringstream stringStream;
-    stringStream << "Config: " << name << ", " << command << ", " << workingFolder << std::endl;
+    stringStream << "Config: " << name << ", " << idName << ", " << nameFromProtocol(protocol) << ", "
+    << command << ", " << workingFolder
+    << std::endl;
     
     stringStream << "variantSet sz: " << variantSet.size() << ": ";
     for(auto && v : variantSet) {
@@ -593,7 +613,6 @@ void Config::appendOption(const Option& option)
 {
     if (option.name == "Ponder") {
         ponderable = true;
-        return;
     }
     
     optionList.push_back(option);
@@ -678,12 +697,31 @@ std::vector<std::string> ConfigMng::nameList() const
     return list;
 }
 
+size_t ConfigMng::size() const
+{
+    return configMap.size();
+}
+
+void ConfigMng::clear()
+{
+    configMap.clear();
+}
+
+std::vector<Config> ConfigMng::configList() const
+{
+    std::vector<Config> list;
+    for(auto && c : configMap) {
+        list.push_back(c.second);
+    }
+    return list;
+}
+
 bool ConfigMng::parseJsonAfterLoading(Json::Value& jsonData)
 {
     for (Json::Value::const_iterator it = jsonData.begin(); it != jsonData.end(); ++it) {
         Config config;
         config.load(*it);
-        if (config.isValid()) {
+        if (editingMode || config.isValid()) {
             insert(config);
         }
     }
@@ -737,7 +775,7 @@ bool ConfigMng::update(const Config& config)
 
 bool ConfigMng::insert(const Config& config)
 {
-    if (config.isValid()) {
+    if (config.isValid() || (editingMode && !config.command.empty())) {
         if (configMap.find(config.name) != configMap.end()) {
             std::cerr << "Warning: configuration name's " << config.name << " is repeated. Override data.\n";
         }
@@ -746,4 +784,5 @@ bool ConfigMng::insert(const Config& config)
     }
     return false;
 }
+
 

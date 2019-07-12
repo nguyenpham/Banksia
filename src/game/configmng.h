@@ -32,11 +32,13 @@
 
 namespace banksia {
     
-    // TODO: support winboard protocol
-    enum class Protocol
-    {
+    enum class Protocol {
         uci = 0, wb, none
     };
+    
+    const char* nameFromProtocol(Protocol protocol);
+    Protocol protocolFromString(const std::string& string);
+    std::vector<std::string> protocolList();
     
     // reset, save, file, path: for Winboard protocol
     enum class OptionType {
@@ -112,15 +114,19 @@ namespace banksia {
         virtual bool isValid() const override;
         virtual std::string toString() const override;
         
+        int getElo() const {
+            return elo;
+        }
     public:
         Protocol protocol;
-        std::string name, command, workingFolder;
+        int elo = 0;
+        std::string name, idName, command, workingFolder, comment;
         
         std::vector<std::string> argumentList, initStringList;
         std::set<std::string> variantSet;
         std::vector<Option> optionList;
         
-        bool ponderable = false;
+        bool ponderable = true; // for Winboard protocol only
     };
     
     class ConfigMng : public Obj, public JsonSavable
@@ -133,8 +139,8 @@ namespace banksia {
         
         virtual const char* className() const override { return "ConfigMng"; }
         
-        virtual bool isValid() const override;
-        virtual std::string toString() const override;
+        bool isValid() const override;
+        std::string toString() const override;
         
         Config get(const std::string& name) const;
         Config get(int idx) const;
@@ -148,16 +154,26 @@ namespace banksia {
         bool isNameExistent(const std::string& name) const;
         std::vector<std::string> nameList() const;
 
+        size_t size() const;
+        void clear();
+        std::vector<Config> configList() const;
+        
+        void setEditingMode(bool mode) {
+            editingMode = mode;
+        }
+
     protected:
-        virtual Json::Value createJsonForSaving() override;
+        Json::Value createJsonForSaving() override;
         
     private:
-        virtual bool parseJsonAfterLoading(Json::Value&) override;
+        bool parseJsonAfterLoading(Json::Value&) override;
         
         std::map<std::string, Config> configMap;
+        bool editingMode = false;
     };
     
-    
+    extern ConfigMng configMng;
+
 } // namespace banksia
 
 #endif /* configmng_hpp */

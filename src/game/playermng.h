@@ -60,7 +60,6 @@ namespace banksia {
     private:
         std::mutex thelock;
         std::vector<Player*> playerList;
-        ConfigMng configMng;
     };
     
 } // namespace banksia

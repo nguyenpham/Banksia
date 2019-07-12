@@ -88,7 +88,13 @@ namespace banksia {
         }
         return str;
     }
-    
+
+    std::string getFolder(const std::string& path) {
+        auto pos = path.find_last_of("/\\");
+        std::string str = pos != std::string::npos ? path.substr(0, pos) : "";
+        return str;
+    }
+
     std::string getVersion() {
         char buf[10];
         snprintf(buf, sizeof(buf), "%d.%02d", BANKSIA_VERSION >> 8, BANKSIA_VERSION & 0xff);
@@ -205,28 +211,36 @@ void Obj::printOut(const char* msg) const
     std::cout << toString() << std::endl;
 }
 
-bool JsonSavable::loadFromJsonFile(const std::string& jsonPath)
+bool JsonSavable::loadFromJsonFile(const std::string& jsonPath, bool verbose)
 {
     try {
         Json::Value obj;
-        return JsonSavable::loadFromJsonFile(jsonPath, obj) && parseJsonAfterLoading(obj);
+        return JsonSavable::loadFromJsonFile(jsonPath, obj, verbose) && parseJsonAfterLoading(obj);
     } catch (Json::Exception const& e) {
-        std::cerr << "Error: Exception when parsing json file - " << e.what() << std::endl;
+        if (verbose)
+            std::cerr << "Error: Exception when parsing json file - " << e.what() << std::endl;
     }
     return false;
 }
 
-bool JsonSavable::loadFromJsonFile(const std::string& path, Json::Value& jsonData)
+bool JsonSavable::_loadFromJsonFile(const std::string& path, Json::Value& jsonData, bool verbose)
 {
     jsonPath = path;
-    std::ifstream ifs(jsonPath);
+    return loadFromJsonFile(path, jsonData, verbose);
+}
+
+bool JsonSavable::loadFromJsonFile(const std::string& path, Json::Value& jsonData, bool verbose)
+{
+    std::ifstream ifs(path);
     
     Json::CharReaderBuilder jsonReader;
     std::string errorString;
     if (Json::parseFromStream(jsonReader, ifs, &jsonData, &errorString)) {
         return true;
     }
-    std::cerr << "Error: cannot load (or broken) json file " << jsonPath << ", error: " << errorString << std::endl;
+    if (verbose) {
+        std::cerr << "Error: cannot load (or broken) json file " << path << ", error: " << errorString << std::endl;
+    }
     return false;
 }
 
@@ -245,19 +259,28 @@ bool JsonSavable::saveToJsonFile(const std::string& path, Json::Value& jsonData)
 {
     auto r = false;
     std::ofstream outFile;
-    outFile.open(jsonPath, std::ofstream::trunc);
+    outFile.open(path, std::ofstream::trunc);
     if (outFile.is_open())
     {
         Json::StreamWriterBuilder builder;
-        builder.settings_["indentation"] = "";
+        builder.settings_["indentation"] = " ";
+//        builder["commentStyle"] = "None";
         std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
-        writer->write(jsonData, nullptr); // &std::cout);
-        
+        writer->write(jsonData, &outFile);
         r = true;
     }
     outFile.close();
     return r;
 }
 
+std::string JsonSavable::getJsonPath() const
+{
+    return jsonPath;
+}
+
+void JsonSavable::setJsonPath(const std::string& _jsonPath)
+{
+    jsonPath = _jsonPath;
+}
 
 

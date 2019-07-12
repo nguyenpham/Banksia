@@ -303,7 +303,7 @@ bool BookPolyglot::getRandomBook(std::string& fenString, std::vector<Move>& move
 
 /////////////////////////////////////////
 static const char* bookTypeNames[] = {
-    "epd", "pgn", "polyglot", nullptr
+    "epd", "pgn", "polyglot", "none", nullptr
 };
 
 BookType BookMng::string2BookType(const std::string& name)
@@ -314,6 +314,13 @@ BookType BookMng::string2BookType(const std::string& name)
         }
     }
     return BookType::none;
+}
+
+std::string BookMng::bookType2String(BookType type)
+{
+    auto t = static_cast<int>(type);
+    if (t < 0 || t >= 3) t = 3;
+    return bookTypeNames[t];
 }
 
 BookMng* BookMng::instance = nullptr;

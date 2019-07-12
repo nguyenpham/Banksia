@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B1019E4722D61C7A002FA111 /* jsonmaker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B1019E4522D61C7A002FA111 /* jsonmaker.cpp */; };
+		B1019E4A22D6A6F0002FA111 /* jsonengine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B1019E4822D6A6F0002FA111 /* jsonengine.cpp */; };
 		B1A7050322C62DE100013B1C /* chess.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B1A704D922C62DE100013B1C /* chess.cpp */; };
 		B1A7050422C62DE100013B1C /* base.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B1A704DC22C62DE100013B1C /* base.cpp */; };
 		B1A7050522C62DE100013B1C /* comm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B1A704DD22C62DE100013B1C /* comm.cpp */; };
@@ -39,6 +41,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		B1019E4522D61C7A002FA111 /* jsonmaker.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = jsonmaker.cpp; sourceTree = "<group>"; };
+		B1019E4622D61C7A002FA111 /* jsonmaker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = jsonmaker.h; sourceTree = "<group>"; };
+		B1019E4822D6A6F0002FA111 /* jsonengine.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = jsonengine.cpp; sourceTree = "<group>"; };
+		B1019E4922D6A6F0002FA111 /* jsonengine.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = jsonengine.h; sourceTree = "<group>"; };
 		B1A704D822C62DE100013B1C /* chess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = chess.h; sourceTree = "<group>"; };
 		B1A704D922C62DE100013B1C /* chess.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = chess.cpp; sourceTree = "<group>"; };
 		B1A704DB22C62DE100013B1C /* comm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = comm.h; sourceTree = "<group>"; };
@@ -146,6 +152,10 @@
 				B1A7053B22C9ADA400013B1C /* book.cpp */,
 				B1F9B07622CBB26E005E1A3E /* wbengine.h */,
 				B1F9B07522CBB26E005E1A3E /* wbengine.cpp */,
+				B1019E4522D61C7A002FA111 /* jsonmaker.cpp */,
+				B1019E4622D61C7A002FA111 /* jsonmaker.h */,
+				B1019E4822D6A6F0002FA111 /* jsonengine.cpp */,
+				B1019E4922D6A6F0002FA111 /* jsonengine.h */,
 			);
 			path = game;
 			sourceTree = "<group>";
@@ -263,6 +273,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B1019E4722D61C7A002FA111 /* jsonmaker.cpp in Sources */,
 				B1A7050622C62DE100013B1C /* tourmng.cpp in Sources */,
 				B1A7051C22C84E4900013B1C /* process_unix.cpp in Sources */,
 				B1A7050C22C62DE100013B1C /* engine.cpp in Sources */,
@@ -277,6 +288,7 @@
 				B1A7050322C62DE100013B1C /* chess.cpp in Sources */,
 				B1F9B07722CBB26E005E1A3E /* wbengine.cpp in Sources */,
 				B1A7051D22C84E4900013B1C /* process.cpp in Sources */,
+				B1019E4A22D6A6F0002FA111 /* jsonengine.cpp in Sources */,
 				B1A7050B22C62DE100013B1C /* configmng.cpp in Sources */,
 				B1A7050522C62DE100013B1C /* comm.cpp in Sources */,
 				B1A7050F22C62DE100013B1C /* jsoncpp.cpp in Sources */,

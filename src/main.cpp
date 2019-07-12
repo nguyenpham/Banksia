@@ -24,6 +24,8 @@
 
 #include <csignal>
 
+#include "jsonmaker.h"
+
 #include "game/uciengine.h"
 #include "game/playermng.h"
 #include "game/tourmng.h"
@@ -61,7 +63,7 @@ int main(int argc, const char * argv[])
         std::string str = arg;
         auto ok = true;
         
-        if (arg == "-jsonpath") {
+        if (arg == "-jsonpath" || arg == "-d" || arg == "-c") {
             if (i + 1 < argc) {
                 i++;
                 str = argv[i];
@@ -82,17 +84,34 @@ int main(int argc, const char * argv[])
         mainJsonPath = argmap["-jsonpath"];
     }
     
+    banksia::JsonMaker maker;
     banksia::TourMng tourMng;
-    if (!tourMng.loadFromJsonFile(mainJsonPath)) {
-        return -1;
-    }
     
-    if (!tourMng.createMatchList()) {
-        return -1;
+    if (argmap.find("-u") != argmap.end()) {
+        std::string mainEnginesPath;
+        if (argmap.find("-d") != argmap.end()) {
+            mainEnginesPath = argmap["-d"];
+        }
+        
+        int concurrency = 2;
+        if (argmap.find("-c") != argmap.end()) {
+            concurrency = std::atoi(argmap["-c"].c_str());
+        }
+        
+        // The app will be terminated when all jobs done
+        maker.build(mainJsonPath, mainEnginesPath, concurrency);
+    } else {
+        if (!tourMng.loadFromJsonFile(mainJsonPath)) {
+            return -1;
+        }
+        
+        if (!tourMng.createMatchList()) {
+            return -1;
+        }
+        
+        // The app will be terminated when all matches completed
+        tourMng.startTournament();
     }
-    
-    // The app will be terminated when all matches completed
-    tourMng.startTournament();
     
     while (true) {
         std::string line;
@@ -134,6 +153,7 @@ int main(int argc, const char * argv[])
     }
     
     tourMng.shutdown();
+    maker.shutdown();
     
     return 0;
 }
@@ -143,11 +163,18 @@ void show_usage(std::string name)
 {
     std::cout << "Usage: " << name << " <option>\n"
     << "Options:\n"
-    << "  -h          Show this help message\n"
-    << "  -jsonpath   Main json path to manage the tournament\n"
+    << "  -h               Show this help message\n"
+    << "  -jsonpath PATH   Main json path to manage the tournament\n"
+    << "  -u               update\n"
+    << "  -c               concurrency (for updating only)\n"
+    << "  -d PATH          main engines' folder, may have subfolder (for updating only)\n"
     << "\n"
     << "Examples:\n"
-    << "  " << name << " -jsonpath c:\\matchcontrol.json\n"
+    << "  " << name << " -jsonpath c:\\tour.json\n"
+    << "  " << name << " -u -d c:\\mainenginefolder\n"
+    << "  " << name << " -u -c 4 -jsonpath c:\\tour.json -d c:\\mainenginefolder\n"
+    << "  To update tour.json and engines.json in current folder:\n"
+    << "  " << name << " -u -c 4\n"
     << std::endl;
 }
 
@@ -161,4 +188,5 @@ void show_help()
     << "  quit                    quit\n"
     << std::endl;
 }
+
 

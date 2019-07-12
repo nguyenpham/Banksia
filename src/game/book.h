@@ -148,7 +148,8 @@ namespace banksia {
         bool getRandomBook(std::string& fenString, std::vector<Move>& moves) const;
 
         static BookType string2BookType(const std::string& name);
-        
+        static std::string bookType2String(BookType type);
+
         bool isEmpty() const;
         size_t size() const;
 

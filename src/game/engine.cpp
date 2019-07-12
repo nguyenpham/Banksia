@@ -40,30 +40,34 @@ void Engine::tickWork()
 	tick_idle++;
 
 	if (isIdleCrash()) {
-		std::string str = name + " is stopped because of being stalled too long!";
-		(messageLogger)(getAppName(), str, LogType::system);
+		auto str = name + " stalled too long. Stopped!";
+        if (messageLogger)
+            (messageLogger)(getAppName(), str, LogType::system);
 		setState(PlayerState::stopped);
 		return;
 	}
 
 	if (tick_deattach > 0) tick_deattach--;
 
-	if (tick_stopping > 0) {
-		tick_stopping--;
+    if (tick_being_kill > 0 && process) {
+        tick_being_kill--;
+        if (tick_being_kill == 0) {
+            process = nullptr;
+            setState(PlayerState::stopped);
+            finished();
+        }
+    }
 
-		int exit_status;
-		if (tick_stopping == 0
-			|| (process && process->try_get_exit_status(exit_status)))
-			setState(PlayerState::stopped);
-		return;
-	}
+    tickPing();
+}
 
-	// Ping
-	tick_ping++;
-	if (tick_ping >= tick_period_ping) {
-		resetPing();
-		sendPing();
-	}
+void Engine::tickPing()
+{
+    tick_ping++;
+    if (tick_ping >= tick_period_ping) {
+        resetPing();
+        sendPing();
+    }
 }
 
 bool Engine::isIdleCrash() const
@@ -90,6 +94,7 @@ void Engine::engineSentCorrectCmds()
 {
 	resetIdle();
 	resetPing();
+    correctCmdCnt++;
 }
 
 void Engine::setMessageLogger(std::function<void(const std::string&, const std::string&, LogType)> logger)
@@ -175,11 +180,7 @@ void Engine::parseLine(const std::string& line)
 
 bool Engine::kickStart()
 {
-	assert(config.isValid());
-
 	resetPing();
-
-	assert(isValid());
 
 	if (process == nullptr) {
 		setState(PlayerState::none);
@@ -193,6 +194,8 @@ bool Engine::kickStart()
 		auto workingFolder = config.workingFolder;
 #endif
 
+        assert(!command.empty());
+        
 		std::thread processThread([=]() {
 			TinyProcessLib::Config config;
 			config.buffer_size = process_buffer_size;
@@ -214,8 +217,11 @@ bool Engine::kickStart()
 			engineProcess.get_exit_status();
 
 			// engine has just exited
-			process = nullptr;
-			setState(PlayerState::stopped);
+            if (process) {
+                process = nullptr;
+                setState(PlayerState::stopped);
+                finished();
+            }
 		});
 
 		processThread.detach();
@@ -236,6 +242,11 @@ void Engine::attach(ChessBoard* board, const GameTimeController* timeController,
 bool Engine::isSafeToDeattach() const
 {
 	return computingState == EngineComputingState::idle || !isAttached() || tick_deattach == 0;
+}
+
+bool Engine::isSafeToDelete() const
+{
+    return process == nullptr;
 }
 
 bool Engine::stopThinking()
@@ -262,19 +273,15 @@ bool Engine::quit()
 {
 	sendQuit();
 	setState(PlayerState::stopping);
-	tick_stopping = 6; // 3 second
 	return true;
 }
 
 bool Engine::kill()
 {
 	if (process) {
-		process->kill();
-		delete process;
-		process = nullptr;
+		process->kill(true);
+        tick_being_kill = 6;
 	}
-
-	setState(PlayerState::stopped);
 	return true;
 }
 

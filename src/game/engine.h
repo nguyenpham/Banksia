@@ -71,16 +71,18 @@ namespace banksia {
         virtual void attach(ChessBoard*, const GameTimeController*, std::function<void(const Move&, const std::string&, const Move&, double, EngineComputingState)>, std::function<void()>) override;
 
         virtual bool isSafeToDeattach() const override;
+        virtual bool isSafeToDelete() const;
+
+        virtual std::string protocolString() const = 0;
+        virtual void parseLine(int, const std::string&, const std::string&) {}
+        virtual const std::unordered_map<std::string, int>& getEngineCmdMap() const = 0;
 
     protected:
         virtual void parseLine(const std::string&);
-        virtual void parseLine(int, const std::string&, const std::string&) {}
 
     protected:
         virtual void log(const std::string& line, LogType engineLog) const;
-        
-        virtual std::string protocolString() const = 0;
-        
+
         virtual bool sendQuit() = 0;
         
         virtual void resetPing();
@@ -95,9 +97,11 @@ namespace banksia {
         bool isExited() const;
         
         virtual bool isIdleCrash() const;
+
+        virtual void finished() {}
+        virtual void tickPing();
         
-        virtual const std::unordered_map<std::string, int>& getEngineCmdMap() const = 0;
-        
+
     public:
         EngineComputingState computingState = EngineComputingState::idle;
         Config config;
@@ -105,9 +109,11 @@ namespace banksia {
     protected:
         bool write(const std::string&);
         int tick_deattach = -1;
-        int tick_ping, tick_idle, tick_stopping = 0;
+        int tick_ping, tick_idle, tick_being_kill = -1; //, tick_stopping = 0;
         std::function<void(const std::string&, const std::string&, LogType)> messageLogger = nullptr;
 
+        int correctCmdCnt = 0;
+        
     private:
         const int process_buffer_size = 16 * 1024;
         std::string lastIncompletedStdout;

@@ -93,15 +93,12 @@ namespace banksia {
     public:
         
         TourMng();
-        TourMng(const std::string& jsonPath);
         ~TourMng();
-        
-        static TourMng* instance;
         
         virtual const char* className() const override { return "TourMng"; }
         
         bool createMatchList();
-        bool createMatchList(const std::vector<std::string>& nameList, TourType type);
+        bool createMatchList(std::vector<std::string> nameList, TourType type);
         void createMatch(MatchRecord&);
         bool createMatch(int gameIdx, const std::string& whiteName, const std::string& blackName, const std::string& startFen, const std::vector<Move>& startMoves);
         
@@ -119,11 +116,11 @@ namespace banksia {
         void shutdown();
 
 		static void append2TextFile(const std::string& path, const std::string& str);
-
+        static void fixJson(Json::Value& d, const std::string& path);
+        
     protected:
         virtual bool parseJsonAfterLoading(Json::Value&) override;
         
-        void addMatchRecord(MatchRecord& record, bool returnMatch);
         void addMatchRecord(MatchRecord& record);
 
         int calcErrorMargins(int w, int d, int l);
@@ -153,7 +150,7 @@ namespace banksia {
         TourState state = TourState::none;
         
         TimeController timeController;
-        bool ponderMode = false;
+        bool ponderMode = false, shufflePlayers = false;
 
         std::vector<std::string> participantList;
         std::vector<MatchRecord> matchRecordList;
@@ -162,7 +159,7 @@ namespace banksia {
         BookMng bookMng;
 
     protected:
-        bool recoverCrashEngines = true;
+        //bool recoverCrashEngines = true;
         int gameConcurrency = 1, gameperpair = 1;
 
         static void showPathInfo(const std::string& name, const std::string& path, bool mode);

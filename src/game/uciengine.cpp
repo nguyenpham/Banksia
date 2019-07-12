@@ -281,6 +281,24 @@ void UciEngine::parseLine(int cmdInt, const std::string& cmdString, const std::s
             sendPing();
             break;
         }
+        case UciEngineCmd::theId:
+        {
+            auto vec = splitString(line, ' ');
+            if (vec.size() <= 2) {
+                return;
+            }
+            
+            std::string str;
+            for(int i = 2; i < vec.size(); i++) {
+                if (!str.empty()) str += " ";
+                str += vec.at(i);
+            }
+            
+            if (vec.at(1) == "name") { // name or author
+                config.idName = str;
+            }
+            break;
+        }
             
         default:
             break;

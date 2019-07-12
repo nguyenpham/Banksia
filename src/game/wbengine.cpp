@@ -66,46 +66,46 @@ bool WbEngine::sendOptions()
     return true;
 }
 
+bool WbEngine::candoSyncTaskNow(SyncTask task)
+{
+    if (expectingPongCnt) {
+        std::lock_guard<std::mutex> dolock(syncMutex);
+        if (expectingPongCnt) {
+            syncTasks.push_back(task);
+            return false;
+        }
+    }
+    return true;
+}
+
 void WbEngine::newGame()
 {
+    if (!candoSyncTaskNow(SyncTask::newgame)) {
+        return;
+    }
     computingState = EngineComputingState::idle;
     
-    write("force"); // we don't want engine start calculating right now
-    
-    sendMemoryAndScoreOptions();
-    
-    // Crafty has a bug to work with command variant -> no send
-    // http://talkchess.com/forum3/viewtopic.php?f=7&p=804398#p804398
-    //    if (!variantSet.empty()) {
-    //        if (variantSet.find("normal") == variantSet.end()) {
-    //            (resignFunc)();
-    //            return;
-    //        }
-    //        write("variant normal");
-    //    }
+    sendMemoryAndCoreOptions();
     
     write(ponderMode ? "hard" : "easy");
     write("post"); // write("nopost");
-    write("new");
     
-    write("force"); // we don't want engine start calculating right now
-    auto haveSetup = false;
+    if (isFeatureOn("reuse", true)) {
+        write("new");
+    }
+    
     if (!board->fromOriginPosition()) {
         write("setboard " + board->getStartingFen());
-        haveSetup = true;
     }
     
     if (!board->histList.empty()) {
-        write("force"); // we don't want engine start calculating right now
         for (auto && hist : board->histList) {
             write(hist.move.toCoordinateString());
         }
-        haveSetup = true;
     }
     
-    if (haveSetup) {
-        write("force"); // crazy called again
-    }
+    write(timeControlString());
+    sendPing();
 }
 
 void WbEngine::prepareToDeattach()
@@ -133,10 +133,38 @@ bool WbEngine::goPonder(const Move& pondermove)
 
 bool WbEngine::go()
 {
+    if (!candoSyncTaskNow(SyncTask::go)) {
+        return false;
+    }
+    
     Engine::go();
     computingState = EngineComputingState::thinking;
     
-    return write(timeControlString()) && write("go");
+    return write(timeLeftString()) && write("go");
+}
+
+std::string WbEngine::timeLeftString() const
+{
+    switch (timeController->mode) {
+        case TimeControlMode::movetime:
+        {
+            auto centiSeconds = static_cast<int>(timeController->time * 100);
+            auto s = std::to_string(centiSeconds);
+            return "time " + s + "\notim " + s;
+        }
+            
+        case TimeControlMode::standard:
+        {
+            // timeController unit: second -> centi second
+            auto sd = static_cast<int>(board->side);
+            auto time = int(timeController->getTimeLeft(sd) * 100);
+            auto otime = int(timeController->getTimeLeft(1 - sd) * 100);
+            return "time " + std::to_string(time) + "\notim " + std::to_string(otime);
+        }
+        default:
+            break;
+    }
+    return "";
 }
 
 std::string WbEngine::timeControlString() const
@@ -181,7 +209,8 @@ std::string WbEngine::timeControlString() const
 
 bool WbEngine::sendPing()
 {
-    return write("ping " + std::to_string(pingCnt++));
+    expectingPongCnt++;
+    return write("ping " + std::to_string(++pingCnt));
 }
 
 bool WbEngine::sendPong(const std::string& str)
@@ -197,10 +226,26 @@ void WbEngine::tickWork()
         tick_delay_2_ready > 0) {
         tick_delay_2_ready--;
         if (tick_delay_2_ready == 0) {
+            write("force");
+            sendPing();
             setState(PlayerState::ready);
         }
     }
 }
+
+void WbEngine::tickPing()
+{
+    if (computingState == EngineComputingState::thinking) {
+        return;
+    }
+    
+    tick_ping++;
+    if (tick_ping >= tick_period_ping) {
+        resetPing();
+        sendPing();
+    }
+}
+
 
 bool WbEngine::isIdleCrash() const
 {
@@ -215,7 +260,7 @@ bool WbEngine::isFeatureOn(const std::string& featureName, bool defaultValue)
     return p == featureMap.end() ? defaultValue : p->second == "1";
 }
 
-bool WbEngine::sendMemoryAndScoreOptions()
+bool WbEngine::sendMemoryAndCoreOptions()
 {
     // cores N, memory N
     std::string str;
@@ -261,14 +306,13 @@ bool WbEngine::parseFeature(const std::string& name, const std::string& content,
         feature_san = content == "1";
     } else if (name == "usermove") {
         feature_usermove = content == "1";
-    } else if (name == "setboard") {
-        feature_setboard = content == "1";
     } else if (name == "variants") {
+        config.variantSet.clear();
         auto varList = splitString(content, ',');
         for(auto && s : varList) {
             trim(s);
             if (!s.empty()) {
-                variantSet.insert(s);
+                config.variantSet.insert(s);
             }
         }
     } else if (name == "done") {
@@ -280,6 +324,8 @@ bool WbEngine::parseFeature(const std::string& name, const std::string& content,
             feature_done_finished = true;
         }
         return true;
+    } else if (name == "myname") {
+        config.idName = content;
     }
     
     write("accepted " + name);
@@ -307,7 +353,7 @@ void WbEngine::parseFeatures(const std::string& line)
                 k = i + 1;
             } else {
                 if (!featureName.empty() && k > 0 && i > k + 1) {
-                    auto content = line.substr(k, i - 1 - k);
+                    auto content = line.substr(k, i - k);
                     parseFeature(featureName, content, true);
                 }
                 featureName = "";
@@ -350,7 +396,7 @@ bool WbEngine::oppositeMadeMove(const Move& move, const std::string& sanMoveStri
 bool WbEngine::engineMove(const std::string& moveString, bool mustSend)
 {
     if (moveString.length() < 2 || !isalpha(moveString.at(0))
-        || computingState != EngineComputingState::thinking) { // some engines don't orbey 'force' and create move too fast -> ignore some cases
+        || computingState != EngineComputingState::thinking) { // some engines don't orbey 'force' and create moves too fast -> ignore some cases
         return false;
     }
     
@@ -422,6 +468,31 @@ void WbEngine::parseLine(int cmdInt, const std::string& cmdString, const std::st
             break;
         }
             
+        case WbEngineCmd::pong:
+        {
+            expectingPongCnt = 0;
+            pongCnt++;
+            
+            if (!syncTasks.empty()) {
+                std::lock_guard<std::mutex> dolock(syncMutex);
+                if (!syncTasks.empty()) {
+                    auto task = syncTasks.front();
+                    syncTasks.erase(syncTasks.begin());
+                    switch (task) {
+                        case SyncTask::newgame:
+                            newGame();
+                            break;
+                        case SyncTask::go:
+                            go();
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            break;
+        }
+            
         case WbEngineCmd::resign:
         {
             if (resignFunc != nullptr) {
@@ -434,6 +505,7 @@ void WbEngine::parseLine(int cmdInt, const std::string& cmdString, const std::st
             break;
     }
 }
+
 
 
 

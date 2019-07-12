@@ -25,18 +25,16 @@
 
 #include <sstream>
 
-#include "player.h"
+#include "JsonMaker.h"
 
 using namespace banksia;
 
-//static const char* playerTypeNames[] = {
-//    "human", "engine", "none", nullptr
-//};
+static const char* playerTypeNames[] = {
+    "human", "engine", "none", nullptr
+};
 
-Player::Player()
-: type(PlayerType::none)
+JsonMaker::JsonMaker()
 {
-    state = PlayerState::none;
 }
 
 Player::Player(const std::string& name, PlayerType type)
@@ -52,7 +50,7 @@ bool Player::isValid() const
 std::string Player::toString() const
 {
     std::ostringstream stringStream;
-    stringStream << name << ", idNumber: " << idNumber << std::endl;
+    stringStream << name << ", " << playerTypeNames[static_cast<int>(type)] << ", idNumber: " << idNumber << std::endl;
     return stringStream.str();
 }
 

@@ -40,8 +40,15 @@
 
 namespace banksia {
     
-    const int BANKSIA_VERSION = (1 << 8) + 51;
+    const int BANKSIA_VERSION = (2 << 8) + 0;
     
+#ifdef _WIN32
+    const std::string folderSlash = "\\";
+#else
+    const std::string folderSlash = "/";
+#endif
+    
+
 #define i16 int16_t
 #define u16 uint16_t
 #define i32 int32_t
@@ -67,16 +74,21 @@ namespace banksia {
     
     class JsonSavable {
     public:
-        virtual bool loadFromJsonFile(const std::string& jsonPath);
+        virtual bool loadFromJsonFile(const std::string& jsonPath, bool verbose = true);
         virtual bool saveToJsonFile();
         
+        virtual std::string getJsonPath() const;
+        virtual void setJsonPath(const std::string&);
+        
+        static bool loadFromJsonFile(const std::string& jsonPath, Json::Value& jsonData, bool verbose = true);
+        static bool saveToJsonFile(const std::string& jsonPath, Json::Value& jsonData);
+
     protected:
         virtual bool saveToJsonFile(Json::Value& jsonData);
-        virtual bool saveToJsonFile(const std::string& jsonPath, Json::Value& jsonData);
         virtual bool parseJsonAfterLoading(Json::Value&) { return false; }
         virtual Json::Value createJsonForSaving() { return Json::Value(); }
         
-        virtual bool loadFromJsonFile(const std::string& jsonPath, Json::Value& jsonData);
+        virtual bool _loadFromJsonFile(const std::string& jsonPath, Json::Value& jsonData, bool verbose);
         std::string jsonPath;
     };
     
@@ -160,7 +172,8 @@ namespace banksia {
     std::string& trim(std::string& s);
     
     std::string getFileName(const std::string& path);
-    
+    std::string getFolder(const std::string& path);
+
     std::vector<std::string> splitString(const std::string& string, const std::string& regexString);
     std::vector<std::string> splitString(const std::string &s, char delim);
     
