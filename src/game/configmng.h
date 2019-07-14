@@ -162,6 +162,11 @@ namespace banksia {
             editingMode = mode;
         }
 
+        int getElo(const std::string& name) const {
+            auto config = get(name);
+            return config.isValid() ? config.elo : 0;
+        }
+
     protected:
         Json::Value createJsonForSaving() override;
         

@@ -67,10 +67,7 @@ namespace banksia {
         bool stop() override { return true; }
         bool isAttached() const override;
 
-//        bool write(const std::string& str) override;
-        void log(const std::string& line, LogType logType) const override;
-        
-//        void finished() override;
+//        void log(const std::string& line, LogType logType) const override;
 
     private:
         void completed(Config* config);
@@ -81,8 +78,9 @@ namespace banksia {
 
         std::function<void(Config* config)> taskComplete = nullptr;
 
-        const int tick_test_period = 30; // 20 seconds
-        int tick_test = 0, tryNum = 1;  // 2 x 20 -> 40s
+        const int tick_test_period = 24;    // 12s
+        const int tick_test_period_wb = 50; // 25 seconds
+        int tick_test = 0, tryNum = 2;      // 3 x 12 -> 36s
         
         Engine* engine = nullptr;
         

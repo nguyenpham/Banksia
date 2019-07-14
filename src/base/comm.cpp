@@ -41,7 +41,42 @@ namespace banksia {
         "*", "mate", "stalemate", "repetition", "resign", "fifty moves", "insufficient material", "illegal move", "timeout", "crash", nullptr
     };
     
+    // noresult, win, draw, loss
+    const char* resultStrings[] = {
+        "*", "1-0", "1/2-1/2", "0-1", nullptr
+    };
+
     static std::mutex consoleMutex;
+    
+    std::string resultType2String(ResultType type) {
+        auto t = static_cast<int>(type);
+        if (t < 0 || t > 3) t = 0;
+        return resultStrings[t];
+    }
+    
+    ResultType string2ResultType(const std::string& s) {
+        for(int i = 0; resultStrings[i]; i++) {
+            if (resultStrings[i] == s) {
+                return static_cast<ResultType>(i);
+            }
+        }
+        return ResultType::noresult;
+    }
+    
+    std::string reasonType2String(ReasonType type) {
+        auto t = static_cast<int>(type);
+        if (t < 0) t = 0;
+        return reasonStrings[t];
+    }
+    
+    ReasonType string2ReasonType(const std::string& s) {
+        for(int i = 0; reasonStrings[i]; i++) {
+            if (reasonStrings[i] == s) {
+                return static_cast<ReasonType>(i);
+            }
+        }
+        return ReasonType::noreason;
+    }
     
     void printText(const std::string& str)
     {
@@ -97,7 +132,7 @@ namespace banksia {
 
     std::string getVersion() {
         char buf[10];
-        snprintf(buf, sizeof(buf), "%d.%02d", BANKSIA_VERSION >> 8, BANKSIA_VERSION & 0xff);
+        snprintf(buf, sizeof(buf), "%d.%d", BANKSIA_VERSION >> 8, BANKSIA_VERSION & 0xff);
         return buf;
     }
     
@@ -264,6 +299,7 @@ bool JsonSavable::saveToJsonFile(const std::string& path, Json::Value& jsonData)
     {
         Json::StreamWriterBuilder builder;
         builder.settings_["indentation"] = " ";
+        builder["precision"] = 1;
 //        builder["commentStyle"] = "None";
         std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
         writer->write(jsonData, &outFile);

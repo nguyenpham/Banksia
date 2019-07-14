@@ -375,29 +375,64 @@ bool UciEngine::parseOption(const std::string& s)
             }
             
             if (type == "combo") {
-                static const std::regex re("(.*)default (.+) (var (.+))+");
-                if (std::regex_search(rest, match, re) && match.size() > 3) {
-                    auto dString = match.str(2);
-                    std::vector<std::string> list;
-                    for(int i = 3; i < match.size(); i++) {
-                        auto str = match.str(i);
-                        if (memcmp(str.c_str(), "var ", 4) == 0) {
-                            str = str.substr(4);
-                            if (!str.empty()) list.push_back(str);
-                            //                            std::cout << str << std::endl;
+                auto p = rest.find("default");
+                std::string defaultString;
+                std::vector<std::string> list;
+                if (p != std::string::npos && rest.find("var") != std::string::npos) {
+                    p += 8;
+                    for(int i = 0; ; i++) {
+                        auto q = rest.find("var", p);
+                        auto len = (q != std::string::npos ? q : rest.length()) - p;
+                        auto str = rest.substr(p, len);
+                        trim(str);
+                        if (str.empty()) break;
+                        if (i == 0) {
+                            defaultString = str;
+                        } else {
+                            list.push_back(str);
                         }
+                        
+                        if (q == std::string::npos) break;
+                        p = q + 4;
                     }
                     
-                    option.type = OptionType::combo;
-                    option.setDefaultValue(dString);
-                    option.setDefaultValue(list);
-                    
-                    if (option.isValid()) {
-                        config.updateOption(option);
-                        return true;
+                    if (!list.empty()) {
+                        option.type = OptionType::combo;
+                        option.setDefaultValue(defaultString, list);
+                        
+                        if (option.isValid()) {
+                            config.updateOption(option);
+                            return true;
+                        }
+
                     }
-                    return false;
                 }
+                return false;
+
+//                static const std::regex re("(.*)default (.+) (var (.+))+");
+//                if (std::regex_search(rest, match, re) && match.size() > 3) {
+//                    auto dString = match.str(2);
+//                    std::vector<std::string> list;
+//                    for(int i = 3; i < match.size(); i++) {
+//                        auto str = match.str(i);
+//                        std::cout << str << std::endl;
+//                        if (memcmp(str.c_str(), "var ", 4) == 0) {
+//                            str = str.substr(4);
+//                            if (!str.empty()) list.push_back(str);
+//                            //                            std::cout << str << std::endl;
+//                        }
+//                    }
+//
+//                    option.type = OptionType::combo;
+//                    option.setDefaultValue(dString);
+//                    option.setDefaultValue(list);
+//
+//                    if (option.isValid()) {
+//                        config.updateOption(option);
+//                        return true;
+//                    }
+//                    return false;
+//                }
             }
         } else {
         }

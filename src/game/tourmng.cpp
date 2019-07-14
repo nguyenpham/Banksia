@@ -31,11 +31,13 @@
 
 #include "tourmng.h"
 
+#include "../3rdparty/json/json.h"
+
 using namespace banksia;
 
 bool MatchRecord::isValid() const
 {
-    return !playernames[0].empty() && !playernames[1].empty() && gameCount >= 0;
+    return !playernames[0].empty() && !playernames[1].empty();
 }
 
 std::string MatchRecord::toString() const
@@ -43,28 +45,87 @@ std::string MatchRecord::toString() const
     std::ostringstream stringStream;
     stringStream << "names: " << playernames[0] << ", " << playernames[1]
     << ", status: " << static_cast<int>(state)
-    << ", round: " << round
-    << ", score: " << score
-    << ", gameCount: " << gameCount;
+    << ", round: " << round;
     return stringStream.str();
 }
 
+bool MatchRecord::load(const Json::Value& obj)
+{
+    auto array = obj["players"];
+    playernames[0] = array[0].asString();
+    playernames[1] = array[1].asString();
+
+    if (obj.isMember("startFen")) {
+        startFen = obj["startFen"].asString();
+    }
+    
+    startMoves.clear();
+    if (obj.isMember("startMoves")) {
+        auto array = obj["startMoves"];
+        for (int i = 0; i < int(array.size()); i++){
+            auto k = array[i].asInt();
+            Move m(k & 0xff, k >> 8 & 0xff, static_cast<PieceType>(k >> 16 & 0xff));
+            startMoves.push_back(m);
+        }
+    }
+
+    auto s = obj["result"].asString();
+    resultType = string2ResultType(s);
+
+    state = resultType == ResultType::noresult ? MatchState::none : MatchState::completed;
+
+    gameIdx = obj["gameIdx"].asInt();
+    round = obj["round"].asInt();
+    pairId = obj["pairId"].asInt();
+    return true;
+}
+
+Json::Value MatchRecord::saveToJson() const
+{
+    Json::Value obj;
+    
+    Json::Value players;
+    players.append(playernames[0]);
+    players.append(playernames[1]);
+    obj["players"] = players;
+
+    if (!startFen.empty()) {
+        obj["startFen"] = startFen;
+    }
+    
+    if (!startMoves.empty()) {
+        Json::Value moves;
+        for(auto && m : startMoves) {
+            auto k = m.dest | m.from << 8 | static_cast<int>(m.promotion) << 16;
+            moves.append(k);
+        }
+        
+        obj["startMoves"] = moves;
+    }
+    
+    obj["result"] = resultType2String(resultType);
+    obj["gameIdx"] = gameIdx;
+    obj["round"] = round;
+    obj["pairId"] = pairId;
+    return obj;
+}
+
 //////////////////////////////
-bool TourResult::isValid() const
+bool TourPlayer::isValid() const
 {
     return !name.empty()
     && gameCnt >= 0 && winCnt >= 0 && drawCnt>= 0 && lossCnt>= 0
     && gameCnt == winCnt + drawCnt + lossCnt;
 }
 
-std::string TourResult::toString() const
+std::string TourPlayer::toString() const
 {
     std::ostringstream stringStream;
     stringStream << name << "#games: "<< gameCnt << ", wdl: " << winCnt << ", " << drawCnt << ", " << lossCnt;
     return stringStream.str();
 }
 
-bool TourResult::smaller(const TourResult& other) const {
+bool TourPlayer::smaller(const TourPlayer& other) const {
     return winCnt < other.winCnt
     || (winCnt == other.winCnt && (lossCnt > other.lossCnt || (lossCnt == other.lossCnt && drawCnt < other.drawCnt)));
 }
@@ -86,34 +147,65 @@ static const char* tourTypeNames[] = {
 // To create json file
 void TourMng::fixJson(Json::Value& d, const std::string& path)
 {
-    if (!d.isMember("type")) {
-        d["type"] = tourTypeNames[0];
+    // Base
+    auto s = "base";
+    Json::Value v;
+    if (!d.isMember(s)) {
+        v = d[s];
+    }
+
+    if (!v.isMember("type")) {
+        v["type"] = tourTypeNames[0];
+    }
+    s = "games per pair";
+    if (!v.isMember(s)) {
+        v[s] = 2;
+    }
+
+    if (!v.isMember("ponder")) {
+        v["ponder"] = false;
     }
     
-    auto s = "time control";
+    s = "shuffle players";
+    if (!v.isMember(s)) {
+        v[s] = false;
+    }
+    
+    s = "resumable";
+    if (!v.isMember(s)) {
+        v[s] = true;
+    }
+    
+    if (!v.isMember("event")) {
+        v["event"] = "Computer event";
+    }
+    if (!v.isMember("site")) {
+        v["site"] = "Somewhere on Earth";
+    }
+    
+    if (!v.isMember("concurrency")) {
+        v["concurrency"] = 2;
+    }
+    
+    s = "comment";
+    if (!v.isMember(s)) {
+        v[s] = "Type could be: " + std::string(tourTypeNames[0]) + ", " + std::string(tourTypeNames[1]);
+    }
+
+    d["base"] = v;
+
+    
+    s = "time control";
     if (!d.isMember(s)) {
         Json::Value v;
         v["mode"] = "standard";
         v["moves"] = 40;
-        v["time"] = 5.5;
-        v["increment"] = 0.5;
-        v["margin"] = 0.8;
+        v["time"] = double(5.5);
+        v["increment"] = double(0.5);
+        v["margin"] = double(0.8);
         d[s] = v;
     }
-    s = "games per pair";
-    if (!d.isMember(s)) {
-        d[s] = 2;
-    }
     
-    if (!d.isMember("ponder")) {
-        d["ponder"] = false;
-    }
-    
-    s = "shuffle players";
-    if (!d.isMember(s)) {
-        d[s] = false;
-    }
-
     s = "opening books";
     if (!d.isMember(s)) {
         Json::Value v;
@@ -132,17 +224,6 @@ void TourMng::fixJson(Json::Value& d, const std::string& path)
             v.append(b);
         }
         d[s] = v;
-    }
-    
-    if (!d.isMember("event")) {
-        d["event"] = "Computer event";
-    }
-    if (!d.isMember("site")) {
-        d["site"] = "Play on Earth";
-    }
-    
-    if (!d.isMember("concurrency")) {
-        d["concurrency"] = 2;
     }
     
     s = "pgn";
@@ -169,7 +250,6 @@ void TourMng::fixJson(Json::Value& d, const std::string& path)
         v["path"] = path + folderSlash + "enginelog.txt";
         d[s] = v;
     }
-    
 }
 
 bool TourMng::parseJsonAfterLoading(Json::Value& d)
@@ -177,13 +257,44 @@ bool TourMng::parseJsonAfterLoading(Json::Value& d)
     //
     // Most inportance
     //
-    if (d.isMember("type")) {
-        auto s = d["type"].asString();
+    if (d.isMember("base")) {
+        auto v = d["base"];
+
+        auto s = v["type"].asString();
         for(int t = 0; tourTypeNames[t]; t++) {
             if (tourTypeNames[t] == s) {
                 type = static_cast<TourType>(t);
                 break;
             }
+        }
+        
+        
+        s = "resumable";
+        resumable = v.isMember(s) ? v[s].asBool() : true;
+        
+        s = "games per pair";
+        if (v.isMember(s)) {
+            gameperpair = std::max(1, v[s].asInt());
+        }
+        
+        s = "shuffle players";
+        shufflePlayers = v.isMember(s) && v[s].asBool();
+        
+        s = "ponder";
+        ponderMode = v.isMember(s) && v[s].asBool();
+        
+        s = "event";
+        if (v.isMember(s)) {
+            eventName = v[s].asString();
+        }
+        s = "site";
+        if (v.isMember(s)) {
+            siteName = v[s].asString();
+        }
+        
+        s = "concurrency";
+        if (v.isMember(s)) {
+            gameConcurrency = std::max(1, v[s].asInt());
         }
     }
     
@@ -212,7 +323,7 @@ bool TourMng::parseJsonAfterLoading(Json::Value& d)
                 if (ConfigMng::instance->isNameExistent(str)) {
                     participantList.push_back(str);
                 } else {
-                    std::cerr << "Error: player " << str << " (in \"players\") is not existent in engine configure file." << std::endl;
+                    std::cerr << "Error: player " << str << " (in \"players\") is not existent in engine configurations." << std::endl;
                 }
             }
         }
@@ -246,37 +357,13 @@ bool TourMng::parseJsonAfterLoading(Json::Value& d)
         return false;
     }
     
-    
     //
     // Less inportance
     //
-    s = "games per pair";
-    if (d.isMember(s)) {
-        gameperpair = std::max(1, d[s].asInt());
-    }
-    
-    s = "shuffle players";
-    shufflePlayers = d.isMember(s) && d[s].asBool();
-    
-    if (d.isMember("ponder")) {
-        ponderMode = d["ponder"].asBool();
-    }
-    
     s = "opening books";
     if (d.isMember(s)) {
         auto obj = d[s];
         bookMng.load(obj);
-    }
-    
-    if (d.isMember("event")) {
-        eventName = d["event"].asString();
-    }
-    if (d.isMember("site")) {
-        siteName = d["site"].asString();
-    }
-    
-    if (d.isMember("concurrency")) {
-        gameConcurrency = std::max(1, d["concurrency"].asInt());
     }
     
     s = "pgn";
@@ -387,29 +474,24 @@ void TourMng::startTournament()
     
     // tickWork will start the matches
     state = TourState::playing;
-    
-    
+
     mainTimerId = timer.add(std::chrono::milliseconds(500), [=](CppTime::timer_id) { tick(); }, std::chrono::milliseconds(500));
 }
 
 void TourMng::finishTournament()
 {
     state = TourState::done;
-    auto elapsed_secs = static_cast<int>(time(nullptr) - startTime);
+    auto elapsed_secs = previousElapsed + static_cast<int>(time(nullptr) - startTime);
     
     if (!matchRecordList.empty()) {
-        static const char* separateLine = "-------------------------------------";
-        matchLog("\n");
-        matchLog(separateLine);
-        
         auto str = createTournamentStats();
         matchLog(str);
-        
-        matchLog(separateLine);
     }
     
     auto str = "Tournamemt finished! Elapsed: " + formatPeriod(elapsed_secs);
     matchLog(str);
+    
+    removeMatchRecordFile();
     
     // WARNING: exit the app here after completed the tournament
     shutdown();
@@ -418,17 +500,19 @@ void TourMng::finishTournament()
 
 std::string TourMng::createTournamentStats()
 {
-    std::map<std::string, TourResult> resultMap;
+    std::map<std::string, TourPlayer> resultMap;
     
     for(auto && m : matchRecordList) {
-        if (m.resultType == ResultType::noresult) {
+        if (m.resultType == ResultType::noresult) { // hm
             continue;
         }
         
         for(int sd = 0; sd < 2; sd++) {
             auto name = m.playernames[sd];
-            assert(!name.empty());
-            TourResult r;
+            if (name.empty()) { // lucky players (in knockout) won without opponents
+                continue;
+            }
+            TourPlayer r;
             auto it = resultMap.find(name);
             if (it == resultMap.end()) {
                 r.name = name;
@@ -455,20 +539,31 @@ std::string TourMng::createTournamentStats()
         }
     }
     
-    std::vector<TourResult> resultList;
+    auto maxNameLen = 0;
+    std::vector<TourPlayer> resultList;
     for (auto && s : resultMap) {
         resultList.push_back(s.second);
+        maxNameLen = std::max(maxNameLen, int(s.second.name.length()));
     }
     
-    std::sort(resultList.begin(), resultList.end(), [](const TourResult& lhs, const TourResult& rhs)
+    std::sort(resultList.begin(), resultList.end(), [](const TourPlayer& lhs, const TourPlayer& rhs)
               {
-                  return lhs.smaller(rhs);
+                  return rhs.smaller(lhs); // return lhs.smaller(rhs);
               });
     
     
     std::stringstream stringStream;
     
-    stringStream << "rank name games wins draws losses score" << std::endl;
+    
+    auto separateLineSz = maxNameLen + 50;
+    for(int i = 0; i < separateLineSz; i++) {
+        stringStream << "-";
+    }
+    stringStream << std::endl;
+
+    stringStream << "  #  "
+    << std::left << std::setw(maxNameLen + 1) << "name"
+    << "games     wins    draws   losses   score" << std::endl;
     
     for(int i = 0; i < resultList.size(); i++) {
         auto r = resultList.at(i);
@@ -476,18 +571,26 @@ std::string TourMng::createTournamentStats()
         auto d = double(std::max(1, r.gameCnt));
         double win = double(r.winCnt * 100) / d, draw = double(r.drawCnt * 100) / d, loss = double(r.lossCnt * 100) / d;
         
-        auto score = r.winCnt + r.drawCnt / 2;
+        double score = double(r.winCnt) + double(r.drawCnt) / 2;
         //        auto errorMagins = calcErrorMargins(r.winCnt, r.drawCnt, r.lossCnt);
         stringStream
-        << (i + 1) << ". "
-        << r.name << " \t" << r.gameCnt << " \t"
+        << std::right << std::setw(3) << (i + 1) << ". "
+        << std::left << std::setw(maxNameLen + 1) << r.name
+        << std::right << std::setw(5) << r.gameCnt
         // << (errorMagins > 0 ? "+" : "") << errorMagins << " "
         << std::fixed << std::setprecision(1)
-        << win << "% \t" << draw << "% \t" << loss << "% \t"
-        << score
+        << std::right << std::setw(8) << win << std::left << std::setw(0) << "%"
+        << std::right << std::setw(8) << draw << std::left << std::setw(0) << "%"
+        << std::right << std::setw(8) << loss << std::left << std::setw(0) << "%"
+        << std::right << std::setw(8) << score << std::left << std::setw(0)
         << std::endl;
     }
     
+    for(int i = 0; i < separateLineSz; i++) {
+        stringStream << "-";
+    }
+    stringStream << std::endl << std::endl;
+
     return stringStream.str();
 }
 
@@ -514,67 +617,244 @@ void TourMng::playMatches()
         }
     }
     
-    if (gameList.empty()) {
+    if (gameList.empty() && !createNextRoundMatches()) {
         return finishTournament();
-    }
-}
-
-void TourMng::createNextKnockoutMatchList()
-{
-    auto lastRound = 0;
-    for(auto && r : matchRecordList) {
-        lastRound = std::max(lastRound, r.round);
-    }
-    
-    std::vector<std::string> nameList;
-    for(auto && r : matchRecordList) {
-        if (r.round == lastRound) {
-            if (r.score > 0) {
-                nameList.push_back(r.playernames[0]);
-            } else {
-                nameList.push_back(r.playernames[1]);
-            }
-        }
-    }
-    
-    if (nameList.size() > 1) {
-        createKnockoutMatchList(nameList, lastRound + 1);
     }
 }
 
 void TourMng::addMatchRecord(MatchRecord& record)
 {
+    record.pairId = std::rand();
     for(int i = 0; i < gameperpair; i++) {
-        record.gameIdx = int(matchRecordList.size());
-        bookMng.getRandomBook(record.startFen, record.startMoves);
-        matchRecordList.push_back(record);
+        addMatchRecord_simple(record);
         record.swapPlayers();
     }
 }
 
-void TourMng::createKnockoutMatchList(const std::vector<std::string>& nameList, int round)
+void TourMng::addMatchRecord_simple(MatchRecord& record)
 {
-    auto n = nameList.size() / 2;
+    record.gameIdx = int(matchRecordList.size());
+    bookMng.getRandomBook(record.startFen, record.startMoves);
+    matchRecordList.push_back(record);
+}
+
+bool TourMng::createNextRoundMatches()
+{
+    switch (type) {
+        case TourType::roundrobin:
+            return false;
+            
+        case TourType::knockout:
+            return createNextKnockoutMatchList();
+
+        default:
+            break;
+    }
+    return false;
+}
+
+// This function used to break the tie between a pair of players in knockout
+// It is not a tie if one has more win or more white games
+void TourMng::checkToExtendMatches(int gIdx)
+{
+    if (type != TourType::knockout || gIdx < 0) {
+        return;
+    }
     
-    // the odd and the lucky last player win all game, put him to begin
-    if (2 * n < nameList.size()) {
-        auto name0 = nameList.back();
+    for(auto && r : matchRecordList) {
+        if (r.gameIdx == gIdx) {
+            TourPlayerPair playerPair;
+            playerPair.pair[0].name = r.playernames[0];
+            playerPair.pair[1].name = r.playernames[1];
+            auto pairId = r.pairId;
+
+            for(auto && rcd : matchRecordList) {
+                if (rcd.pairId != pairId) {
+                    continue;
+                }
+                
+                // some matches are not completed -> no extend
+                if (rcd.state != MatchState::completed) {
+                    return;
+                }
+                if (rcd.resultType != ResultType::win && rcd.resultType != ResultType::loss) {
+                    continue;
+                }
+                auto winnerName = rcd.playernames[(rcd.resultType == ResultType::win ? W : B)];
+                playerPair.pair[playerPair.pair[W].name == winnerName ? W : B].winCnt++;
+                
+                auto whiteIdx = playerPair.pair[W].name == rcd.playernames[W] ? W : B;
+                playerPair.pair[whiteIdx].whiteCnt++;
+            }
+            
+            // It is a tie if two players have same wins and same times to play white
+            if (playerPair.pair[0].winCnt == playerPair.pair[1].winCnt && playerPair.pair[0].whiteCnt == playerPair.pair[1].whiteCnt) {
+                MatchRecord record = r;
+                record.resultType = ResultType::noresult;
+                record.state = MatchState::none;
+                addMatchRecord_simple(record);
+                
+                auto str = "* Tied! Add one more game for " + record.playernames[W] + " vs " + record.playernames[B];
+                matchLog(str);
+            }
+            break;
+        }
+    }
+}
+
+int TourMng::getLastRound() const
+{
+    int lastRound = 0;
+    for(auto && r : matchRecordList) {
+        lastRound = std::max(lastRound, r.round);
+    }
+    return lastRound;
+}
+
+std::vector<TourPlayer> TourMng::getKnockoutWinnerList()
+{
+    std::vector<TourPlayer> winList;
+    auto lastRound = getLastRound();
+    
+    std::set<std::string> lostSet;
+    std::vector<std::string> nameList;
+    std::map<int, TourPlayerPair> pairMap;
+
+    for(auto && r : matchRecordList) {
+        if (r.round != lastRound) {
+            continue;
+        }
         
-        MatchRecord record(name0, "");
+        assert(r.state == MatchState::completed);
+        TourPlayerPair thePair;
+        auto it = pairMap.find(r.pairId);
+        if (it != pairMap.end()) thePair = it->second;
+        else {
+            thePair.pair[0].name = r.playernames[0];
+            thePair.pair[1].name = r.playernames[1];
+        }
+        
+        if (r.resultType == ResultType::win || r.resultType == ResultType::loss) {
+            auto idxW = thePair.pair[W].name == r.playernames[W] ? W : B;
+            auto winIdx = r.resultType == ResultType::win ? idxW : (1 - idxW);
+            thePair.pair[winIdx].winCnt++;
+        }
+        auto whiteSd = thePair.pair[W].name == r.playernames[W] ? W : B;
+        thePair.pair[whiteSd].whiteCnt++;
+        pairMap[r.pairId] = thePair;
+    }
+    
+    for(auto && p : pairMap) {
+        auto thePair = p.second;
+        assert(thePair.pair[0].winCnt != thePair.pair[1].winCnt || thePair.pair[0].whiteCnt != thePair.pair[1].whiteCnt);
+        auto winIdx = W;
+        if (thePair.pair[B].winCnt > thePair.pair[W].winCnt ||
+            (thePair.pair[B].winCnt == thePair.pair[W].winCnt && thePair.pair[B].whiteCnt < thePair.pair[W].whiteCnt)) {
+            winIdx = B;
+        }
+        winList.push_back(thePair.pair[winIdx]);
+    }
+    
+    return winList;
+}
+
+
+bool TourMng::createNextKnockoutMatchList()
+{
+    auto winList = getKnockoutWinnerList();
+    return createKnockoutMatchList(winList, getLastRound() + 1);
+}
+
+bool TourMng::createKnockoutMatchList(const std::vector<std::string>& nameList)
+{
+    std::vector<TourPlayer> vec;
+    for(auto && name : nameList) {
+        TourPlayer tourPlayer;
+        tourPlayer.name = name;
+        vec.push_back(tourPlayer);
+    }
+
+    return createKnockoutMatchList(vec, 0);
+}
+
+bool TourMng::createKnockoutMatchList(std::vector<TourPlayer> playerVec, int round)
+{
+    if (playerVec.size() < 2) {
+        if (playerVec.size() == 1) {
+            auto str = "\n* The winner is " + playerVec.front().name;
+            matchLog(str);
+        }
+        return false;
+    }
+    // odd players, one won't have opponent and he is lucky to set win
+    if (playerVec.size() & 1) {
+        
+        std::set<std::string> luckSet;
+        for(auto && r : matchRecordList) {
+            if (r.playernames[0].empty() || r.playernames[1].empty()) {
+                auto idx = r.playernames[0].empty() ? 1 : 0;
+                luckSet.insert(r.playernames[idx]);
+            }
+        }
+        
+        TourPlayer luckPlayer;
+        for (int i = 0; i < 10; i++) {
+            auto k = std::rand() % playerVec.size();
+            if (luckSet.find(playerVec.at(k).name) == luckSet.end()) {
+                luckPlayer = playerVec.at(k);
+                
+                auto it = playerVec.begin();
+                std::advance(it, k);
+                playerVec.erase(it);
+                break;
+            }
+        }
+        
+        if (playerVec.size() & 1) {
+            luckPlayer = playerVec.front();
+            playerVec.erase(playerVec.begin());
+        }
+        
+        // the odd and the lucky player wins all games in the round
+        MatchRecord record(luckPlayer.name, "");
         record.round = round;
         record.state = MatchState::completed;
         record.resultType = ResultType::win; // win
-        addMatchRecord(record);
+        record.pairId = std::rand();
+        addMatchRecord_simple(record);
+        
+        auto str = "\n* Player " + luckPlayer.name + " is an odd (no opponent in " + std::to_string(playerVec.size()) + " players) and set won for round " + std::to_string(round + 1);
+        matchLog(str);
     }
     
+    std::sort(playerVec.begin(), playerVec.end(), [](const TourPlayer& lhs, const TourPlayer& rhs)
+              {
+                  return lhs.elo > rhs.elo;
+              });
+    
+    auto n = playerVec.size() / 2;
+    
+    auto addCnt = 0;
     for(int i = 0; i < n; i++) {
-        auto name0 = nameList.at(i);
-        auto name1 = nameList.at(i + n);
+        auto name0 = playerVec.at(i).name;
+        auto name1 = playerVec.at(i + n).name;
         
         MatchRecord record(name0, name1);
         record.round = round;
         addMatchRecord(record);
+        addCnt++;
     }
+
+    auto str = "\nKnockout round: " + std::to_string(round + 1) + ", pairs: " + std::to_string(n) + ", matches: " + std::to_string(uncompletedMatches());
+
+    matchLog(str);
+    return addCnt > 0;
+}
+
+void TourMng::reset()
+{
+    matchRecordList.clear();
+    previousElapsed = 0;
 }
 
 bool TourMng::createMatchList()
@@ -584,7 +864,7 @@ bool TourMng::createMatchList()
 
 bool TourMng::createMatchList(std::vector<std::string> nameList, TourType tourType)
 {
-    matchRecordList.clear();
+    reset();
     
     if (nameList.size() < 2) {
         std::cerr << "Error: not enough players (" << nameList.size() << ") and/or unknown tournament type" << std::endl;
@@ -627,7 +907,7 @@ bool TourMng::createMatchList(std::vector<std::string> nameList, TourType tourTy
         }
         case TourType::knockout:
         {
-            createKnockoutMatchList(nameList, 0);
+            createKnockoutMatchList(nameList);
             break;
         }
             
@@ -640,6 +920,7 @@ bool TourMng::createMatchList(std::vector<std::string> nameList, TourType tourTy
         return false;
     }
     
+    saveMatchRecords();
     return true;
 }
 
@@ -688,63 +969,10 @@ bool TourMng::createMatch(int gameIdx, const std::string& whiteName, const std::
     return false;
 }
 
-std::string TourMng::resultToString(const Result& result)
-{
-    auto str = result.toShortString();
-    if (result.reason != ReasonType::noreason) {
-        str += " (" + result.reasonString() + ")";
-    }
-    return str;
-}
-
 // TODO: make it work!
-// http://www.open-aurec.com/wbforum/viewtopic.php?t=949
-//1) Use number of wins, loss, and draws
-//W = number of wins, L = number of lost, D = number of draws
-//n = number of games (W + L + D)
-//m = mean value
-//
-//2) Apply the following formulas to compute s
-//( SQRT: square root of. )
-//
-//x = W*(1-m)*(1-m) + D*(0.5-m)*(0.5-m) + L*(0-m)*(0-m)
-//s = SQRT( x/(n-1) )
-//
-//3) Compute error margin A (use 1.96  for 95% confidence)
-//
-//A = 1.96 * s / SQRT(n)
-//
-//4) State with 95% confidence:
-//The 'real' result should be somewhere in between m-A to m+A
-//
-//5) Lookup the ELO figures with the win% from m-A and m+A to get the lower and higher values in the error margin.
-
-// sd = sqrt(wins * (1 - m)^2 + losses * (0 - m)^2 + draws * (0.5 - m)^2) / sqrt(n - 1)
-// http://talkchess.com/forum3/viewtopic.php?topic_view=threads&p=441743&t=41773
-//n = number of games
-//w = number of won games
-//d = number of drawn games
-//l = number of lost games
-//
-//n = w + d + l
-//W = w/n ; D = d/n ; L = l/n
-//W + D + L = 1
-//
-//mu = (w + d/2)/n = W + D/2
-//1 - mu = (d/2 + l)/n = D/2 + L
-// sd = sqrt{(1/n)·[mu·(1 - mu) - D/4]}
-//
-// s = sqrt{[1/(n - 1)]·[W·(1 - mu)² + D·(1/2 - mu)² + L·mu²]}
-
 int TourMng::calcErrorMargins(int w, int d, int l)
 {
-    auto n = w + d + l;
-    assert(w >= 0 && d >= 0 && l >= 0 && n > 0);
-    double W_ = double(w) / n, D_ = double(d) / n, L_ = l / double(n);
-    double mu = (w + double(d) / 2) / double(n); // = W_ + D_ /2;
-    
-    auto sd = std::sqrt((1 / double(n)) * (mu * (1 - mu) - D_ / 4));
-    return int(sd);
+    return 0;
 }
 
 void TourMng::matchCompleted(Game* game)
@@ -760,7 +988,7 @@ void TourMng::matchCompleted(Game* game)
         assert(matchRecordList[gIdx].resultType == game->board.result.result);
         
         if (pgnPathMode && !pgnPath.empty()) {
-            auto pgnString = game->toPgn(eventName, siteName, record->round);
+            auto pgnString = game->toPgn(eventName, siteName, record->round, record->gameIdx);
             append2TextFile(pgnPath, pgnString);
         }
     }
@@ -768,13 +996,17 @@ void TourMng::matchCompleted(Game* game)
     if (logResultMode || banksiaVerbose) { // log
         auto wplayer = game->getPlayer(Side::white), bplayer = game->getPlayer(Side::black);
         if (wplayer && bplayer) {
-            std::string infoString = std::to_string(gIdx + 1) + ") " + game->getGameTitleString() + ", #" + std::to_string(game->board.histList.size()) + ", " + resultToString(game->board.result);
+            std::string infoString = std::to_string(gIdx + 1) + ") " + game->getGameTitleString() + ", #" + std::to_string(game->board.histList.size()) + ", " + game->board.result.toString();
             
             matchLog(infoString);
             // Add extra info to help understanding log
             engineLog(game->getIdx(), getAppName(), infoString, LogType::system);
         }
     }
+    
+    checkToExtendMatches(gIdx);
+    
+    saveMatchRecords();
 }
 
 void TourMng::setupTimeController(TimeControlMode mode, int val, double t0, double t1, double t2)
@@ -854,3 +1086,123 @@ void TourMng::shutdown()
     playerMng.shutdown();
 }
 
+int TourMng::uncompletedMatches()
+{
+    auto cnt = 0;
+    for(auto && r : matchRecordList) {
+        if (r.state == MatchState::none) {
+            cnt++;
+        }
+    }
+    return cnt;
+}
+
+const std::string matchPath = "./playing.json";
+
+void TourMng::removeMatchRecordFile()
+{
+    std::remove(matchPath.c_str());
+}
+
+void TourMng::saveMatchRecords()
+{
+    if (!resumable) {
+        return;
+    }
+    
+    Json::Value d;
+
+    d["type"] = tourTypeNames[static_cast<int>(type)];
+
+    d["timeControl"] = timeController.saveToJson();
+
+    Json::Value a;
+    for(auto && r : matchRecordList) {
+        a.append(r.saveToJson());
+    }
+    d["recordList"] = a;
+    d["elapsed"] = static_cast<int>(time(nullptr) - startTime);
+
+    JsonSavable::saveToJsonFile(matchPath, d);
+}
+
+bool TourMng::loadMatchRecords(bool autoYesReply)
+{
+    Json::Value d;
+    if (!resumable || !loadFromJsonFile(matchPath, d, false)) {
+        return false;
+    }
+    
+    auto uncompletedCnt = 0;
+    std::vector<MatchRecord> recordList;
+    auto array = d["recordList"];
+    for(int i = 0; i < int(array.size()); i++) {
+        auto v = array[i];
+        MatchRecord record;
+        if (record.load(v)) {
+            recordList.push_back(record);
+            if (record.state == MatchState::none) {
+                uncompletedCnt++;
+            }
+        }
+    }
+    
+    if (uncompletedCnt == 0) {
+        removeMatchRecordFile();
+        return false;
+    }
+
+    std::cout << "\nThere are " << uncompletedCnt << " (of " << recordList.size() << ") uncompleted matches from previous tournament! Do you want to resume? (y/n)" << std::endl;
+
+    while (!autoYesReply) {
+        std::string line;
+        std::getline(std::cin, line);
+        banksia::trim(line);
+        if (line.empty()) {
+            continue;
+        }
+
+        if (line == "n" || line == "no") {
+            removeMatchRecordFile();
+            std::cout << "Discarded last tournament!" << std::endl;
+            return false;
+        }
+        if (line == "y" || line == "yes") {
+            break;
+        }
+    }
+    
+    std::cout << "Tournament resumed!" << std::endl;
+    
+    matchRecordList = recordList;
+    
+    auto first = matchRecordList.front();
+    
+    if (d.isMember("type")) {
+        auto s = d["type"].asString();
+        for(int t = 0; tourTypeNames[t]; t++) {
+            if (tourTypeNames[t] == s) {
+                type = static_cast<TourType>(t);
+            }
+        }
+    }
+
+    assert(timeController.isValid());
+    
+    auto s = "timeControl";
+    if (d.isMember(s)) {
+        auto obj = d[s];
+        auto oldTimeControl = timeController.saveToJson();
+        if (!timeController.load(obj) || !timeController.isValid()) {
+            timeController.load(oldTimeControl);
+        }
+    }
+
+    assert(timeController.isValid());
+    previousElapsed += d["elapsed"].asInt();
+
+    removeMatchRecordFile();
+    
+    startTournament();
+    return true;
+}

@@ -401,39 +401,43 @@ Config::Config()
 
 bool Config::load(const Json::Value& obj)
 {
-    if (!obj.isMember("command")) {
+    // root items: app, comment, options
+    // "app" is used to group important information and show on top of all others
+    if (!obj.isMember("app")) {
         return false;
     }
-    
+    auto app = obj["app"];
+
+    if (!app.isMember("command")) {
+        return false;
+    }
+    command = app["command"].asString();
+
     protocol = Protocol::none;
-    if (obj.isMember("protocol")) {
-        protocol = protocolFromString(obj["protocol"].asString());
+    if (app.isMember("protocol")) {
+        protocol = protocolFromString(app["protocol"].asString());
     }
     
-    command = obj["command"].asString();
-    
-    if (obj.isMember("name") && obj["name"].isString()) {
-        name = obj["name"].asString();
+    if (app.isMember("name") && app["name"].isString()) {
+        name = app["name"].asString();
     }
     
     if (name.empty()) {
         name = "<<<" + getFileName(command) + ">>>";
     }
     
-    if (obj.isMember("working folder")) {
-        workingFolder = obj["working folder"].asString();
+    if (app.isMember("working folder")) {
+        workingFolder = app["working folder"].asString();
     } else {
         workingFolder = getFolder(command);
     }
     
-    if (obj.isMember("comment")) comment = obj["comment"].asString();
-    if (obj.isMember("ponderable")) ponderable = obj["ponderable"].asBool();
-    
-    if (obj.isMember("elo")) elo = obj["elo"].asInt();
+    if (app.isMember("ponderable")) ponderable = app["ponderable"].asBool(); // useful for Winboard only
+    if (app.isMember("elo")) elo = app["elo"].asInt();
     
     variantSet.clear();
-    if (obj.isMember("variants")) {
-        const Json::Value& array = obj["variants"];
+    if (app.isMember("variants")) {
+        const Json::Value& array = app["variants"];
         for (int i = 0; i < int(array.size()); i++){
             auto str = array[i].asString();
             if (!str.empty()) {
@@ -443,8 +447,8 @@ bool Config::load(const Json::Value& obj)
     }
     
     argumentList.clear();
-    if (obj.isMember("arguments")) {
-        const Json::Value& array = obj["arguments"];
+    if (app.isMember("arguments")) {
+        const Json::Value& array = app["arguments"];
         for (int i = 0; i < int(array.size()); i++){
             auto str = array[i].asString();
             if (!str.empty()) {
@@ -454,8 +458,8 @@ bool Config::load(const Json::Value& obj)
     }
     
     initStringList.clear();
-    if (obj.isMember("initStrings")) {
-        const Json::Value& array = obj["initStrings"];
+    if (app.isMember("initStrings")) {
+        const Json::Value& array = app["initStrings"];
         for (int i = 0; i < int(array.size()); i++){
             auto str = array[i].asString();
             if (!str.empty()) {
@@ -463,6 +467,8 @@ bool Config::load(const Json::Value& obj)
             }
         }
     }
+    
+    if (obj.isMember("comment")) comment = obj["comment"].asString();
     
     optionList.clear();
     if (obj.isMember("options")) {
@@ -480,19 +486,18 @@ bool Config::load(const Json::Value& obj)
 
 Json::Value Config::saveToJson() const
 {
-    Json::Value obj;
+    Json::Value app;
+
+    app["protocol"] = nameFromProtocol(protocol);
+    app["name"] = name;
+    app["command"] = command;
+    app["working folder"] = workingFolder;
     
-    obj["protocol"] = nameFromProtocol(protocol);
-    obj["name"] = name;
-    obj["command"] = command;
-    obj["working folder"] = workingFolder;
-    obj["comment"] = comment;
-    obj["elo"] = elo;
-    
+    app["elo"] = elo;
     if (protocol == Protocol::wb) { // useful for Winboard only
-        obj["ponderable"] = ponderable;
+        app["ponderable"] = ponderable;
     }
-    
+
     if (!variantSet.empty()) {
         Json::Value array;
         for(auto && s : variantSet) {
@@ -500,11 +505,11 @@ Json::Value Config::saveToJson() const
                 array.append(s);
             }
         }
-        obj["variants"] = array;
+        app["variants"] = array;
     }
     
     if (argumentList.empty()){
-        obj["arguments"] = Json::arrayValue;
+        app["arguments"] = Json::arrayValue;
     } else {
         Json::Value array;
         for(auto && s : argumentList) {
@@ -512,11 +517,11 @@ Json::Value Config::saveToJson() const
                 array.append(s);
             }
         }
-        obj["arguments"] = array;
+        app["arguments"] = array;
     }
     
     if (initStringList.empty()){
-        obj["initStrings"] = Json::arrayValue;
+        app["initStrings"] = Json::arrayValue;
     } else {
         Json::Value array;
         for(auto && s : initStringList) {
@@ -524,8 +529,15 @@ Json::Value Config::saveToJson() const
                 array.append(s);
             }
         }
-        obj["initStrings"] = array;
+        app["initStrings"] = array;
     }
+    
+    Json::Value obj;
+    
+    obj["app"] = app;
+    
+
+    obj["comment"] = comment;
     
     if (optionList.empty()){
         obj["options"] = Json::arrayValue;

@@ -61,20 +61,15 @@ namespace banksia {
         }
         
         std::string toShortString() const {
-            switch (result) {
-                case ResultType::draw:
-                    return "1/2-1/2";
-                case ResultType::win:
-                    return "1-0";
-                case ResultType::loss:
-                    return "0-1";
-                case ResultType::noresult:
-                default:
-                    return "*";
-                    break;
+            return resultType2String(result);
+        }
+
+        std::string toString() const {
+            auto str = toShortString();
+            if (reason != ReasonType::noreason) {
+                str += " (" + reasonString() + ")";
             }
-            
-            return "";
+            return str;
         }
     };
     

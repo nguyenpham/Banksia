@@ -114,7 +114,7 @@ void JsonMaker::tickWork()
                     }
                 }
                 
-                std::cout << "OK, an engine detected: " << rConfig->name << std::endl;
+                std::cout << "OK, an engine detected: " << rConfig->name << ", " << nameFromProtocol(rConfig->protocol) << std::endl;
                 goodConfigVec.push_back(*rConfig);
             } else {
                 std::cout << "not an engine: " << config.command << std::endl;
@@ -343,9 +343,11 @@ i64 JsonMaker::getFileSize(const std::string& fileName)
 
 static const std::set<std::string>extSet{
     "txt", "pdf", "ini", "db", "mak", "def", "prj",
-    "htm", "html", "doc",
-    "jpg", "jpeg", "gif", "png", "bmp",
-    "h", "hpp", "c", "cpp", "bat", "bin", "exe", "dll"
+    "htm", "html", "doc", "md",
+    "jpg", "jpeg", "gif", "png", "bmp", "rc",
+    "bok",
+    "h", "hpp", "c", "cpp",
+    "bat", "sh", "bin", "exe", "dll"
 };
 
 bool JsonMaker::isExecutable(const std::string& path)
@@ -378,8 +380,7 @@ std::vector<std::string> JsonMaker::listExcecutablePaths(const std::string& dirn
 
 std::string JsonMaker::currentWorkingFolder()
 {
-#define PATH_MAX 255
-    char buf[PATH_MAX];
+    char buf[1024];
     
 #ifdef _WIN32
     auto r = _getcwd(buf, sizeof(buf));

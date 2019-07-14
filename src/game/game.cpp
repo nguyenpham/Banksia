@@ -398,7 +398,7 @@ void Game::tickWork()
 }
 
 
-std::string Game::toPgn(std::string event, std::string site, int round) const
+std::string Game::toPgn(std::string event, std::string site, int round, int gameIdx) const
 {
     std::ostringstream stringStream;
     
@@ -425,8 +425,13 @@ std::string Game::toPgn(std::string event, std::string site, int round) const
     stringStream << "[Result \t\"" << board.result.toShortString() << "\"]" << std::endl;
     
     stringStream << "[TimeControl \t\"" << timeController.toString() << "\"]" << std::endl;
+    
     stringStream << "[Time \t\"" << std::put_time(&tm, "%H:%M:%S") << "\"]" << std::endl;
     
+    if (gameIdx >= 0) {
+        stringStream << "[Board \t\"" << std::to_string(gameIdx + 1) << "\"]" << std::endl;
+    }
+
     auto str = board.result.reasonString();
     if (!str.empty()) {
         stringStream << "[Termination \t\"" << str << "\"]" << std::endl;

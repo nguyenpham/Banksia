@@ -163,7 +163,7 @@ bool TimeController::load(const Json::Value& obj)
 Json::Value TimeController::saveToJson() const
 {
     Json::Value obj;
-    obj["mode"] = static_cast<int>(mode);
+    obj["mode"] = timeControllerNams[static_cast<int>(mode)];
     
     switch (mode) {
         case TimeControlMode::infinite:

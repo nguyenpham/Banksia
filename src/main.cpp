@@ -25,8 +25,7 @@
 #include <csignal>
 
 #include "game/jsonmaker.h"
-#include "game/uciengine.h"
-#include "game/playermng.h"
+//#include "game/playermng.h"
 #include "game/tourmng.h"
 
 void show_usage(std::string name);
@@ -104,12 +103,18 @@ int main(int argc, const char * argv[])
             return -1;
         }
         
-        if (!tourMng.createMatchList()) {
-            return -1;
-        }
         
-        // The app will be terminated when all matches completed
-        tourMng.startTournament();
+        auto noReply = argmap.find("-no") != argmap.end();
+        auto yesReply = argmap.find("-yes") != argmap.end();
+
+        if (noReply || !tourMng.loadMatchRecords(yesReply)) {
+            if (!tourMng.createMatchList()) {
+                return -1;
+            }
+            
+            // The app will be terminated when all matches completed
+            tourMng.startTournament();
+        }
     }
     
     while (true) {
@@ -164,6 +169,8 @@ void show_usage(std::string name)
     << "Options:\n"
     << "  -h               Show this help message\n"
     << "  -jsonpath PATH   Main json path to manage the tournament\n"
+    << "  -yes             auto answer yes when being ask (to resume a tournament)\n"
+    << "  -no              auto answer no when being ask\n"
     << "  -u               update\n"
     << "  -c               concurrency (for updating only)\n"
     << "  -d PATH          main engines' folder, may have subfolder (for updating only)\n"

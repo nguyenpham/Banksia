@@ -44,7 +44,7 @@ namespace banksia {
         none, playing, completed, error
     };
     
-    class MatchRecord : public Obj
+    class MatchRecord : public Jsonable
     {
     public:
         MatchRecord() {}
@@ -55,37 +55,52 @@ namespace banksia {
         virtual bool isValid() const override;
         virtual std::string toString() const override;
         
+        virtual bool load(const Json::Value& obj) override;
+        virtual Json::Value saveToJson() const override;
+
         void swapPlayers() {
             std::swap(playernames[0], playernames[1]);
         }
         
     public:
+        MatchState state = MatchState::none;
+        
         std::string playernames[2];
         
         std::string startFen;
         std::vector<Move> startMoves;
         
         ResultType resultType = ResultType::noresult;
-        MatchState state = MatchState::none;
-        int gameIdx = 0, round = 0, score = 0;
-        int gameCount = 0;
+        int gameIdx = 0, round = 0, pairId;
     };
     
     enum class TourState {
         none, playing, done
     };
-    
-    class TourResult : public Obj
+
+    class TourPlayer : public Obj
     {
     public:
         std::string name;
-        int gameCnt = 0, winCnt = 0, drawCnt = 0, lossCnt = 0;
-        virtual const char* className() const override { return "TourResult"; }
+        int gameCnt = 0, winCnt = 0, drawCnt = 0, lossCnt = 0, elo = 0;
+        int whiteCnt = 0; // for knockdown
+        virtual const char* className() const override { return "TourPlayer"; }
         
         virtual bool isValid() const override;
         virtual std::string toString() const override;
         
-        bool smaller(const TourResult& other) const;
+        bool smaller(const TourPlayer& other) const;
+    };
+    
+    class TourPlayerPair {
+    public:
+        TourPlayer pair[2];
+    };
+    
+    // TODO: error margin
+    class Elo {
+    public:
+        Elo(int win, int draw, int loss) {}
     };
     
     class TourMng : public Obj, public Tickable, public JsonSavable
@@ -118,10 +133,15 @@ namespace banksia {
 		static void append2TextFile(const std::string& path, const std::string& str);
         static void fixJson(Json::Value& d, const std::string& path);
         
+        bool loadMatchRecords(bool autoYesReply);
+
     protected:
+        void reset();
+        
         virtual bool parseJsonAfterLoading(Json::Value&) override;
         
         void addMatchRecord(MatchRecord& record);
+        void addMatchRecord_simple(MatchRecord& record);
 
         int calcErrorMargins(int w, int d, int l);
         
@@ -129,16 +149,23 @@ namespace banksia {
         
         void engineLog(int gameIdx, const std::string& name, const std::string& line, LogType logType);
         
-        void createKnockoutMatchList(const std::vector<std::string>& nameList, int round);
-        void createNextKnockoutMatchList();
+        bool createNextRoundMatches();
         
-        std::string resultToString(const Result& result);
+        int getLastRound() const;
+        void checkToExtendMatches(int gIdx);
+        std::vector<TourPlayer> getKnockoutWinnerList();
+        bool createKnockoutMatchList(const std::vector<std::string>& nameList);
+        bool createKnockoutMatchList(std::vector<TourPlayer> playerVec, int round);
+        
+        bool createNextKnockoutMatchList();
+        
         void matchCompleted(Game* game);
         bool addGame(Game* game);
         
         virtual void tickWork() override;
         
         void matchLog(const std::string& line);
+        int uncompletedMatches();
         
     protected:
         std::string eventName = "Chess Tournament", siteName;
@@ -158,14 +185,18 @@ namespace banksia {
         PlayerMng playerMng;
         BookMng bookMng;
 
+        void saveMatchRecords();
+        void removeMatchRecordFile();
+        
     protected:
-        //bool recoverCrashEngines = true;
         int gameConcurrency = 1, gameperpair = 1;
+        bool resumable = true;
 
         static void showPathInfo(const std::string& name, const std::string& path, bool mode);
         
     private:
 
+        int previousElapsed = 0;
         time_t startTime;
         
         // for logging

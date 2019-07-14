@@ -324,6 +324,15 @@ bool WbEngine::parseFeature(const std::string& name, const std::string& content,
             feature_done_finished = true;
         }
         return true;
+    } else if (name == "smp" || name == "memory") { // changed into option
+        if (content == "1") {
+            int dInt = 1, minInt = 1, maxInt = 256;
+            Option option;
+            option.name = name == "smp" ? "cores" : "memory";
+            option.type = OptionType::spin;
+            option.setDefaultValue(dInt, minInt, maxInt);
+            config.updateOption(option);
+        }
     } else if (name == "myname") {
         config.idName = content;
     }
@@ -364,7 +373,9 @@ void WbEngine::parseFeatures(const std::string& line)
         }
         if ((ch == ' ' || i + 1 == line.size()) && quote == 0) {
             if (!featureName.empty() && k > 0) {
-                auto content = line.substr(k, i - k);
+                auto len = i - k;
+                if (i + 1 == line.size()) len++;
+                auto content = line.substr(k, len);
                 parseFeature(featureName, content, false);
             }
             featureName = "";

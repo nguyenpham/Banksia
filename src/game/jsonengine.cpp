@@ -45,7 +45,7 @@ JsonEngine::JsonEngine(const Config& config)
     
     originalProtocol = config.protocol;
     if (config.protocol == Protocol::none) {
-         this->config.protocol = Protocol::uci;
+        this->config.protocol = Protocol::uci;
     }
 }
 
@@ -56,15 +56,15 @@ void JsonEngine::setupEngine()
     } else {
         engine = &wbEngine;
     }
-
+    
     engine->config = config;
     engine->setState(PlayerState::starting);
 }
 
-void JsonEngine::log(const std::string& line, LogType logType) const
-{
-//    std::cout << (logType == LogType::fromEngine ? "read: " : "write: ") << line << std::endl;
-}
+//void JsonEngine::log(const std::string& line, LogType logType) const
+//{
+////    std::cout << (logType == LogType::fromEngine ? "read: " : "write: ") << line << std::endl;
+//}
 
 bool JsonEngine::isIdleCrash() const
 {
@@ -109,11 +109,10 @@ const std::unordered_map<std::string, int>& JsonEngine::getEngineCmdMap() const
 
 void JsonEngine::parseLine(int cmdInt, const std::string& cmdString, const std::string& line)
 {
-//    std::cout << "parseLine, cmd: " << cmdString << ", line: " << line << std::endl;
     if (cmdInt >= 0) {
         usedCmdSet.insert(cmdString);
+        engine->parseLine(cmdInt, cmdString, line);
     }
-    engine->parseLine(cmdInt, cmdString, line);
 }
 
 void JsonEngine::completed(Config* config)
@@ -127,7 +126,7 @@ void JsonEngine::completed(Config* config)
 void JsonEngine::tickWork()
 {
     Engine::tickWork();
-
+    
     if (jsonstate == JsonEngineState::done) {
         return;
     }
@@ -145,8 +144,11 @@ void JsonEngine::tickWork()
         return;
     }
     
-    engine->tickWork();
-
+    // wb need tickWork to turn ready
+    if (config.protocol == Protocol::wb) {
+        engine->tickWork();
+    }
+    
     tick_test--;
     if (tick_test > 0) {
         return;
@@ -156,7 +158,7 @@ void JsonEngine::tickWork()
         completed(&engine->config);
         return;
     }
-
+    
     if (tryNum > 0 && correctCmdCnt > 2) {
         tryNum--;
         tick_test = tick_test_period;
@@ -167,11 +169,9 @@ void JsonEngine::tickWork()
         completed(nullptr);
         return;
     }
-
+    
     quit();
-
-//    std::cout << "Not detected, correctCmdCnt: " << correctCmdCnt << std::endl;
-
+    
     config.protocol = Protocol::wb;
     setupEngine();
     
@@ -179,7 +179,8 @@ void JsonEngine::tickWork()
     correctCmdCnt = 0;
     tick_idle = 0;
     tick_test = tick_test_period;
-    tryNum = 1;
+    tryNum = 2;
     write(engine->protocolString());
 }
+
 

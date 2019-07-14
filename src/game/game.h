@@ -80,7 +80,7 @@ namespace banksia {
         int getIdx() const;
         int getStateTick() const { return stateTick; }
         
-        std::string toPgn(std::string event = "", std::string site = "", int round = -1) const;
+        std::string toPgn(std::string event = "", std::string site = "", int round = -1, int gameIdx = -1) const;
         
         std::string getGameTitleString() const;
         

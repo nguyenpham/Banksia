@@ -64,20 +64,24 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "-jsonpath /Users/nguyenpham/workspace/BanksiaMatch/match.json"
+            argument = "-u -c 16"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "-u -c 4"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "-d /Users/nguyenpham/workspace/BanksiaMatch"
+            argument = "-d /Users/nguyenpham/workspace/BanksiaMatch/engines"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-jsonpath /Users/nguyenpham/workspace/BanksiaMatch/tour.json"
             isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-yes"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-no"
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-jsonpath /Users/nguyenpham/workspace/Banksia/tour.json"
