@@ -57,6 +57,11 @@ std::string Player::getName() const
     return name;
 }
 
+void Player::setState(PlayerState st)
+{
+    state = st;
+    tick_state = 0;
+}
 void Player::attach(ChessBoard* _board, const GameTimeController* _timeController,
                     std::function<void(const Move&, const std::string&, const Move&, double, EngineComputingState)> _moveReceiver,
                     std::function<void()> _resignFunc)

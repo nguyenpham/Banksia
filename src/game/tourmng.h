@@ -48,8 +48,9 @@ namespace banksia {
     {
     public:
         MatchRecord() {}
-        MatchRecord(const std::string& name0, const std::string& name1) {
-            playernames[W] = name0; playernames[B] = name1;
+        MatchRecord(const std::string& name0, const std::string& name1, bool swap) {
+            auto sd = swap ? B : W;
+            playernames[sd] = name0; playernames[1 - sd] = name1;
         }
         virtual const char* className() const override { return "MatchRecord"; }
         virtual bool isValid() const override;

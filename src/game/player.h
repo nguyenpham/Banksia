@@ -37,7 +37,7 @@ namespace banksia {
     };
     
     enum class PlayerState {
-        none, starting, ready, playing, stalling, stopping, stopped
+        none, starting, ready, playing, stopping, stopped
     };
     
     enum class EngineComputingState {
@@ -57,7 +57,8 @@ namespace banksia {
         
         std::string getName() const;
         PlayerState getState() const { return state; }
-        void setState(PlayerState st) { state = st; }
+        void setState(PlayerState st);
+        int getTickState() const { return tick_state; }
         void setPonderMode(bool mode) { ponderMode = mode; }
 
     public:
@@ -84,6 +85,7 @@ namespace banksia {
         
         PlayerType type;
         PlayerState state;
+        int tick_state = 0;
         
         bool ponderMode = false;
         

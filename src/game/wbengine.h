@@ -66,10 +66,13 @@ namespace banksia {
         
         virtual bool oppositeMadeMove(const Move& move, const std::string& sanMoveString) override;
         
-    protected:
-        virtual bool sendOptions();
-        virtual const std::unordered_map<std::string, int>& getEngineCmdMap() const override;
-        virtual void parseLine(int, const std::string&, const std::string&) override;
+    private:
+        bool go_straight();
+        void newGame_straight();
+        
+        bool sendOptions();
+        const std::unordered_map<std::string, int>& getEngineCmdMap() const override;
+        void parseLine(int, const std::string&, const std::string&) override;
         
         void parseFeatures(const std::string& line);
         bool parseFeature(const std::string& featureName, const std::string& content, bool quote);
@@ -78,7 +81,7 @@ namespace banksia {
         bool isFeatureOn(const std::string& featureName, bool defaultValue = false);
         bool sendMemoryAndCoreOptions();
         
-        virtual bool isIdleCrash() const override;
+        bool isIdleCrash() const override;
         void tickPing() override;
         
     private:
@@ -101,7 +104,8 @@ namespace banksia {
         
     private:
         bool candoSyncTaskNow(SyncTask task);
-
+        bool doSyncTask();
+        
         std::mutex syncMutex;
         std::vector<SyncTask> syncTasks;
     };

@@ -43,19 +43,21 @@
     },
     
     "players": [ "stockfish", "sf", "fruit", "gaviota-1.0", "crafty" ],
-    
-    "pgn" : {
-        "mode" : true,
-        "path" : "c:\\match\\games.pgn"
-    },
-    "result log": {
-        "mode": true,
-        "path": "c:\\match\\logresult.txt"
-    },
-    "engine log": {
-        "mode": true,
-        "show time": true,
-        "path": "c:\\match\\logengine.txt"
+
+    "logs" : {
+        "pgn" : {
+            "mode" : true,
+            "path" : "c:\\match\\games.pgn"
+        },
+        "result": {
+            "mode": true,
+            "path": "c:\\match\\logresult.txt"
+        },
+        "engine": {
+            "mode": true,
+            "show time": true,
+            "path": "c:\\match\\logengine.txt"
+        }
     }
 }
 

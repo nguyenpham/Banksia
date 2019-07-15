@@ -37,6 +37,7 @@ void Engine::tickWork()
 		return;
 	}
 
+    tick_state++;
 	tick_idle++;
 
 	if (isIdleCrash()) {

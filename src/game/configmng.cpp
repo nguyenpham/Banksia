@@ -611,7 +611,7 @@ const Option* Config::getOption(const std::string& name) const
 void Config::updateOption(const Option& o)
 {
     for(auto && option : optionList) {
-        if (option.name == name) {
+        if (option.name == o.name) {
             if (option != o) {
                 option.update(o);
             }

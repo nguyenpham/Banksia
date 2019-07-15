@@ -4,9 +4,13 @@
 Overview
 -----------
 
-Banksia (a name of an Australian native wildflowers) is an open source chess tournament manager for chess engines. The code is written in C++ (using standad C++11 library). It can be compiled and run in popurlar flatforms such as Windows (tested, for both 32 and 64 bit app), MacOS (tested), Linux (not tested).
+Banksia (a name of an Australian native wildflowers) is an open source tournament manager for chess engines, written in C++11. It can be compiled and run on some popurlar platforms such as Windows, MacOS, Linux.
 
-To manage engines, games and the complicated events / relationships between them, the app uses a timer with few c++ callback functions. I believe it is one of the simplest way thus the code is not hard for programmers to follow, understand, maintain and modify.
+The project is an attempt to fulfil my dream about a chess tournament manager after a long time unhappy using some software. For me, spending many hours or days to configure manually those software for a tournament is definitely not fun. Writting a long command line (which is required by those software) is a really hard and boring job. Sometimes it takes me days to complete. I don't like either when they frequently puzzle me with many almost-no-meaning words/variants/phrases which make me spend hours to find out what they are, which ones should be used or removed, their meanings... from documents and many sites/forums. After a while of not using I may need to spend similar time to re-learn, rewrite or edit the old ones. It is a nightmare too if those software refuse my command lines, make me pull my hair hard to find out what 's wrong.
+
+Banksia has almost all features/functions I have dreamed for: small, fast, portable, easy to use, easy to integrate to other systems, resumable, able to automatically generate all configurations, files which are needed for tournaments. Basically from nothing, a user can configure automatically within few minutes then he can start running a total new tournament.
+
+About design: To manage engines, games and the complicated events / relationships between them, the app uses a timer with few c++ callback functions. I believe it is one of the simplest way thus the code is not hard for programmers to follow, understand, maintain and modify.
 
 ![Demo](banksia.jpg)
 
@@ -53,16 +57,16 @@ You can also use CMake (at least version 3.7 is required) to build banksia:
 
 Using
 -------
-Banksia requires two JSON files to work. Almost all fields in those files are self-explaination via meanings of their names.
+Banksia requires two JSON files to work. Almost all fields in those files are self-explaination via meanings of their names. If you generate them automatically (read next sections) they may have some fields "tips" as short guides how to use, which values to fill.
 
 1) a JSON file to store engine's configurations
 
-Configuration of each engine may includ options thus users can control all details.
+Configuration of each engine may include options thus users can control all details.
 
-2) a JSON file to store information about tournament such as match type, path of engine configuration JSON file (JSON file 1), log path...
+2) a JSON file to store information about tournament such as tournament type, path of engine configuration JSON file (JSON file 1), log paths...
 
 Some important fields:
-- type: type of tournament. At the moment it accepts only value 'roundrobin'
+- type: type of tournament
 - time control: second is the unit for all value fields. You can use fractions (such as 1.5 as 1.5 second) for being more precision.
 - players: names of players will participate the tournament. They must be listed in JSON file 1.
 
@@ -87,9 +91,11 @@ Bellow is the screen of a tournament between 3 chess engines:
 
 Resume
 -------
-Banksia can resume a tournament from where it stopped. That function can be enabled/disnabled via tag "resumable" in control JSON file (default is on). When playing Banksia will store all neccessary information into file playing.json, save it in current working folder then uses it to resume the tournament. If you don't want to resume the previous tournament, type "no" when Banksia asks, or add parametter -no to command line, or delete that file.
+Banksia can resume a tournament from where it stopped. That function can be enabled/disabled via field "resumable" in control JSON file (default is on). When playing Banksia will store all neccessary information into file playing.json, save it in current working folder then uses it to resume the tournament.
 
-You may also create a total new tournament as your design (you can change openings, time control...) or even generate it automatically.
+If you don't want to resume the previous uncompleted-tournament, type "no" when Banksia asks, or add parametter -no to the command line, or delete that file.
+
+You may also create a total new tournament as your desire (you may change openings, time control...) or even generate it completely for fully controlling.
 
 
 Auto generate JSON files
@@ -123,6 +129,18 @@ Right after generating JSON files, users can start their tournaments:
 
 Of course, users can edit those JSON files such as removing redundant, unused fields, re-order them to be easier to read! Some data fields are written down in empty forms (such as opening book folders) and need to fill in.
 
+**Tips:** In Windows the number of files to check is the number of exe files and they are almost engines and the process is fast. However in Unix-platforms, the number of files which are masked as runnable may be large and few times as the number of engines (Banksia has cut already many files with known extensions as not executable such as image files). To avoid the process takes too long, you may increase the number of concurrency, even few times as many as real cores on your computer. Many tasks of checking files are just idle and wait for timeout and they don't require computer power. For example, on my iMac of 4 cores, I usually set -c 16 and the process is completed within 3 minutes after checking about 70 files in which there are 23 engines.
+
+
+You can help
+-------
+If you download and use Banksia you already help me. All bug reports, suggestions, contributions are more than welcome!
+
+Below is some features/functions we need someone helps too:
+- Elo and error margin: to show when a tournament completed
+- All parametters in command line (not using JSON files): I am not a fan of having long command lines. However if you think it may be useful and willing to help us to make it work, please go ahead
+
+
 Working
 ---------
 - Improve interface
@@ -134,8 +152,8 @@ History
 --------
 - 14 July 2019: v2.2, knockout tournament and resumable the last tournament
 - 12 July 2019: v2.0, auto generating JSON files
-- 10 July 2019: v1.50, Polyglot's opening books
-- 8 July 2019: v1.00, Winboard protocol
+- 10 July 2019: v1.5, Polyglot's opening books
+- 8 July 2019: v1.0, Winboard protocol
 - 3 July 2019: v0.03, pgn opening
 - 1 July 2019: version 0.01, first release
 

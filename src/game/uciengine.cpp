@@ -70,10 +70,13 @@ bool UciEngine::sendOptions()
 
 void UciEngine::newGame()
 {
+    assert(getState() == PlayerState::ready);
     ponderingMove = MoveFull::illegalMove;
     expectingBestmove = false;
     computingState = EngineComputingState::idle;
-    write("ucinewgame");
+    if (write("ucinewgame")) {
+        setState(PlayerState::playing);
+    }
 }
 
 void UciEngine::prepareToDeattach()
@@ -408,31 +411,6 @@ bool UciEngine::parseOption(const std::string& s)
                     }
                 }
                 return false;
-
-//                static const std::regex re("(.*)default (.+) (var (.+))+");
-//                if (std::regex_search(rest, match, re) && match.size() > 3) {
-//                    auto dString = match.str(2);
-//                    std::vector<std::string> list;
-//                    for(int i = 3; i < match.size(); i++) {
-//                        auto str = match.str(i);
-//                        std::cout << str << std::endl;
-//                        if (memcmp(str.c_str(), "var ", 4) == 0) {
-//                            str = str.substr(4);
-//                            if (!str.empty()) list.push_back(str);
-//                            //                            std::cout << str << std::endl;
-//                        }
-//                    }
-//
-//                    option.type = OptionType::combo;
-//                    option.setDefaultValue(dString);
-//                    option.setDefaultValue(list);
-//
-//                    if (option.isValid()) {
-//                        config.updateOption(option);
-//                        return true;
-//                    }
-//                    return false;
-//                }
             }
         } else {
         }

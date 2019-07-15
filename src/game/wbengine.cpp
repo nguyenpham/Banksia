@@ -55,7 +55,6 @@ const std::unordered_map<std::string, int>& WbEngine::getEngineCmdMap() const
     return wbEngineCmd;
 }
 
-
 std::string WbEngine::protocolString() const
 {
     return "xboard\nprotover 2";
@@ -78,17 +77,51 @@ bool WbEngine::candoSyncTaskNow(SyncTask task)
     return true;
 }
 
+bool WbEngine::doSyncTask()
+{
+    if (expectingPongCnt || syncTasks.empty()) {
+        return false;
+    }
+    
+    std::lock_guard<std::mutex> dolock(syncMutex);
+    
+    if (expectingPongCnt || syncTasks.empty()) {
+        return false;
+    }
+
+
+    auto task = syncTasks.front();
+    syncTasks.erase(syncTasks.begin());
+    switch (task) {
+        case SyncTask::newgame:
+            newGame_straight();
+            break;
+        case SyncTask::go:
+            go_straight();
+            break;
+        default:
+            break;
+    }
+    return true;
+}
+
 void WbEngine::newGame()
 {
     if (!candoSyncTaskNow(SyncTask::newgame)) {
         return;
     }
+    newGame_straight();
+}
+
+void WbEngine::newGame_straight()
+{
+    assert(getState() == PlayerState::ready);
     computingState = EngineComputingState::idle;
     
     sendMemoryAndCoreOptions();
     
     write(ponderMode ? "hard" : "easy");
-    write("post"); // write("nopost");
+    write("post");
     
     if (isFeatureOn("reuse", true)) {
         write("new");
@@ -105,6 +138,10 @@ void WbEngine::newGame()
     }
     
     write(timeControlString());
+    
+    // fake ping to avoid other cmd be run
+    expectingPongCnt++;
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
     sendPing();
 }
 
@@ -137,6 +174,11 @@ bool WbEngine::go()
         return false;
     }
     
+    return go_straight();
+}
+
+bool WbEngine::go_straight()
+{
     Engine::go();
     computingState = EngineComputingState::thinking;
     
@@ -221,7 +263,7 @@ bool WbEngine::sendPong(const std::string& str)
 void WbEngine::tickWork()
 {
     Engine::tickWork();
-    
+
     if (getState() == PlayerState::starting &&
         tick_delay_2_ready > 0) {
         tick_delay_2_ready--;
@@ -243,6 +285,8 @@ void WbEngine::tickPing()
     if (tick_ping >= tick_period_ping) {
         resetPing();
         sendPing();
+    } else {
+        doSyncTask();
     }
 }
 
@@ -252,7 +296,6 @@ bool WbEngine::isIdleCrash() const
     // if engine send feature done=0 (feature_done_finished = false), it can wait longer
     return !feature_done_finished && tick_idle > tick_period_idle_dead;
 }
-
 
 bool WbEngine::isFeatureOn(const std::string& featureName, bool defaultValue)
 {
@@ -270,7 +313,6 @@ bool WbEngine::sendMemoryAndCoreOptions()
             str += o.name + " " + o.getValueAsString();
         }
     }
-    
     return !str.empty() && write(str);
 }
 
@@ -326,7 +368,7 @@ bool WbEngine::parseFeature(const std::string& name, const std::string& content,
         return true;
     } else if (name == "smp" || name == "memory") { // changed into option
         if (content == "1") {
-            int dInt = 1, minInt = 1, maxInt = 256;
+            int dInt = name == "smp" ? 1 : 16, minInt = 1, maxInt = 256;
             Option option;
             option.name = name == "smp" ? "cores" : "memory";
             option.type = OptionType::spin;
@@ -483,24 +525,11 @@ void WbEngine::parseLine(int cmdInt, const std::string& cmdString, const std::st
         {
             expectingPongCnt = 0;
             pongCnt++;
-            
-            if (!syncTasks.empty()) {
-                std::lock_guard<std::mutex> dolock(syncMutex);
-                if (!syncTasks.empty()) {
-                    auto task = syncTasks.front();
-                    syncTasks.erase(syncTasks.begin());
-                    switch (task) {
-                        case SyncTask::newgame:
-                            newGame();
-                            break;
-                        case SyncTask::go:
-                            go();
-                            break;
-                        default:
-                            break;
-                    }
-                }
+
+            if (getState() == PlayerState::ready) {
+                setState(PlayerState::playing);
             }
+            doSyncTask();
             break;
         }
             

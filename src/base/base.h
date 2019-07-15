@@ -243,7 +243,7 @@ namespace banksia {
     class Hist {
     public:
         MoveFull move;
-        Piece movep, cap;
+        Piece cap; 
         int enpassant, status;
         int8_t castleRights[2];
         u64 hashKey;

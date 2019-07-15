@@ -54,7 +54,7 @@ namespace banksia {
         void newGame();
         
         void kickStart();
-        void startPlaying();
+//        void startPlaying();
         void pause();
         void stop();
         bool make(const Move& move, const std::string& moveString);

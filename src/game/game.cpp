@@ -136,15 +136,15 @@ void Game::kickStart()
     setState(GameState::begin);
 }
 
-void Game::startPlaying()
-{
-    assert(state == GameState::ready);
-    
-    newGame();
-    setState(GameState::playing);
-    
-    startThinking();
-}
+//void Game::startPlaying()
+//{
+//    assert(state == GameState::ready);
+//
+//    newGame();
+//    setState(GameState::playing);
+//
+//    startThinking();
+//}
 
 void Game::newGame()
 {
@@ -201,7 +201,7 @@ void Game::moveFromPlayer(const Move& move, const std::string& moveString, const
     std::lock_guard<std::mutex> dolock(criticalMutex);
     
     if (state != GameState::playing || checkTimeOver() || board.side != side) {
-        (messageLogger)(getAppName(), "Game::moveFromPlayer, TimeOver for " + move.toString(), LogType::system);
+        (messageLogger)(getAppName(), "TimeOver for " + move.toString(), LogType::system);
         return;
     }
     
@@ -318,44 +318,52 @@ void Game::tickWork()
     
     switch (state) {
         case GameState::begin:
+        case GameState::ready:
         {
-            auto readyCnt = 0, stoppedCnt = 0;
+            auto okCnt = 0, stoppedCnt = 0;
             for(int sd = 0; sd < 2; sd++) {
                 if (!players[sd]) {
                     continue;
                 }
                 auto st = players[sd]->getState();
-                if (st == PlayerState::ready) {
-                    readyCnt++;
+                if ((state == GameState::begin && st == PlayerState::ready) ||
+                    (state == GameState::ready &&
+                     (st == PlayerState::playing || (st == PlayerState::ready && players[sd]->getTickState() > 5)))
+                     ) {
+                    okCnt++;
                 } else if (st == PlayerState::stopped) {
                     stoppedCnt++;
                 }
             }
             
-            if (readyCnt + stoppedCnt < 2) {
+            if (okCnt + stoppedCnt < 2) {
                 break;
             }
             
-            if (readyCnt == 2) {
-                setState(GameState::ready);
-            } else {
-                Result result;
-                result.reason = ReasonType::crash;
-                setState(GameState::stopped);
-                if (stoppedCnt == 2) { // both crash
-                    result.result = ResultType::draw;
+            if (okCnt == 2) {
+                if (state == GameState::begin) {
+                    setState(GameState::ready);
+                    newGame();
                 } else {
-                    result.result = players[W]->getState() == PlayerState::stopped ? ResultType::loss : ResultType::win;
+                    setState(GameState::playing);
+                    startThinking();
                 }
-                
-                gameOver(result);
+                break;
             }
+
+            // engines crashed
+            Result result;
+            result.reason = ReasonType::crash;
+            setState(GameState::stopped);
+            if (stoppedCnt == 2) { // both crash
+                result.result = ResultType::draw;
+            } else {
+                result.result = players[W]->getState() == PlayerState::stopped ? ResultType::loss : ResultType::win;
+            }
+            
+            gameOver(result);
             break;
         }
-            
-        case GameState::ready:
-            startPlaying();
-            break;
             
         case GameState::playing:
         {

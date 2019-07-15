@@ -1182,6 +1182,11 @@ bool ChessBoard::createStringForLastMove(const MoveList& moveList)
     }
     
     if (!hist->cap.isEmpty()) {
+        // When a pawn makes a capture, the file from which the pawn departed is used to
+        // identify the pawn. For example, exd5
+        if (str.empty() && movePiece.type == PieceType::pawn) {
+            str += char('a' + hist->move.from % 8);
+        }
         str += "x";
     }
     
@@ -1195,7 +1200,9 @@ bool ChessBoard::createStringForLastMove(const MoveList& moveList)
     
     // incheck
     if (isIncheck(side)) {
-        str += "+";
+        MoveList moveList;
+        genLegalOnly(moveList, side);
+        str += moveList.isEmpty() ? "#" : "+";
     }
     
     hist->moveString = str;
@@ -1208,13 +1215,13 @@ std::string ChessBoard::toMoveListString(MoveNotation notation, int itemPerLine,
     
     auto c = 0;
     for(int i = 0, k = 0; i < histList.size(); i++, k++) {
+        auto hist = histList.at(i);
+        if (i == 0 && hist.move.piece.side == Side::black) k++; // counter should be from event number
+        
         if (c) stringStream << " ";
         if (moveCounter && (k & 1) == 0) {
             stringStream << (1 + k / 2) << ". ";
         }
-        
-        auto hist = histList.at(i);
-        if (i == 0 && hist.movep.side == Side::black) k++; // counter should be from event number
         
         switch (notation) {
             case MoveNotation::san:

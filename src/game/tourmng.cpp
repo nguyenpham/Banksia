@@ -187,14 +187,13 @@ void TourMng::fixJson(Json::Value& d, const std::string& path)
         v["concurrency"] = 2;
     }
     
-    s = "comment";
+    s = "tips";
     if (!v.isMember(s)) {
-        v[s] = "Type could be: " + std::string(tourTypeNames[0]) + ", " + std::string(tourTypeNames[1]);
+        v[s] = "type: " + std::string(tourTypeNames[0]) + ", " + std::string(tourTypeNames[1]) + "; event, site for PGN header; shuffle: random players for roundrobin";
     }
 
     d["base"] = v;
 
-    
     s = "time control";
     if (!d.isMember(s)) {
         Json::Value v;
@@ -203,9 +202,10 @@ void TourMng::fixJson(Json::Value& d, const std::string& path)
         v["time"] = double(5.5);
         v["increment"] = double(0.5);
         v["margin"] = double(0.8);
+        v["tips"] = "unit's second; mode: standard, infinite, depth, movetime; margin: an extra time before checking if over time";
         d[s] = v;
     }
-    
+
     s = "opening books";
     if (!d.isMember(s)) {
         Json::Value v;
@@ -220,35 +220,47 @@ void TourMng::fixJson(Json::Value& d, const std::string& path)
             if (bookType == BookType::polygot) {
                 b["maxply"] = 12;
                 b["top100"] = 20;
+                b["tips"] = "maxply: ply to play; top100: percents of top moves (for a given position) to select ranndomly an opening move, 0 is always the best";
             }
             v.append(b);
         }
         d[s] = v;
     }
     
-    s = "pgn";
-    if (!d.isMember(s)) {
-        Json::Value v;
-        v["mode"] = true;
-        v["path"] = path + folderSlash + "games.pgn";
-        d[s] = v;
-    }
     
-    s = "result log";
-    if (!d.isMember(s)) {
-        Json::Value v;
-        v["mode"] = true;
-        v["path"] = path + folderSlash + "resultlog.txt";
-        d[s] = v;
-    }
-    
-    s = "engine log";
-    if (!d.isMember(s)) {
-        Json::Value v;
-        v["mode"] = true;
-        v["show time"] = true;
-        v["path"] = path + folderSlash + "enginelog.txt";
-        d[s] = v;
+    { // logs
+        Json::Value a;
+        
+        if (d.isMember("logs")) {
+            a = d["logs"];
+        }
+
+        s = "pgn";
+        if (!a.isMember(s)) {
+            Json::Value v;
+            v["mode"] = true;
+            v["path"] = path + folderSlash + "games.pgn";
+            a[s] = v;
+        }
+        
+        s = "result";
+        if (!a.isMember(s)) {
+            Json::Value v;
+            v["mode"] = true;
+            v["path"] = path + folderSlash + "resultlog.txt";
+            a[s] = v;
+        }
+        
+        s = "engine";
+        if (!a.isMember(s)) {
+            Json::Value v;
+            v["mode"] = true;
+            v["show time"] = true;
+            v["path"] = path + folderSlash + "enginelog.txt";
+            a[s] = v;
+        }
+
+        d["logs"] = a;
     }
 }
 
@@ -365,34 +377,33 @@ bool TourMng::parseJsonAfterLoading(Json::Value& d)
         auto obj = d[s];
         bookMng.load(obj);
     }
-    
-    s = "pgn";
+
+    s = "logs";
     if (d.isMember(s)) {
-        if (d[s].isString()) {
-            pgnPath = d[s].asString();
-            pgnPathMode = true;
-        } else {
-            auto v = d[s];
+        auto a = d[s];
+        s = "pgn";
+        if (a.isMember(s)) {
+            auto v = a[s];
             pgnPathMode = v["mode"].asBool();
             pgnPath = v["path"].asString();
         }
+        
+        s = "result";
+        if (a.isMember(s)) {
+            auto v = a[s];
+            logResultMode = v["mode"].asBool();
+            logResultPath = v["path"].asString();
+        }
+        
+        s = "engine";
+        if (a.isMember(s)) {
+            auto v = a[s];
+            logEngineInOutMode = v["mode"].asBool();
+            logEngineInOutShowTime = v.isMember("show time") && v["show time"].asBool();
+            logEngineInOutPath = v["path"].asString();
+        }
     }
-    
-    s = "result log";
-    if (d.isMember(s)) {
-        auto v = d[s];
-        logResultMode = v["mode"].asBool();
-        logResultPath = v["path"].asString();
-    }
-    
-    s = "engine log";
-    if (d.isMember(s)) {
-        auto v = d[s];
-        logEngineInOutMode = v["mode"].asBool();
-        logEngineInOutShowTime = v.isMember("show time") && v["show time"].asBool();
-        logEngineInOutPath = v["path"].asString();
-    }
-    
+
     return true;
 }
 
@@ -816,7 +827,7 @@ bool TourMng::createKnockoutMatchList(std::vector<TourPlayer> playerVec, int rou
         }
         
         // the odd and the lucky player wins all games in the round
-        MatchRecord record(luckPlayer.name, "");
+        MatchRecord record(luckPlayer.name, "", false);
         record.round = round;
         record.state = MatchState::completed;
         record.resultType = ResultType::win; // win
@@ -839,7 +850,8 @@ bool TourMng::createKnockoutMatchList(std::vector<TourPlayer> playerVec, int rou
         auto name0 = playerVec.at(i).name;
         auto name1 = playerVec.at(i + n).name;
         
-        MatchRecord record(name0, name1);
+        // random swap to avoid name0 player plays all white side
+        MatchRecord record(name0, name1, rand() & 1);
         record.round = round;
         addMatchRecord(record);
         addCnt++;
@@ -894,7 +906,8 @@ bool TourMng::createMatchList(std::vector<std::string> nameList, TourType tourTy
                         break;
                     }
                     
-                    MatchRecord record(name0, name1);
+                    // random swap to avoid name0 player plays all white side
+                    MatchRecord record(name0, name1, rand() & 1);
                     record.round = 1;
                     addMatchRecord(record);
                 }
