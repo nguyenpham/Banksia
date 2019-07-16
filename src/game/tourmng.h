@@ -98,10 +98,20 @@ namespace banksia {
         TourPlayer pair[2];
     };
     
-    // TODO: error margin
     class Elo {
     public:
-        Elo(int win, int draw, int loss) {}
+        // https://www.chessprogramming.org/Match_Statistics
+        Elo(int wins, int draws, int losses) {
+            double games = wins + losses + draws;
+            if (games == 0 || wins + draws == 0) {
+                elo_difference = los = 0.0;
+                return;
+            }
+            double winning_fraction = (wins + 0.5 * draws) / games;
+            elo_difference = -std::log(1.0 / winning_fraction - 1.0) * 400.0 / std::log(10.0);
+            los = .5 + .5 * std::erf((wins - losses) / std::sqrt(2.0 * (wins + losses)));
+        }
+        double elo_difference, los;
     };
     
     class TourMng : public Obj, public Tickable, public JsonSavable
@@ -144,8 +154,6 @@ namespace banksia {
         void addMatchRecord(MatchRecord& record);
         void addMatchRecord_simple(MatchRecord& record);
 
-        int calcErrorMargins(int w, int d, int l);
-        
         void finishTournament();
         
         void engineLog(int gameIdx, const std::string& name, const std::string& line, LogType logType);

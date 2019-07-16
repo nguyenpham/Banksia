@@ -58,14 +58,13 @@ namespace banksia {
         virtual bool go() override;
         
         virtual bool stop() override;
-
+        
         virtual void prepareToDeattach() override;
-
         
     protected:
         virtual const std::unordered_map<std::string, int>& getEngineCmdMap() const override;
         virtual void parseLine(int, const std::string&, const std::string&) override;
-
+        
         std::string getPositionString(const Move& ponderMove) const;
         std::string getGoString(const Move& pondermove);
         
@@ -83,4 +82,5 @@ namespace banksia {
 } // namespace banksia
 
 #endif /* uciengineplayer_hpp */
+
 

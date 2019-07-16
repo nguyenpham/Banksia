@@ -6,9 +6,7 @@ Overview
 
 Banksia (a name of an Australian native wildflowers) is an open source tournament manager for chess engines, written in C++11. It can be compiled and run on some popurlar platforms such as Windows, MacOS, Linux.
 
-The project is an attempt to fulfil my dream about a chess tournament manager after a long time unhappy using some software. For me, spending many hours or days to configure manually those software for a tournament is definitely not fun. Writting a long command line (which is required by those software) is a really hard and boring job. Sometimes it takes me days to complete. I don't like either when they frequently puzzle me with many almost-no-meaning words/variants/phrases which make me spend hours to find out what they are, which ones should be used or removed, their meanings... from documents and many sites/forums. After a while of not using I may need to spend similar time to re-learn, rewrite or edit the old ones. It is a nightmare too if those software refuse my command lines, make me pull my hair hard to find out what 's wrong.
-
-Banksia has almost all features/functions I have dreamed for: small, fast, portable, easy to use, easy to integrate to other systems, resumable, able to automatically generate all configurations, files which are needed for tournaments. Basically from nothing, a user can configure automatically within few minutes then he can start running a total new tournament.
+The project is an attempt to fulfil my dream about a chess tournament manager: small, fast, portable, easy to use, easy to integrate to other systems, resumable, able to automatically generate all configurations, files which are needed for tournaments. Basically from nothing, a user can configure automatically within few minutes then he can start running a total new tournament.
 
 About design: To manage engines, games and the complicated events / relationships between them, the app uses a timer with few c++ callback functions. I believe it is one of the simplest way thus the code is not hard for programmers to follow, understand, maintain and modify.
 
@@ -129,7 +127,12 @@ Right after generating JSON files, users can start their tournaments:
 
 Of course, users can edit those JSON files such as removing redundant, unused fields, re-order them to be easier to read! Some data fields are written down in empty forms (such as opening book folders) and need to fill in.
 
-**Tips:** In Windows the number of files to check is the number of exe files and they are almost engines and the process is fast. However in Unix-platforms, the number of files which are masked as runnable may be large and few times as the number of engines (Banksia has cut already many files with known extensions as not executable such as image files). To avoid the process takes too long, you may increase the number of concurrency, even few times as many as real cores on your computer. Many tasks of checking files are just idle and wait for timeout and they don't require computer power. For example, on my iMac of 4 cores, I usually set -c 16 and the process is completed within 3 minutes after checking about 70 files in which there are 23 engines.
+**Tips:**
+- In Windows the number of files to check is the number of exe files and they are almost engines and the process is fast, you don't need to worry nor do anything
+- In Unix-platforms, the number of files which are masked as runnable may be large and few times as the number of engines. Banksia has filted out many files based on their extensions but the number may still large. To avoid the process takes too long, you may:
+    + increase the number of concurrency, even few times as many as real cores on your computer. Many tasks of checking files are just idle and wait for timeout and they don't require computer power. For example, on my iMac of 4 cores, I usually set -c 16 and the process is completed within 3 minutes after checking about 70 files in which there are 23 engines.
+    + mark some files as unexecutable
+    + move them to other folders
 
 
 You can help
@@ -150,6 +153,7 @@ Working
 
 History
 --------
+- 16 July 2019: v2.5, multi ways to select openings: new for each match, same for a pair, one for all matches; override options for central controlling; match statistics LOS & error margin
 - 14 July 2019: v2.2, knockout tournament and resumable the last tournament
 - 12 July 2019: v2.0, auto generating JSON files
 - 10 July 2019: v1.5, Polyglot's opening books

@@ -307,12 +307,37 @@ bool WbEngine::sendMemoryAndCoreOptions()
 {
     // cores N, memory N
     std::string str;
-    for(auto && o : config.optionList) {
-        if ((o.name == "memory" && isFeatureOn("memory")) || (o.name == "cores" && isFeatureOn("smp"))) {
-            if (!str.empty()) str += "\n";
-            str += o.name + " " + o.getValueAsString();
+    
+    if (isFeatureOn("memory")) {
+        Option option = ConfigMng::instance->getOverrideOption("memory");
+        if (!option.isValid()) {
+            for(auto && o : config.optionList) {
+                if (o.name == "memory") {
+                    option = o;
+                    break;
+                }
+            }
+        }
+        if (option.isValid()) {
+            str += option.name + " " + option.getValueAsString();
         }
     }
+    if (isFeatureOn("smp")) {
+        Option option = ConfigMng::instance->getOverrideOption("cores");
+        if (!option.isValid()) {
+            for(auto && o : config.optionList) {
+                if (o.name == "cores") {
+                    option = o;
+                    break;
+                }
+            }
+        }
+        if (option.isValid()) {
+            if (!str.empty()) str += "\n";
+            str += option.name + " " + option.getValueAsString();
+        }
+    }
+
     return !str.empty() && write(str);
 }
 

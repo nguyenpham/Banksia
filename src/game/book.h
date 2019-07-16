@@ -31,7 +31,11 @@
 #include "../chess/chess.h"
 
 namespace banksia {
-    
+
+    enum class BookSelectType {
+        allnew, allone, samepair, none
+    };
+
     const int PologlotDefaultMaxPly = 20;
     enum class BookType {
         edp, pgn, polygot, none
@@ -87,7 +91,7 @@ namespace banksia {
         size_t size() const override;
         bool getRandomBook(std::string& fenString, std::vector<Move>& moves) const override;
         void load(const std::string& path, int maxPly, int top100) override;
-        
+        static std::vector<Move> moveString2Moves(const std::string& str);
     private:
         void loadPgnBook(const std::string& path);
         bool addPgnMoves(const std::string& s);
@@ -145,18 +149,33 @@ namespace banksia {
         
         virtual bool load(const Json::Value& obj) override;
         virtual Json::Value saveToJson() const override;
-        bool getRandomBook(std::string& fenString, std::vector<Move>& moves) const;
+        bool getRandomBook(int pairId, std::string& fenString, std::vector<Move>& moves);
 
         static BookType string2BookType(const std::string& name);
         static std::string bookType2String(BookType type);
 
+        static BookSelectType string2BookSelectType(const std::string& name);
+        static std::string bookSelectType2String(BookSelectType type);
+        
         bool isEmpty() const;
         size_t size() const;
+
+        BookSelectType getBookSelectType() const { return bookSelectType; }
 
     private:
         bool loadSingle(const Json::Value& obj);
 
+        BookSelectType bookSelectType = BookSelectType::allnew;
+        
         std::vector<Book*> bookList;
+        
+        int queryCnt = 0, lastPairIdx = 1;
+        std::string theFenString;
+        std::vector<Move> theMoves;
+        
+        std::string alloneFenString;
+        std::vector<Move> alloneMoves;
+        int seed = -1;
     };
     
     

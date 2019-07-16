@@ -53,11 +53,12 @@ std::string UciEngine::protocolString() const
 
 bool UciEngine::sendOptions()
 {
-    for(auto && o : config.optionList) {
+    for(auto && option : config.optionList) {
         if (!isWritable()) {
             return false;
         }
         
+        auto o = ConfigMng::instance->checkOverrideOption(option);
         if (o.isDefaultValue()) {
             continue;
         }
@@ -135,7 +136,7 @@ bool UciEngine::go()
         }
         return stop();
     }
-
+    
     assert(!expectingBestmove && computingState == EngineComputingState::idle);
     auto goString = getGoString(MoveFull::illegalMove);
     expectingBestmove = true;
@@ -269,13 +270,13 @@ void UciEngine::parseLine(int cmdInt, const std::string& cmdString, const std::s
             if (!moveString.empty() && moveReceiver != nullptr) {
                 auto move = board->moveFromCoordiateString(moveString);
                 auto ponderMove = board->moveFromCoordiateString(ponderMoveString);
-
+                
                 (moveRecv)(move, moveString, ponderMove, period, oldComputingState);
             }
-
+            
             break;
         }
-
+            
         case UciEngineCmd::uciok:
         {
             setState(PlayerState::ready);
@@ -326,29 +327,24 @@ bool UciEngine::parseOption(const std::string& s)
                 config.updateOption(option);
                 return true;
             }
-            if (match.size() <= 3) {
-                return false;
-            }
-            std::string rest = match.str(3);
-            if (rest.empty()) {
-                return false;
-            }
             
-            auto p = rest.find("default");
-            if (p == std::string::npos) {
-                return false;
-            }
+            std::string rest = match.str(3);
+            
+            auto pDefault = rest.find("default");
             
             if (type == "string" || type == "check") {
-                auto str = p + 8 >= rest.size() ? "" : rest.substr(p + 8);
                 if (type == "check") {
                     option.type = OptionType::check;
-                    bool b = memcmp(str.c_str(), "true", 4) == 0;
+                    bool b = rest.find("true") != std::string::npos;
                     option.setDefaultValue(b);
                 } else {
                     option.type = OptionType::string;
-                    if (str == "<empty>") {
-                        str = "";
+                    std::string str;
+                    if (pDefault != std::string::npos) {
+                        str = pDefault + 8 >= rest.size() ? "" : rest.substr(pDefault + 8);
+                        if (str == "<empty>") {
+                            str = "";
+                        }
                     }
                     option.setDefaultValue(str);
                 }
@@ -356,6 +352,10 @@ bool UciEngine::parseOption(const std::string& s)
                     config.updateOption(option);
                     return true;
                 }
+                return false;
+            }
+            
+            if (rest.empty() || match.size() <= 3 || pDefault == std::string::npos) {
                 return false;
             }
             
@@ -407,7 +407,7 @@ bool UciEngine::parseOption(const std::string& s)
                             config.updateOption(option);
                             return true;
                         }
-
+                        
                     }
                 }
                 return false;
@@ -421,4 +421,5 @@ bool UciEngine::parseOption(const std::string& s)
     
     return false;
 }
+
 

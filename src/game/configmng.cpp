@@ -798,3 +798,34 @@ bool ConfigMng::insert(const Config& config)
 }
 
 
+bool ConfigMng::loadOverrideOptions(const Json::Value& oo)
+{
+    overrideOptionMode = oo.isMember("mode") && oo["mode"].asBool();
+    if (!overrideOptionMode || !oo.isMember("options")) {
+        return false;
+    }
+    
+    auto array = oo["options"];
+    overrideOptions.clear();
+    if (array.isArray()) {
+        for (Json::Value::const_iterator it = array.begin(); it != array.end(); ++it) {
+            Option option(*it);
+            if (option.isValid()) {
+                overrideOptions[option.name] = option;
+            }
+        }
+    }
+    return true;
+}
+
+Option ConfigMng::checkOverrideOption(const Option& option)
+{
+    auto p = overrideOptions.find(option.name);
+    return p == overrideOptions.end() || p->second.type != option.type ? option : p->second;
+}
+
+Option ConfigMng::getOverrideOption(const std::string& name)
+{
+    auto p = overrideOptions.find(name);
+    return p == overrideOptions.end() ? Option() : p->second;
+}

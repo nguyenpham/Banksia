@@ -84,22 +84,28 @@ size_t BookPgn::size() const
     return moves.size();
 }
 
-bool BookPgn::addPgnMoves(const std::string& str)
+std::vector<Move> BookPgn::moveString2Moves(const std::string& str)
 {
+    std::vector<Move> list;
     if (!str.empty()) {
         ChessBoard board;
         board.newGame();
         if (board.fromSanMoveList(str) && !board.histList.empty()) {
-            std::vector<Move> list;
             for(auto hist : board.histList) {
                 Move m = hist.move;
                 list.push_back(m);
             }
-            
-            if (!list.empty()) {
-                moves.push_back(list);
-            }
+        }
+    }
+    return list;
+}
 
+bool BookPgn::addPgnMoves(const std::string& str)
+{
+    if (!str.empty()) {
+        auto list = moveString2Moves(str);
+        if (!list.empty()) {
+            moves.push_back(list);
             return true;
         }
     }
@@ -109,7 +115,7 @@ bool BookPgn::addPgnMoves(const std::string& str)
 void BookPgn::load(const std::string& _path, int _maxPly, int _top100)
 {
     path = _path; maxPly = _maxPly; top100 = _top100;
-
+    
     moves.clear();
     auto vec = readTextFileToArray(path);
     
@@ -144,10 +150,10 @@ Move BookPolyglotItem::getMove() const
 {
     auto f = move & 0x7, r = move >> 3 & 0x7;
     auto dest = (7 - r) * 8 + f;
-
+    
     f = move >> 6 & 0x7; r = move >> 9 & 0x7;
     auto from = (7 - r) * 8 + f;
-
+    
     auto p = move >> 12 & 0x3;
     auto promotion = p == 0 ? PieceType::empty : static_cast<PieceType>(6 - p);
     return Move(from, dest, promotion);
@@ -163,10 +169,10 @@ void BookPolyglotItem::convertToLittleEndian()
     ((key>>24) & 0x0000000000FF0000UL) |
     ((key>>40) & 0x000000000000FF00UL) |
     (key << 56);
-
+    
     move = (move >> 8) | (move << 8);
     weight = (weight >> 8) | (weight << 8);
-
+    
     learn = (learn >> 24) | ((learn<<8) & 0x00FF0000) | ((learn>>8) & 0x0000FF00) | (learn << 24);
 }
 
@@ -205,10 +211,10 @@ void BookPolyglot::load(const std::string& _path, int _maxPly, int _top100)
     if (ifs.is_open()) {
         length = std::max((i64)0, (i64)ifs.tellg());
     }
-
+    
     assert(sizeof(BookPolyglotItem) == 16);
     itemCnt = length / sizeof(BookPolyglotItem);
-
+    
     if (itemCnt == 0) {
         std::cerr << "Error: cannot load book " << path << std::endl;
         return;
@@ -217,11 +223,11 @@ void BookPolyglot::load(const std::string& _path, int _maxPly, int _top100)
     items = (BookPolyglotItem *) malloc(itemCnt * sizeof(BookPolyglotItem) + 64);
     ifs.seekg(0, std::ios::beg);
     ifs.read((char*)items, length);
-
+    
     for(int i = 0; i < itemCnt; i++) {
         items[i].convertToLittleEndian();
     }
-
+    
     std::cout << "BookPolyglot::load " << path << ", itemCnt: " << itemCnt << std::endl;
     
 }
@@ -270,7 +276,7 @@ std::vector<BookPolyglotItem> BookPolyglot::search(u64 key) const
     auto k = binarySearch(key);
     if (k >= 0) {
         for(; k > 0 && items[k - 1].key == key; k--) {}
-
+        
         for(; k < i64(itemCnt) && items[k].key == key; k++) {
             vec.push_back(items[k]);
         }
@@ -283,7 +289,7 @@ bool BookPolyglot::getRandomBook(std::string& fenString, std::vector<Move>& move
 {
     ChessBoard board;
     board.newGame();
-
+    
     while (moveList.size() < maxPly) {
         auto vec = search(board.key());
         if (vec.empty()) break;
@@ -296,7 +302,7 @@ bool BookPolyglot::getRandomBook(std::string& fenString, std::vector<Move>& move
         if (!board.checkMake(move.from, move.dest, move.promotion)) break;
         moveList.push_back(move);
     }
-
+    
     board.printOut(("last position of an opening, len: " + std::to_string(board.histList.size())).c_str());
     return true;
 }
@@ -304,6 +310,10 @@ bool BookPolyglot::getRandomBook(std::string& fenString, std::vector<Move>& move
 /////////////////////////////////////////
 static const char* bookTypeNames[] = {
     "epd", "pgn", "polyglot", "none", nullptr
+};
+
+static const char* bookSelectTypeNames[] = {
+    "allnew", "allone", "samepair", "none", nullptr
 };
 
 BookType BookMng::string2BookType(const std::string& name)
@@ -319,9 +329,28 @@ BookType BookMng::string2BookType(const std::string& name)
 std::string BookMng::bookType2String(BookType type)
 {
     auto t = static_cast<int>(type);
-    if (t < 0 || t >= 3) t = 3;
+    if (t < 0 || t >= static_cast<int>(BookType::none)) t = static_cast<int>(BookType::none);
     return bookTypeNames[t];
 }
+
+
+BookSelectType BookMng::string2BookSelectType(const std::string& name)
+{
+    for(int i = 0; bookSelectTypeNames[i]; i++) {
+        if (name == bookSelectTypeNames[i]) {
+            return static_cast<BookSelectType>(i);
+        }
+    }
+    return BookSelectType::none;
+}
+
+std::string BookMng::bookSelectType2String(BookSelectType type)
+{
+    auto t = static_cast<int>(type);
+    if (t < 0 || t >= static_cast<int>(BookSelectType::none)) t = static_cast<int>(BookSelectType::none);
+    return bookSelectTypeNames[t];
+}
+
 
 BookMng* BookMng::instance = nullptr;
 
@@ -375,16 +404,48 @@ bool BookMng::load(const Json::Value& obj)
 {
     auto r = false;
     
-    if (obj.isArray()) {
-        for (Json::Value::const_iterator it = obj.begin(); it != obj.end(); ++it) {
-            r = loadSingle(*it) || r;
+    auto s = "base";
+    if (obj.isMember(s)) {
+        auto base = obj[s];
+        
+        s = "select type";
+        if (base.isMember(s) && base[s].isString()) {
+            auto str = base[s].asString();
+            bookSelectType = string2BookSelectType(str);
         }
-    } else {
-        r = loadSingle(obj);
+        
+        s = "allone fen";
+        if (base.isMember(s) && base[s].isString()) {
+            alloneFenString = base[s].asString();
+            trim(alloneFenString);
+        }
+        
+        s = "allone san moves";
+        if (base.isMember(s) && base[s].isString()) {
+            auto str = base[s].asString();
+            if (!str.empty()) {
+                alloneMoves = BookPgn::moveString2Moves(str);
+            }
+        }
+
+        s = "seed";
+        if (base.isMember(s) && base[s].isInt()) {
+            seed = base[s].asInt();
+        }
     }
     
-	std::cout << "opening books loaded, total items: " << size() << std::endl;
-	return r;
+    s = "books";
+    if (obj.isMember(s) && obj[s].isArray()) {
+        auto array = obj[s];
+        for (Json::Value::const_iterator it = array.begin(); it != array.end(); ++it) {
+            r = loadSingle(*it) || r;
+        }
+    }
+    
+    std::cout << "opening books loaded, total items: " << size()
+    << ", selection type: " << bookSelectType2String(bookSelectType)
+    << std::endl;
+    return r;
 }
 
 bool BookMng::loadSingle(const Json::Value& obj)
@@ -418,7 +479,7 @@ bool BookMng::loadSingle(const Json::Value& obj)
             case BookType::pgn:
                 book = new BookPgn;
                 break;
-
+                
             case BookType::polygot:
                 book = new BookPolyglot;
                 break;
@@ -445,7 +506,40 @@ Json::Value BookMng::saveToJson() const
     return obj;
 }
 
-bool BookMng::getRandomBook(std::string& fenString, std::vector<Move>& moves) const
+bool BookMng::getRandomBook(int pairId, std::string& fenString, std::vector<Move>& moves)
 {
-    return !bookList.empty() && bookList.front()->getRandomBook(fenString, moves);
+    queryCnt++;
+    if (queryCnt == 1) {
+        std::srand(seed >= 0 ? seed : static_cast<unsigned int>(std::time(nullptr)));
+    }
+
+    if (bookSelectType == BookSelectType::allone) {
+        if (!alloneFenString.empty()) {
+            fenString = alloneFenString;
+            return true;
+        }
+        if (!alloneMoves.empty()) {
+            moves = alloneMoves;
+            return true;
+        }
+    }
+    
+    if (bookList.empty()) {
+        return false;
+    }
+    
+    if (queryCnt == 1 ||
+        bookSelectType == BookSelectType::allnew ||
+        (bookSelectType == BookSelectType::samepair && pairId != lastPairIdx)
+        ) {
+        auto k = rand() % bookList.size();
+        bookList.at(k)->getRandomBook(theFenString, theMoves);
+    }
+    
+    lastPairIdx = pairId;
+    
+    fenString = theFenString;
+    moves = theMoves;
+    return true;
 }
+

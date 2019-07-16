@@ -298,9 +298,8 @@ bool JsonSavable::saveToJsonFile(const std::string& path, Json::Value& jsonData)
     if (outFile.is_open())
     {
         Json::StreamWriterBuilder builder;
-        builder.settings_["indentation"] = " ";
+        builder.settings_["indentation"] = "  ";
         builder["precision"] = 1;
-//        builder["commentStyle"] = "None";
         std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
         writer->write(jsonData, &outFile);
         r = true;
@@ -317,6 +316,22 @@ std::string JsonSavable::getJsonPath() const
 void JsonSavable::setJsonPath(const std::string& _jsonPath)
 {
     jsonPath = _jsonPath;
+}
+
+bool JsonSavable::loadFromJsonString(const std::string& string, Json::Value& jsonData, bool verbose)
+{
+    std::stringstream ss;
+    ss.str (string);
+
+    Json::CharReaderBuilder jsonReader;
+    std::string errorString;
+    if (Json::parseFromStream(jsonReader, ss, &jsonData, &errorString)) {
+        return true;
+    }
+    if (verbose) {
+        std::cerr << "Error: cannot load (or broken) json file " << string << ", error: " << errorString << std::endl;
+    }
+    return false;
 }
 
 

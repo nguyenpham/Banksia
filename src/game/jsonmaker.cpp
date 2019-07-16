@@ -342,12 +342,14 @@ i64 JsonMaker::getFileSize(const std::string& fileName)
 }
 
 static const std::set<std::string>extSet{
-    "txt", "pdf", "ini", "db", "mak", "def", "prj",
-    "htm", "html", "doc", "md",
+    "txt", "pdf", "ini", "db", "mak", "def", "prj", "dat",
+    "htm", "html", "xml", "json", "doc", "docx", "md", "md5", "log",
     "jpg", "jpeg", "gif", "png", "bmp", "rc",
-    "bok",
-    "h", "hpp", "c", "cpp",
-    "bat", "sh", "bin", "exe", "dll"
+    "zip", "7z", "rar", "arj", "gz", "tgz",
+    "bok", "pgn", "lrn",
+    "rtbw", "rtbz", "cp4", "atbw", "atbz", "emd", "cmp",
+    "h", "hpp", "c", "cpp", "java", "py", "bas",
+    "bat", "bin", "exe", "dll"
 };
 
 bool JsonMaker::isExecutable(const std::string& path)

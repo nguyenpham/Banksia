@@ -167,6 +167,10 @@ namespace banksia {
             return config.isValid() ? config.elo : 0;
         }
 
+        bool loadOverrideOptions(const Json::Value&);
+        Option checkOverrideOption(const Option& option);
+        Option getOverrideOption(const std::string& name);
+        
     protected:
         Json::Value createJsonForSaving() override;
         
@@ -174,7 +178,9 @@ namespace banksia {
         bool parseJsonAfterLoading(Json::Value&) override;
         
         std::map<std::string, Config> configMap;
-        bool editingMode = false;
+        std::map<std::string, Option> overrideOptions;
+
+        bool editingMode = false, overrideOptionMode = false;
     };
     
     extern ConfigMng configMng;

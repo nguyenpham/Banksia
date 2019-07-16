@@ -40,7 +40,7 @@
 
 namespace banksia {
     
-    const int BANKSIA_VERSION = (2 << 8) + 22;
+    const int BANKSIA_VERSION = (2 << 8) + 5;
     
 #ifdef _WIN32
     const std::string folderSlash = "\\";
@@ -82,7 +82,7 @@ namespace banksia {
         
         static bool loadFromJsonFile(const std::string& jsonPath, Json::Value& jsonData, bool verbose = true);
         static bool saveToJsonFile(const std::string& jsonPath, Json::Value& jsonData);
-
+        static bool loadFromJsonString(const std::string& string, Json::Value& jsonData, bool verbose);
     protected:
         virtual bool saveToJsonFile(Json::Value& jsonData);
         virtual bool parseJsonAfterLoading(Json::Value&) { return false; }

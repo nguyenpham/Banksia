@@ -54,7 +54,7 @@ bool MatchRecord::load(const Json::Value& obj)
     auto array = obj["players"];
     playernames[0] = array[0].asString();
     playernames[1] = array[1].asString();
-
+    
     if (obj.isMember("startFen")) {
         startFen = obj["startFen"].asString();
     }
@@ -68,12 +68,12 @@ bool MatchRecord::load(const Json::Value& obj)
             startMoves.push_back(m);
         }
     }
-
+    
     auto s = obj["result"].asString();
     resultType = string2ResultType(s);
-
+    
     state = resultType == ResultType::noresult ? MatchState::none : MatchState::completed;
-
+    
     gameIdx = obj["gameIdx"].asInt();
     round = obj["round"].asInt();
     pairId = obj["pairId"].asInt();
@@ -88,7 +88,7 @@ Json::Value MatchRecord::saveToJson() const
     players.append(playernames[0]);
     players.append(playernames[1]);
     obj["players"] = players;
-
+    
     if (!startFen.empty()) {
         obj["startFen"] = startFen;
     }
@@ -148,53 +148,55 @@ static const char* tourTypeNames[] = {
 void TourMng::fixJson(Json::Value& d, const std::string& path)
 {
     // Base
-    auto s = "base";
-    Json::Value v;
-    if (!d.isMember(s)) {
-        v = d[s];
-    }
-
-    if (!v.isMember("type")) {
-        v["type"] = tourTypeNames[0];
-    }
-    s = "games per pair";
-    if (!v.isMember(s)) {
-        v[s] = 2;
-    }
-
-    if (!v.isMember("ponder")) {
-        v["ponder"] = false;
+    {
+        auto s = "base";
+        Json::Value v;
+        if (!d.isMember(s)) {
+            v = d[s];
+        }
+        
+        if (!v.isMember("type")) {
+            v["type"] = tourTypeNames[0];
+        }
+        s = "games per pair";
+        if (!v.isMember(s)) {
+            v[s] = 2;
+        }
+        
+        if (!v.isMember("ponder")) {
+            v["ponder"] = false;
+        }
+        
+        s = "shuffle players";
+        if (!v.isMember(s)) {
+            v[s] = false;
+        }
+        
+        s = "resumable";
+        if (!v.isMember(s)) {
+            v[s] = true;
+        }
+        
+        if (!v.isMember("event")) {
+            v["event"] = "Computer event";
+        }
+        if (!v.isMember("site")) {
+            v["site"] = "Somewhere on Earth";
+        }
+        
+        if (!v.isMember("concurrency")) {
+            v["concurrency"] = 2;
+        }
+        
+        s = "help";
+        if (!v.isMember(s)) {
+            v[s] = "type: " + std::string(tourTypeNames[0]) + ", " + std::string(tourTypeNames[1]) + "; event, site for PGN header; shuffle: random players for roundrobin";
+        }
+        
+        d["base"] = v;
     }
     
-    s = "shuffle players";
-    if (!v.isMember(s)) {
-        v[s] = false;
-    }
-    
-    s = "resumable";
-    if (!v.isMember(s)) {
-        v[s] = true;
-    }
-    
-    if (!v.isMember("event")) {
-        v["event"] = "Computer event";
-    }
-    if (!v.isMember("site")) {
-        v["site"] = "Somewhere on Earth";
-    }
-    
-    if (!v.isMember("concurrency")) {
-        v["concurrency"] = 2;
-    }
-    
-    s = "tips";
-    if (!v.isMember(s)) {
-        v[s] = "type: " + std::string(tourTypeNames[0]) + ", " + std::string(tourTypeNames[1]) + "; event, site for PGN header; shuffle: random players for roundrobin";
-    }
-
-    d["base"] = v;
-
-    s = "time control";
+    auto s = "time control";
     if (!d.isMember(s)) {
         Json::Value v;
         v["mode"] = "standard";
@@ -202,13 +204,22 @@ void TourMng::fixJson(Json::Value& d, const std::string& path)
         v["time"] = double(5.5);
         v["increment"] = double(0.5);
         v["margin"] = double(0.8);
-        v["tips"] = "unit's second; mode: standard, infinite, depth, movetime; margin: an extra time before checking if over time";
+        v["help"] = "unit's second; mode: standard, infinite, depth, movetime; margin: an extra delay time before checking if time over";
         d[s] = v;
     }
-
+    
     s = "opening books";
     if (!d.isMember(s)) {
-        Json::Value v;
+        
+        // base
+        Json::Value b;
+        b["select type"] = BookMng::bookSelectType2String(BookSelectType::allnew);
+        b["allone fen"] = "";
+        b["allone san moves"] = "";
+        b["seed"] = -1;
+        b["help"] = "seed for random; select types: samepair: same opening for a pair, allnew: all games use different openings, allone: all games use one opening, given by 'allone fen' or 'allone san moves' or randomly from books";
+        
+        Json::Value array;
         for(int i = 0; i < 3; i++) {
             auto bookType = static_cast<BookType>(i);
             
@@ -220,10 +231,31 @@ void TourMng::fixJson(Json::Value& d, const std::string& path)
             if (bookType == BookType::polygot) {
                 b["maxply"] = 12;
                 b["top100"] = 20;
-                b["tips"] = "maxply: ply to play; top100: percents of top moves (for a given position) to select ranndomly an opening move, 0 is always the best";
+                b["help"] = "maxply: ply to play; top100: percents of top moves (for a given position) to select ranndomly an opening move, 0 is always the best";
             }
-            v.append(b);
+            array.append(b);
         }
+        
+        Json::Value v;
+        v["base"] = b;
+        v["books"] = array;
+        d[s] = v;
+    }
+    
+    s = "override options";
+    if (!d.isMember(s)) {
+        // Defaults and values should be different to make sure it will be sent
+        const static std::string ooString =
+        "{\"mode\" : true, \"help\" : \"options in this section will relplace engines' options which are same names and types\",\
+        \"options\" :[{\"default\" : \"\",\"name\" : \"SyzygyPath\",\"type\" : \"string\",\"value\" : \"\"},\
+        {\"default\" : 2,\"max\" : 100,\"min\" : 1,\"name\" : \"SyzygyProbeDepth\",\"type\" : \"spin\",\"value\" : 1},\
+        {\"default\":false,\"name\" : \"Syzygy50MoveRule\",\"type\" : \"check\",\"value\" : true},\
+        {\"default\":6,\"max\" : 7,\"min\" : 0,\"name\" : \"SyzygyProbeLimit\",\"type\" : \"spin\",\"value\" : 7},\
+        {\"default\" : 2,\"max\" : 128,\"min\" : 1,\"name\" : \"cores\",\"help\" : \"set cores for Winboard engines\",\"type\" : \"spin\",\"value\" : 1},\
+        {\"default\":64,\"max\" : 4096,\"min\" : 1,\"name\" : \"memory\",\"help\" : \"unit: MB; set memory for Winboard engines\",\"type\" : \"spin\",\"value\" : 128}]}";
+        
+        Json::Value v;
+        JsonSavable::loadFromJsonString(ooString, v, true);
         d[s] = v;
     }
     
@@ -234,7 +266,7 @@ void TourMng::fixJson(Json::Value& d, const std::string& path)
         if (d.isMember("logs")) {
             a = d["logs"];
         }
-
+        
         s = "pgn";
         if (!a.isMember(s)) {
             Json::Value v;
@@ -259,7 +291,7 @@ void TourMng::fixJson(Json::Value& d, const std::string& path)
             v["path"] = path + folderSlash + "enginelog.txt";
             a[s] = v;
         }
-
+        
         d["logs"] = a;
     }
 }
@@ -271,7 +303,7 @@ bool TourMng::parseJsonAfterLoading(Json::Value& d)
     //
     if (d.isMember("base")) {
         auto v = d["base"];
-
+        
         auto s = v["type"].asString();
         for(int t = 0; tourTypeNames[t]; t++) {
             if (tourTypeNames[t] == s) {
@@ -279,7 +311,6 @@ bool TourMng::parseJsonAfterLoading(Json::Value& d)
                 break;
             }
         }
-        
         
         s = "resumable";
         resumable = v.isMember(s) ? v[s].asBool() : true;
@@ -325,6 +356,11 @@ bool TourMng::parseJsonAfterLoading(Json::Value& d)
         return false;
     }
     
+    s = "override options";
+    if (d.isMember(s)) {
+        ConfigMng::instance->loadOverrideOptions(d[s]);
+    }
+    
     // Participants
     participantList.clear();
     if (d.isMember("players")) {
@@ -348,7 +384,7 @@ bool TourMng::parseJsonAfterLoading(Json::Value& d)
         auto obj = d[s];
         ok = timeController.load(obj) && timeController.isValid();
     }
-
+    
     if (!ok) {
         std::cerr << "Error: missing parametter \"" << s << "\" or corrupted data" << std::endl;
         return false;
@@ -377,7 +413,7 @@ bool TourMng::parseJsonAfterLoading(Json::Value& d)
         auto obj = d[s];
         bookMng.load(obj);
     }
-
+    
     s = "logs";
     if (d.isMember(s)) {
         auto a = d[s];
@@ -403,7 +439,7 @@ bool TourMng::parseJsonAfterLoading(Json::Value& d)
             logEngineInOutPath = v["path"].asString();
         }
     }
-
+    
     return true;
 }
 
@@ -485,7 +521,7 @@ void TourMng::startTournament()
     
     // tickWork will start the matches
     state = TourState::playing;
-
+    
     mainTimerId = timer.add(std::chrono::milliseconds(500), [=](CppTime::timer_id) { tick(); }, std::chrono::milliseconds(500));
 }
 
@@ -566,15 +602,15 @@ std::string TourMng::createTournamentStats()
     std::stringstream stringStream;
     
     
-    auto separateLineSz = maxNameLen + 50;
+    auto separateLineSz = maxNameLen + 65;
     for(int i = 0; i < separateLineSz; i++) {
         stringStream << "-";
     }
     stringStream << std::endl;
-
+    
     stringStream << "  #  "
     << std::left << std::setw(maxNameLen + 1) << "name"
-    << "games     wins    draws   losses   score" << std::endl;
+    << "games     wins    draws   losses   score     los  elo+/-" << std::endl;
     
     for(int i = 0; i < resultList.size(); i++) {
         auto r = resultList.at(i);
@@ -583,7 +619,7 @@ std::string TourMng::createTournamentStats()
         double win = double(r.winCnt * 100) / d, draw = double(r.drawCnt * 100) / d, loss = double(r.lossCnt * 100) / d;
         
         double score = double(r.winCnt) + double(r.drawCnt) / 2;
-        //        auto errorMagins = calcErrorMargins(r.winCnt, r.drawCnt, r.lossCnt);
+        Elo elo(r.winCnt, r.drawCnt, r.lossCnt);
         stringStream
         << std::right << std::setw(3) << (i + 1) << ". "
         << std::left << std::setw(maxNameLen + 1) << r.name
@@ -593,7 +629,10 @@ std::string TourMng::createTournamentStats()
         << std::right << std::setw(8) << win << std::left << std::setw(0) << "%"
         << std::right << std::setw(8) << draw << std::left << std::setw(0) << "%"
         << std::right << std::setw(8) << loss << std::left << std::setw(0) << "%"
-        << std::right << std::setw(8) << score << std::left << std::setw(0)
+        << std::right << std::setw(8) << score
+        << std::right << std::setw(8) << elo.los
+        << std::right << std::setw(8) << elo.elo_difference
+        << std::left << std::setw(0)
         << std::endl;
     }
     
@@ -601,7 +640,7 @@ std::string TourMng::createTournamentStats()
         stringStream << "-";
     }
     stringStream << std::endl << std::endl;
-
+    
     return stringStream.str();
 }
 
@@ -645,7 +684,7 @@ void TourMng::addMatchRecord(MatchRecord& record)
 void TourMng::addMatchRecord_simple(MatchRecord& record)
 {
     record.gameIdx = int(matchRecordList.size());
-    bookMng.getRandomBook(record.startFen, record.startMoves);
+    bookMng.getRandomBook(record.pairId, record.startFen, record.startMoves);
     matchRecordList.push_back(record);
 }
 
@@ -657,7 +696,7 @@ bool TourMng::createNextRoundMatches()
             
         case TourType::knockout:
             return createNextKnockoutMatchList();
-
+            
         default:
             break;
     }
@@ -678,7 +717,7 @@ void TourMng::checkToExtendMatches(int gIdx)
             playerPair.pair[0].name = r.playernames[0];
             playerPair.pair[1].name = r.playernames[1];
             auto pairId = r.pairId;
-
+            
             for(auto && rcd : matchRecordList) {
                 if (rcd.pairId != pairId) {
                     continue;
@@ -730,7 +769,7 @@ std::vector<TourPlayer> TourMng::getKnockoutWinnerList()
     std::set<std::string> lostSet;
     std::vector<std::string> nameList;
     std::map<int, TourPlayerPair> pairMap;
-
+    
     for(auto && r : matchRecordList) {
         if (r.round != lastRound) {
             continue;
@@ -784,7 +823,7 @@ bool TourMng::createKnockoutMatchList(const std::vector<std::string>& nameList)
         tourPlayer.name = name;
         vec.push_back(tourPlayer);
     }
-
+    
     return createKnockoutMatchList(vec, 0);
 }
 
@@ -856,9 +895,9 @@ bool TourMng::createKnockoutMatchList(std::vector<TourPlayer> playerVec, int rou
         addMatchRecord(record);
         addCnt++;
     }
-
+    
     auto str = "\nKnockout round: " + std::to_string(round + 1) + ", pairs: " + std::to_string(n) + ", matches: " + std::to_string(uncompletedMatches());
-
+    
     matchLog(str);
     return addCnt > 0;
 }
@@ -980,12 +1019,6 @@ bool TourMng::createMatch(int gameIdx, const std::string& whiteName, const std::
         playerMng.returnPlayer(engines[sd]);
     }
     return false;
-}
-
-// TODO: make it work!
-int TourMng::calcErrorMargins(int w, int d, int l)
-{
-    return 0;
 }
 
 void TourMng::matchCompleted(Game* game)
@@ -1110,7 +1143,13 @@ int TourMng::uncompletedMatches()
     return cnt;
 }
 
+
+#ifdef _WIN32
+const std::string matchPath = "playing.json";
+#else
 const std::string matchPath = "./playing.json";
+#endif
+
 
 void TourMng::removeMatchRecordFile()
 {
@@ -1124,18 +1163,17 @@ void TourMng::saveMatchRecords()
     }
     
     Json::Value d;
-
+    
     d["type"] = tourTypeNames[static_cast<int>(type)];
-
     d["timeControl"] = timeController.saveToJson();
-
+    
     Json::Value a;
     for(auto && r : matchRecordList) {
         a.append(r.saveToJson());
     }
     d["recordList"] = a;
     d["elapsed"] = static_cast<int>(time(nullptr) - startTime);
-
+    
     JsonSavable::saveToJsonFile(matchPath, d);
 }
 
@@ -1164,9 +1202,9 @@ bool TourMng::loadMatchRecords(bool autoYesReply)
         removeMatchRecordFile();
         return false;
     }
-
+    
     std::cout << "\nThere are " << uncompletedCnt << " (of " << recordList.size() << ") uncompleted matches from previous tournament! Do you want to resume? (y/n)" << std::endl;
-
+    
     while (!autoYesReply) {
         std::string line;
         std::getline(std::cin, line);
@@ -1174,7 +1212,7 @@ bool TourMng::loadMatchRecords(bool autoYesReply)
         if (line.empty()) {
             continue;
         }
-
+        
         if (line == "n" || line == "no") {
             removeMatchRecordFile();
             std::cout << "Discarded last tournament!" << std::endl;
@@ -1199,7 +1237,7 @@ bool TourMng::loadMatchRecords(bool autoYesReply)
             }
         }
     }
-
+    
     assert(timeController.isValid());
     
     auto s = "timeControl";
@@ -1210,12 +1248,13 @@ bool TourMng::loadMatchRecords(bool autoYesReply)
             timeController.load(oldTimeControl);
         }
     }
-
+    
     assert(timeController.isValid());
     previousElapsed += d["elapsed"].asInt();
-
+    
     removeMatchRecordFile();
     
     startTournament();
     return true;
 }
+
