@@ -1,16 +1,16 @@
 {
     "base" :
     {
-        "type" : "roundrobin",
         "concurrency" : 2,
+        "event" : "Computer event",
         "games per pair" : 2,
+        "help" : "type: roundrobin, knockout; event, site for PGN header; shuffle: random players for roundrobin",
         "ponder" : false,
         "resumable" : true,
         "shuffle players" : false,
-        "event" : "Computer event",
-        "site" : "Somewhere on Earth"
+        "site" : "Somewhere on Earth",
+        "type" : "roundrobin"
     },
-    
     "time control": {
         "mode": "standard",
         "moves": 40,
@@ -18,25 +18,7 @@
         "increment": 0.5,
         "margin": 0.3
     },
-    "opening books" : [
-        {
-            "mode" : true,
-            "type" : "epd",
-            "path" : "c:\\match\\openings.epd"
-        },
-        {
-            "mode" : false,
-            "type" : "pgn",
-            "path" : "c:\\match\\openings.pgn"
-        },
-        {
-            "mode" : false,
-            "type" : "polyglot",
-            "maxply" : 12,
-            "top100" : 20,
-            "path" : "c:\\match\\openings.bin"
-        }
-    ],
+    
     "engine configurations" : {
         "update" : false,
         "path" : "c:\\match\\engines.json"
@@ -44,19 +26,109 @@
     
     "players": [ "stockfish", "sf", "fruit", "gaviota-1.0", "crafty" ],
 
-    "logs" : {
-        "pgn" : {
+    "opening books" :
+    {
+        "base" :
+        {
+            "allone fen" : "",
+            "allone san moves" : "",
+            "help" : "seed for random; select types: samepair: same opening for a pair, allnew: all games use different openings, allone: all games use one opening, given by 'allone fen' or 'allone san moves' or randomly from books",
+            "seed" : -1,
+            "select type" : "allnew"
+        },
+        "books" :
+        [
+            {
+                "mode" : false,
+                "path" : "",
+                "type" : "epd"
+            },
+            {
+                "mode" : false,
+                "path" : "",
+                "type" : "pgn"
+            },
+            {
+                "help" : "maxply: ply to play; top100: percents of top moves (for a given position) to select ranndomly an opening move, 0 is always the best",
+                "maxply" : 12,
+                "mode" : false,
+                "path" : "",
+                "top100" : 20,
+                "type" : "polyglot"
+            }
+        ]
+    },
+    "override options" :
+    {
+        "help" : "options in this section will relplace engines' options which are same names and types",
+        "mode" : true,
+        "options" :
+        [
+            {
+                "default" : "",
+                "name" : "SyzygyPath",
+                "type" : "string",
+                "value" : ""
+            },
+            {
+                "default" : 2,
+                "max" : 100,
+                "min" : 1,
+                "name" : "SyzygyProbeDepth",
+                "type" : "spin",
+                "value" : 1
+            },
+            {
+                "default" : false,
+                "name" : "Syzygy50MoveRule",
+                "type" : "check",
+                "value" : true
+            },
+            {
+                "default" : 6,
+                "max" : 7,
+                "min" : 0,
+                "name" : "SyzygyProbeLimit",
+                "type" : "spin",
+                "value" : 7
+            },
+            {
+                "default" : 2,
+                "help" : "set cores for Winboard engines",
+                "max" : 128,
+                "min" : 1,
+                "name" : "cores",
+                "type" : "spin",
+                "value" : 1
+            },
+            {
+                "default" : 64,
+                "help" : "unit: MB; set memory for Winboard engines",
+                "max" : 4096,
+                "min" : 1,
+                "name" : "memory",
+                "type" : "spin",
+                "value" : 128
+            }
+        ]
+    },
+    "logs" :
+    {
+        "engine" :
+        {
+            "mode" : true,
+            "path" : "c:\\match\\logengine.txt",
+            "show time" : true
+        },
+        "pgn" :
+        {
             "mode" : true,
             "path" : "c:\\match\\games.pgn"
         },
-        "result": {
-            "mode": true,
-            "path": "c:\\match\\logresult.txt"
-        },
-        "engine": {
-            "mode": true,
-            "show time": true,
-            "path": "c:\\match\\logengine.txt"
+        "result" :
+        {
+            "mode" : true,
+            "path" : "c:\\match\\logresult.txt"
         }
     }
 }
