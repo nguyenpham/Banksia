@@ -334,7 +334,7 @@ namespace banksia {
         
         void newGame(std::string fen = "");
         
-        MoveFull createMove(int from, int dest, PieceType promote) const;
+        MoveFull createFullMove(int from, int dest, PieceType promote) const;
         static PieceType charactorToPieceType(char ch);
         static Move moveFromCoordiateString(const std::string& moveString);
         

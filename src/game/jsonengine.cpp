@@ -154,7 +154,7 @@ void JsonEngine::tickWork()
         return;
     }
     
-    if (correctCmdCnt > 6 && usedCmdSet.size() > 2) {
+    if ((correctCmdCnt > 6 && usedCmdSet.size() > 2) || (correctCmdCnt > 3 && usedCmdSet.find("feature") != usedCmdSet.end())) {
         completed(&engine->config);
         return;
     }
@@ -179,7 +179,7 @@ void JsonEngine::tickWork()
     correctCmdCnt = 0;
     tick_idle = 0;
     tick_test = tick_test_period;
-    tryNum = 2;
+    tryNum = 3;
     write(engine->protocolString());
 }
 

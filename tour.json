@@ -118,6 +118,7 @@
         {
             "mode" : true,
             "path" : "c:\\match\\logengine.txt",
+            "all in one" : false,
             "show time" : true
         },
         "pgn" :

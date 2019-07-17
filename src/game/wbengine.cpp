@@ -67,7 +67,7 @@ bool WbEngine::sendOptions()
 
 bool WbEngine::candoSyncTaskNow(SyncTask task)
 {
-    if (expectingPongCnt) {
+    if (feature_ping && expectingPongCnt) {
         std::lock_guard<std::mutex> dolock(syncMutex);
         if (expectingPongCnt) {
             syncTasks.push_back(task);
@@ -79,6 +79,7 @@ bool WbEngine::candoSyncTaskNow(SyncTask task)
 
 bool WbEngine::doSyncTask()
 {
+    assert(feature_ping);
     if (expectingPongCnt || syncTasks.empty()) {
         return false;
     }
@@ -139,10 +140,16 @@ void WbEngine::newGame_straight()
     
     write(timeControlString());
     
-    // fake ping to avoid other cmd be run
-    expectingPongCnt++;
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
-    sendPing();
+    if (feature_ping) {
+        // fake ping to avoid other cmd be run
+        expectingPongCnt++;
+        
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        sendPing();
+    } else {
+        setState(PlayerState::playing);
+    }
+
 }
 
 void WbEngine::prepareToDeattach()
@@ -251,6 +258,7 @@ std::string WbEngine::timeControlString() const
 
 bool WbEngine::sendPing()
 {
+    assert(feature_ping);
     expectingPongCnt++;
     return write("ping " + std::to_string(++pingCnt));
 }
@@ -269,7 +277,9 @@ void WbEngine::tickWork()
         tick_delay_2_ready--;
         if (tick_delay_2_ready == 0) {
             write("force");
-            sendPing();
+            if (feature_ping) {
+                sendPing();
+            }
             setState(PlayerState::ready);
         }
     }
@@ -277,7 +287,7 @@ void WbEngine::tickWork()
 
 void WbEngine::tickPing()
 {
-    if (computingState == EngineComputingState::thinking) {
+    if (computingState == EngineComputingState::thinking || !feature_ping) {
         return;
     }
     
@@ -373,6 +383,8 @@ bool WbEngine::parseFeature(const std::string& name, const std::string& content,
         feature_san = content == "1";
     } else if (name == "usermove") {
         feature_usermove = content == "1";
+    } else if (name == "ping") {
+        feature_ping = content == "1";
     } else if (name == "variants") {
         config.variantSet.clear();
         auto varList = splitString(content, ',');
@@ -531,21 +543,21 @@ void WbEngine::parseLine(int cmdInt, const std::string& cmdString, const std::st
             engineMove(vec.at(1), true);
             break;
         }
-            
+
         case WbEngineCmd::feature:
         {
             tick_delay_2_ready = std::max(3, tick_delay_2_ready); // extent init time a bit
             parseFeatures(line);
             break;
         }
-            
+
         case WbEngineCmd::ping:
         {
             auto vec = splitString(line, ' ');
             sendPong(vec.size() >= 2 ? vec.at(1) : "");
             break;
         }
-            
+
         case WbEngineCmd::pong:
         {
             expectingPongCnt = 0;

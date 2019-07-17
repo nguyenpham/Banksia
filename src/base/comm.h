@@ -40,7 +40,7 @@
 
 namespace banksia {
     
-    const int BANKSIA_VERSION = (2 << 8) + 5;
+    const int BANKSIA_VERSION = (2 << 8) + 51;
     
 #ifdef _WIN32
     const std::string folderSlash = "\\";

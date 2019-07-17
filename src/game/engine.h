@@ -94,7 +94,7 @@ namespace banksia {
         void read_stdout(const char *bytes, size_t n);
         void read_stderr(const char *bytes, size_t n);
         
-        bool isExited() const;
+        bool exited() const;
         
         virtual bool isIdleCrash() const;
 

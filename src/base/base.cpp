@@ -45,9 +45,9 @@ std::string BoardCore::getStartingFen() const
     return startFen;
 }
 
-MoveFull BoardCore::createMove(int from, int dest, PieceType promote) const
+MoveFull BoardCore::createFullMove(int from, int dest, PieceType promotion) const
 {
-    MoveFull move(from, dest, promote);
+    MoveFull move(from, dest, promotion);
     if (isPositionValid(from)) {
         move.piece = getPiece(from);
     }

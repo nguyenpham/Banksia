@@ -76,7 +76,7 @@ bool Engine::isIdleCrash() const
 	return tick_idle > tick_period_idle_dead;
 }
 
-bool Engine::isExited() const
+bool Engine::exited() const
 {
 	return process == nullptr;
 }
@@ -242,7 +242,7 @@ void Engine::attach(ChessBoard* board, const GameTimeController* timeController,
 
 bool Engine::isSafeToDeattach() const
 {
-	return computingState == EngineComputingState::idle || !isAttached() || tick_deattach == 0;
+	return computingState == EngineComputingState::idle || exited() || !isAttached() || tick_deattach == 0;
 }
 
 bool Engine::isSafeToDelete() const

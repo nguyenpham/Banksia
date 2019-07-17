@@ -80,7 +80,7 @@ namespace banksia {
 
         const int tick_test_period = 24;    // 12s
         const int tick_test_period_wb = 50; // 25 seconds
-        int tick_test = 0, tryNum = 2;      // 3 x 12 -> 36s
+        int tick_test = 0, tryNum = 3;      // 4 x 12 -> 48s
         
         Engine* engine = nullptr;
         

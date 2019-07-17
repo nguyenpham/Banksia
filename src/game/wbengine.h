@@ -94,8 +94,7 @@ namespace banksia {
         static const std::unordered_map<std::string, int> wbEngineCmd;
         int tick_delay_2_ready = -1;
         
-        bool feature_san = false, feature_usermove = false;
-        
+        bool feature_san = false, feature_usermove = false, feature_ping = false;
         bool feature_done_finished = true;
         
         enum class SyncTask {

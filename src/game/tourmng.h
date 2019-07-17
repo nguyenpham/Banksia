@@ -102,12 +102,15 @@ namespace banksia {
     public:
         // https://www.chessprogramming.org/Match_Statistics
         Elo(int wins, int draws, int losses) {
+            elo_difference = los = 0.0;
             double games = wins + losses + draws;
             if (games == 0 || wins + draws == 0) {
-                elo_difference = los = 0.0;
                 return;
             }
             double winning_fraction = (wins + 0.5 * draws) / games;
+            if (winning_fraction == 1) {
+                return;
+            }
             elo_difference = -std::log(1.0 / winning_fraction - 1.0) * 400.0 / std::log(10.0);
             los = .5 + .5 * std::erf((wins - losses) / std::sqrt(2.0 * (wins + losses)));
         }
@@ -218,6 +221,7 @@ namespace banksia {
         bool logResultMode = false;
         
         std::string logEngineInOutPath;
+        bool logEngineAllInOneMode = false;
         bool logEngineInOutMode = false;
         bool logEngineInOutShowTime = false;
 

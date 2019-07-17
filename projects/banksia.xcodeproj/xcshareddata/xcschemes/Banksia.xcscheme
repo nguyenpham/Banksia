@@ -72,11 +72,19 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "-d /Users/nguyenpham/workspace/BanksiaMatch/engines"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "-no -jsonpath /Users/nguyenpham/workspace/BanksiaMatch/tour.json"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-yes"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-d /Users/nguyenpham/workspace/BanksiaMatch/engines/chess22k"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument

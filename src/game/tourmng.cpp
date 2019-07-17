@@ -210,14 +210,14 @@ void TourMng::fixJson(Json::Value& d, const std::string& path)
     
     s = "opening books";
     if (!d.isMember(s)) {
-        
+
         // base
         Json::Value b;
         b["select type"] = BookMng::bookSelectType2String(BookSelectType::allnew);
         b["allone fen"] = "";
         b["allone san moves"] = "";
         b["seed"] = -1;
-        b["help"] = "seed for random; select types: samepair: same opening for a pair, allnew: all games use different openings, allone: all games use one opening, given by 'allone fen' or 'allone san moves' or randomly from books";
+        b["help"] = "seed for random; select types: samepair: same opening for a pair, allnew: all games use different openings, allone: all games use one opening from 'allone fen' or 'allone san moves' or books";
         
         Json::Value array;
         for(int i = 0; i < 3; i++) {
@@ -279,7 +279,7 @@ void TourMng::fixJson(Json::Value& d, const std::string& path)
         if (!a.isMember(s)) {
             Json::Value v;
             v["mode"] = true;
-            v["path"] = path + folderSlash + "resultlog.txt";
+            v["path"] = path + folderSlash + "logresult.txt";
             a[s] = v;
         }
         
@@ -288,7 +288,8 @@ void TourMng::fixJson(Json::Value& d, const std::string& path)
             Json::Value v;
             v["mode"] = true;
             v["show time"] = true;
-            v["path"] = path + folderSlash + "enginelog.txt";
+            v["all in one"] = false;
+            v["path"] = path + folderSlash + "logengine.txt";
             a[s] = v;
         }
         
@@ -435,6 +436,7 @@ bool TourMng::parseJsonAfterLoading(Json::Value& d)
         if (a.isMember(s)) {
             auto v = a[s];
             logEngineInOutMode = v["mode"].asBool();
+            logEngineAllInOneMode = v.isMember("all in one") && v["all in one"].asBool();
             logEngineInOutShowTime = v.isMember("show time") && v["show time"].asBool();
             logEngineInOutPath = v["path"].asString();
         }
@@ -478,7 +480,9 @@ void TourMng::tickWork()
         }
         
         auto it = std::find(gameList.begin(), gameList.end(), game);
-        if (it != gameList.end()) {
+        if (it == gameList.end()) {
+            std::cerr << "Error: somethings wrong, cannot find to delete the game " << game->getGameTitleString() << std::endl;
+        } else {
             gameList.erase(it);
         }
         delete game;
@@ -602,15 +606,15 @@ std::string TourMng::createTournamentStats()
     std::stringstream stringStream;
     
     
-    auto separateLineSz = maxNameLen + 65;
+    auto separateLineSz = maxNameLen + 68;
     for(int i = 0; i < separateLineSz; i++) {
         stringStream << "-";
     }
     stringStream << std::endl;
     
     stringStream << "  #  "
-    << std::left << std::setw(maxNameLen + 1) << "name"
-    << "games     wins    draws   losses   score     los  elo+/-" << std::endl;
+    << std::left << std::setw(maxNameLen + 2) << "name"
+    << "games    wins%   draws%  losses%    score     los%   elo+/-" << std::endl;
     
     for(int i = 0; i < resultList.size(); i++) {
         auto r = resultList.at(i);
@@ -622,16 +626,15 @@ std::string TourMng::createTournamentStats()
         Elo elo(r.winCnt, r.drawCnt, r.lossCnt);
         stringStream
         << std::right << std::setw(3) << (i + 1) << ". "
-        << std::left << std::setw(maxNameLen + 1) << r.name
+        << std::left << std::setw(maxNameLen + 2) << r.name
         << std::right << std::setw(5) << r.gameCnt
-        // << (errorMagins > 0 ? "+" : "") << errorMagins << " "
         << std::fixed << std::setprecision(1)
-        << std::right << std::setw(8) << win << std::left << std::setw(0) << "%"
-        << std::right << std::setw(8) << draw << std::left << std::setw(0) << "%"
-        << std::right << std::setw(8) << loss << std::left << std::setw(0) << "%"
-        << std::right << std::setw(8) << score
-        << std::right << std::setw(8) << elo.los
-        << std::right << std::setw(8) << elo.elo_difference
+        << std::right << std::setw(9) << win // << std::left << std::setw(0) << "%"
+        << std::right << std::setw(9) << draw // << std::left << std::setw(0) << "%"
+        << std::right << std::setw(9) << loss // << std::left << std::setw(0) << "%"
+        << std::right << std::setw(9) << score
+        << std::right << std::setw(9) << elo.los * 100
+        << std::right << std::setw(9) << elo.elo_difference
         << std::left << std::setw(0)
         << std::endl;
     }
@@ -1098,7 +1101,7 @@ void TourMng::engineLog(int gameIdx, const std::string& name, const std::string&
     
     std::ostringstream stringStream;
     
-    if (gameIdx >= 0 && gameConcurrency > 1) {
+    if (logEngineAllInOneMode && gameIdx >= 0 && gameConcurrency > 1) {
         stringStream << (gameIdx + 1) << ".";
     }
     
@@ -1114,8 +1117,18 @@ void TourMng::engineLog(int gameIdx, const std::string& name, const std::string&
         printText(str);
     }
     
+    auto path = logEngineInOutPath;
+    if (!logEngineAllInOneMode) {
+        auto s = "-" + std::to_string(gameIdx + 1);
+        auto p = path.rfind(".");
+        if (p == std::string::npos) {
+            path += s;
+        } else {
+            path = path.substr(0, p) + s + path.substr(p);
+        }
+    }
     std::lock_guard<std::mutex> dolock(logMutex);
-    append2TextFile(logEngineInOutPath, str);
+    append2TextFile(path, str);
 }
 
 void TourMng::append2TextFile(const std::string& path, const std::string& str)

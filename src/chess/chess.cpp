@@ -1112,7 +1112,7 @@ bool ChessBoard::checkMake(int from, int dest, PieceType promotion)
         }
         
         auto theSide = side;
-        auto fullmove = createMove(from, dest, promotion);
+        auto fullmove = createFullMove(from, dest, promotion);
         make(fullmove); assert(side != theSide);
         
         if (isIncheck(theSide)) {
@@ -1334,6 +1334,7 @@ Move ChessBoard::fromSanString(const std::string& str)
             MoveList moveList;
             gen(moveList, side);
             
+            std::vector<Move> goodMoves;
             for(int i = 0; i < moveList.end; i++) {
                 auto m = moveList.list[i];
                 if (m.dest != dest || m.promotion != promotion ||
@@ -1344,8 +1345,22 @@ Move ChessBoard::fromSanString(const std::string& str)
                 if ((fromRow < 0 && fromCol < 0) ||
                     (fromRow >= 0 && getRow(m.from) == fromRow) ||
                     (fromCol >= 0 && getColumn(m.from) == fromCol)) {
+                    goodMoves.push_back(m);
                     from = m.from;
-                    break;
+                }
+            }
+
+            if (goodMoves.size() > 1) {
+                for(auto && m : goodMoves) {
+                    MoveFull move = createFullMove(m.from, dest, promotion);
+                    Hist hist;
+                    make(move, hist);
+                    auto incheck = isIncheck(side);
+                    takeBack(hist);
+                    if (!incheck) {
+                        from = m.from;
+                        break;
+                    }
                 }
             }
         }
