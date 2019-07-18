@@ -1,5 +1,5 @@
 /*
- This file is part of Banksia, distributed under MIT license.
+ This file is part of Banksia.
  
  Copyright (c) 2019 Nguyen Hong Pham
  
@@ -188,9 +188,9 @@ void TourMng::fixJson(Json::Value& d, const std::string& path)
             v["concurrency"] = 2;
         }
         
-        s = "help";
+        s = "guide";
         if (!v.isMember(s)) {
-            v[s] = "type: " + std::string(tourTypeNames[0]) + ", " + std::string(tourTypeNames[1]) + "; event, site for PGN header; shuffle: random players for roundrobin";
+            v[s] = "type: " + std::string(tourTypeNames[0]) + ", " + std::string(tourTypeNames[1]) + "; event, site for PGN tags; shuffle: random players for roundrobin";
         }
         
         d["base"] = v;
@@ -204,41 +204,24 @@ void TourMng::fixJson(Json::Value& d, const std::string& path)
         v["time"] = double(5.5);
         v["increment"] = double(0.5);
         v["margin"] = double(0.8);
-        v["help"] = "unit's second; mode: standard, infinite, depth, movetime; margin: an extra delay time before checking if time over";
+        v["guide"] = "unit's second; mode: standard, infinite, depth, movetime; margin: an extra delay time before checking if time's over";
         d[s] = v;
     }
     
     s = "opening books";
     if (!d.isMember(s)) {
+        const static std::string obString =
+        "{ \"base\" : { \"allone fen\" : \"\", \"allone san moves\" : \"\", \"seed\" : -1, \"select type\" : \"allnew\",\
+        \"guide\" : \"seed for random, -1 completely random; select types: samepair: same opening for a pair, allnew: all games use different openings, allone: all games use one opening, from 'allone fen' or 'allone san moves' or books\"},\
+        \"books\" : [\
+        { \"mode\" : false, \"path\" : \"\", \"type\" : \"epd\" },\
+        { \"mode\" : false, \"path\" : \"\", \"type\" : \"pgn\" },\
+        { \"mode\" : false, \"path\" : \"\", \"type\" : \"polyglot\", \"maxply\" : 12, \"top100\" : 20,\
+        \"guide\" : \"maxply: ply to play; top100: percents of top moves (for a given position) to select ranndomly an opening move, 0 is always the best\" }\
+        ]}";
 
-        // base
-        Json::Value b;
-        b["select type"] = BookMng::bookSelectType2String(BookSelectType::allnew);
-        b["allone fen"] = "";
-        b["allone san moves"] = "";
-        b["seed"] = -1;
-        b["help"] = "seed for random; select types: samepair: same opening for a pair, allnew: all games use different openings, allone: all games use one opening from 'allone fen' or 'allone san moves' or books";
-        
-        Json::Value array;
-        for(int i = 0; i < 3; i++) {
-            auto bookType = static_cast<BookType>(i);
-            
-            Json::Value b;
-            b["mode"] = false;
-            b["type"] = BookMng::bookType2String(bookType);
-            b["path"] = "";
-            
-            if (bookType == BookType::polygot) {
-                b["maxply"] = 12;
-                b["top100"] = 20;
-                b["help"] = "maxply: ply to play; top100: percents of top moves (for a given position) to select ranndomly an opening move, 0 is always the best";
-            }
-            array.append(b);
-        }
-        
         Json::Value v;
-        v["base"] = b;
-        v["books"] = array;
+        JsonSavable::loadFromJsonString(obString, v, true);
         d[s] = v;
     }
     
@@ -246,13 +229,15 @@ void TourMng::fixJson(Json::Value& d, const std::string& path)
     if (!d.isMember(s)) {
         // Defaults and values should be different to make sure it will be sent
         const static std::string ooString =
-        "{\"mode\" : true, \"help\" : \"options in this section will relplace engines' options which are same names and types\",\
+        "{\"mode\" : true, \"guide\" : \"options will relplace engines' options which are same names and types, 'value' is the most important, others ignored; to avoid some options from specific engines being overridden, add and set field 'overridable' to false for them\",\
         \"options\" :[{\"default\" : \"\",\"name\" : \"SyzygyPath\",\"type\" : \"string\",\"value\" : \"\"},\
         {\"default\" : 2,\"max\" : 100,\"min\" : 1,\"name\" : \"SyzygyProbeDepth\",\"type\" : \"spin\",\"value\" : 1},\
         {\"default\":false,\"name\" : \"Syzygy50MoveRule\",\"type\" : \"check\",\"value\" : true},\
         {\"default\":6,\"max\" : 7,\"min\" : 0,\"name\" : \"SyzygyProbeLimit\",\"type\" : \"spin\",\"value\" : 7},\
-        {\"default\" : 2,\"max\" : 128,\"min\" : 1,\"name\" : \"cores\",\"help\" : \"set cores for Winboard engines\",\"type\" : \"spin\",\"value\" : 1},\
-        {\"default\":64,\"max\" : 4096,\"min\" : 1,\"name\" : \"memory\",\"help\" : \"unit: MB; set memory for Winboard engines\",\"type\" : \"spin\",\"value\" : 128}]}";
+        {\"default\":1,\"max\" : 512,\"min\" : 1,\"name\" : \"Threads\",\"type\" : \"spin\",\"value\" : 1,\"guide\" : \"set number of threads for UCI engines\"},\
+        {\"default\":16,\"max\" : 2048,\"min\" : 1,\"name\" : \"Hash\",\"type\" : \"spin\",\"value\" : 16,\"guide\" : \"unit: MB; set memory for UCI engines\"},\
+        {\"default\" : 2,\"max\" : 128,\"min\" : 1,\"name\" : \"cores\",\"guide\" : \"set cores for Winboard engines\",\"type\" : \"spin\",\"value\" : 1},\
+        {\"default\":64,\"max\" : 4096,\"min\" : 1,\"name\" : \"memory\",\"guide\" : \"unit: MB; set memory for Winboard engines\",\"type\" : \"spin\",\"value\" : 128}]}";
         
         Json::Value v;
         JsonSavable::loadFromJsonString(ooString, v, true);

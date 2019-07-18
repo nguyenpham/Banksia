@@ -1,5 +1,5 @@
 /*
- This file is part of Banksia, distributed under MIT license.
+ This file is part of Banksia.
  
  Copyright (c) 2019 Nguyen Hong Pham
  
@@ -77,11 +77,6 @@ std::string JsonEngine::protocolString() const
 }
 
 bool JsonEngine::isAttached() const
-{
-    return true;
-}
-
-bool JsonEngine::sendQuit()
 {
     return true;
 }
@@ -170,7 +165,7 @@ void JsonEngine::tickWork()
         return;
     }
     
-    quit();
+    setState(PlayerState::stopping);
     
     config.protocol = Protocol::wb;
     setupEngine();
@@ -182,5 +177,6 @@ void JsonEngine::tickWork()
     tryNum = 3;
     write(engine->protocolString());
 }
+
 
 

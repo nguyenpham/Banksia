@@ -1,5 +1,5 @@
 /*
- This file is part of Banksia, distributed under MIT license.
+ This file is part of Banksia.
  
  Copyright (c) 2019 Nguyen Hong Pham
  
@@ -44,7 +44,7 @@ namespace banksia {
     public:
         JsonEngine();
         JsonEngine(const Config& config);
-        ~JsonEngine();
+        virtual ~JsonEngine();
         
         const char* className() const override { return "JsonEngine"; }
 
@@ -61,7 +61,6 @@ namespace banksia {
         bool isIdleCrash() const override;
         
         std::string protocolString() const override;
-        bool sendQuit() override;
         bool sendPing() override;
         void prepareToDeattach() override {}
         bool stop() override { return true; }

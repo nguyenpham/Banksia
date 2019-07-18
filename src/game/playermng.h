@@ -1,5 +1,5 @@
 /*
- This file is part of Banksia, distributed under MIT license.
+ This file is part of Banksia.
  
  Copyright (c) 2019 Nguyen Hong Pham
  

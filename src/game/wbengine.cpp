@@ -1,5 +1,5 @@
 /*
- This file is part of Banksia, distributed under MIT license.
+ This file is part of Banksia.
  
  Copyright (c) 2019 Nguyen Hong Pham
  
@@ -123,7 +123,7 @@ void WbEngine::newGame_straight()
     
     write(ponderMode ? "hard" : "easy");
     write("post");
-    
+
     if (isFeatureOn("reuse", true)) {
         write("new");
     }
@@ -133,8 +133,12 @@ void WbEngine::newGame_straight()
     }
     
     if (!board->histList.empty()) {
+        // TODO: check logic again. No ping here
+        // force to avoid some engines such as Crafty auto computing
+        write("force");
         for (auto && hist : board->histList) {
-            write(hist.move.toCoordinateString());
+            std::string str = move2String(hist.move, hist.moveString);
+            write(str);
         }
     }
     
@@ -157,11 +161,6 @@ void WbEngine::prepareToDeattach()
     if (tick_deattach >= 0) return;
     stop();
     tick_deattach = tick_period_deattach;
-}
-
-bool WbEngine::sendQuit()
-{
-    return write("quit");
 }
 
 bool WbEngine::stop()
@@ -466,10 +465,8 @@ void WbEngine::parseFeatures(const std::string& line)
     }
 }
 
-bool WbEngine::oppositeMadeMove(const Move& move, const std::string& sanMoveString)
+std::string WbEngine::move2String(const Move& move, const std::string& sanMoveString) const
 {
-    write("force"); // we don't want this engine starts calculating after this move
-    
     std::string str;
     if (feature_usermove) {
         str += "usermove ";
@@ -480,6 +477,16 @@ bool WbEngine::oppositeMadeMove(const Move& move, const std::string& sanMoveStri
     } else {
         str += move.toCoordinateString();
     }
+    return str;
+}
+
+
+
+bool WbEngine::oppositeMadeMove(const Move& move, const std::string& sanMoveString)
+{
+    write("force"); // we don't want this engine starts calculating after this move
+    
+    std::string str = move2String(move, sanMoveString);
     return write(str);
 }
 

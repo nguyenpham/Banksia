@@ -1,5 +1,5 @@
 /*
- This file is part of Banksia, distributed under MIT license.
+ This file is part of Banksia.
  
  Copyright (c) 2019 Nguyen Hong Pham
  
@@ -1394,7 +1394,11 @@ u64 ChessBoard::perft(int depth)
 
 bool ChessBoard::fromSanMoveList(const std::string& str)
 {
-    auto vec = splitString(str, ' ');
+    // Some opening such as Gaviota one has no space between counter and move, e.g.
+    // 1.d4 d5 2.c4 dxc4 3.Nf3 a6 4.e3 Nf6 5.Bxc4 b5 6.Bd3 Bb7 7.O-O Nbd7 8.b4 *
+    auto ss = str;
+    std::replace(ss.begin(), ss.end(), '.', ' ');
+    auto vec = splitString(ss, ' ');
     
     for(auto && s : vec) {
         if (s.length() < 2 || isdigit(s.at(0))) {

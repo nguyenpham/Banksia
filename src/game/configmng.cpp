@@ -1,5 +1,5 @@
 /*
- This file is part of Banksia, distributed under MIT license.
+ This file is part of Banksia.
  
  Copyright (c) 2019 Nguyen Hong Pham
  
@@ -112,6 +112,8 @@ bool Option::load(const Json::Value& obj)
     name = obj["name"].asString();
     auto s = obj["type"].asString();
     
+    overridable = !obj.isMember("overridable") || obj["overridable"].asBool(); // default = true
+
     type = stringToOptionType(s);
     
     if (name.empty() || type == OptionType::none) {
@@ -162,6 +164,10 @@ Json::Value Option::saveToJson() const
     Json::Value obj;
     obj["name"] = name;
     obj["type"] = getName(type);
+    
+    if (!overridable) {
+        obj["overridable"] = false;
+    }
     
     switch (type) {
         case OptionType::check:
@@ -243,6 +249,9 @@ void Option::setDefaultValue(const std::string& val, const std::vector<std::stri
 
 bool Option::isDefaultValue() const
 {
+    if (!overrideType)
+        return false;
+    
     switch (type) {
         case OptionType::spin:
             return defaultValue == value;
@@ -811,6 +820,7 @@ bool ConfigMng::loadOverrideOptions(const Json::Value& oo)
         for (Json::Value::const_iterator it = array.begin(); it != array.end(); ++it) {
             Option option(*it);
             if (option.isValid()) {
+                option.setOverrideType(true);
                 overrideOptions[option.name] = option;
             }
         }
@@ -820,8 +830,13 @@ bool ConfigMng::loadOverrideOptions(const Json::Value& oo)
 
 Option ConfigMng::checkOverrideOption(const Option& option)
 {
-    auto p = overrideOptions.find(option.name);
-    return p == overrideOptions.end() || p->second.type != option.type ? option : p->second;
+    if (option.isOverridable()) {
+        auto p = overrideOptions.find(option.name);
+        if (p != overrideOptions.end() && p->second.type == option.type) {
+            return p->second;
+        }
+    }
+    return option;
 }
 
 Option ConfigMng::getOverrideOption(const std::string& name)

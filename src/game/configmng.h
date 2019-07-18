@@ -1,5 +1,5 @@
 /*
- This file is part of Banksia, distributed under MIT license.
+ This file is part of Banksia.
  
  Copyright (c) 2019 Nguyen Hong Pham
  
@@ -84,6 +84,11 @@ namespace banksia {
         bool isDefaultValue() const;
         std::string getValueAsString() const;
         
+        bool isOverridable() const { return overridable; }
+        
+        // for special purpose
+        void setOverrideType(bool b) { overrideType = b; }
+        
     public:
         OptionType type;
         std::string name;
@@ -92,6 +97,10 @@ namespace banksia {
         int value = 0, defaultValue = 0, minValue = 0, maxValue = 0; // for spin
         std::vector<std::string> choiceList;                         // for combo
         
+    private:
+        bool overridable = true;
+        // for special purpose
+        bool overrideType = false; // true for special ones, use to override others
     };
     
     class Config : public Jsonable

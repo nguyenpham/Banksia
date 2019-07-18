@@ -1,5 +1,5 @@
 /*
- This file is part of Banksia, distributed under MIT license.
+ This file is part of Banksia.
  
  Copyright (c) 2019 Nguyen Hong Pham
  
@@ -135,16 +135,6 @@ void Game::kickStart()
     }
     setState(GameState::begin);
 }
-
-//void Game::startPlaying()
-//{
-//    assert(state == GameState::ready);
-//
-//    newGame();
-//    setState(GameState::playing);
-//
-//    startThinking();
-//}
 
 void Game::newGame()
 {

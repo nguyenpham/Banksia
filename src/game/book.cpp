@@ -1,5 +1,5 @@
 /*
- This file is part of Banksia, distributed under MIT license.
+ This file is part of Banksia.
  
  Copyright (c) 2019 Nguyen Hong Pham
  
@@ -303,7 +303,6 @@ bool BookPolyglot::getRandomBook(std::string& fenString, std::vector<Move>& move
         moveList.push_back(move);
     }
     
-    board.printOut(("last position of an opening, len: " + std::to_string(board.histList.size())).c_str());
     return true;
 }
 
@@ -508,6 +507,9 @@ Json::Value BookMng::saveToJson() const
 
 bool BookMng::getRandomBook(int pairId, std::string& fenString, std::vector<Move>& moves)
 {
+    fenString = "";
+    moves.clear();
+    
     queryCnt++;
     if (queryCnt == 1) {
         std::srand(seed >= 0 ? seed : static_cast<unsigned int>(std::time(nullptr)));
@@ -532,6 +534,8 @@ bool BookMng::getRandomBook(int pairId, std::string& fenString, std::vector<Move
         bookSelectType == BookSelectType::allnew ||
         (bookSelectType == BookSelectType::samepair && pairId != lastPairIdx)
         ) {
+        theFenString = "";
+        theMoves.clear();
         auto k = rand() % bookList.size();
         bookList.at(k)->getRandomBook(theFenString, theMoves);
     }

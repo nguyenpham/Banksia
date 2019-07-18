@@ -1,5 +1,5 @@
 /*
- This file is part of Banksia, distributed under MIT license.
+ This file is part of Banksia.
  
  Copyright (c) 2019 Nguyen Hong Pham
  
@@ -41,7 +41,7 @@ int main(int argc, const char * argv[])
     // SIGPIPE 13      write on a pipe with no one to read it
 #define SIGPIPE     13
     signal(SIGPIPE, SIG_IGN);
-
+    
     std::cout << "Banksia, Chess Tournament Manager, by Nguyen Pham - version " << banksia::getVersion() << std::endl;
     
     if (argc < 2) {

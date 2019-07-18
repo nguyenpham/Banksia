@@ -1,5 +1,5 @@
 /*
- This file is part of Banksia, distributed under MIT license.
+ This file is part of Banksia.
  
  Copyright (c) 2019 Nguyen Hong Pham
  
@@ -26,22 +26,6 @@
 #include <assert.h>
 #include <fstream>
 #include <sstream>
-
-// for scaning files from a given path
-#ifdef _WIN32
-
-#include <windows.h>
-#include <direct.h>
-
-#else
-
-#include <glob.h>
-#include <dirent.h>
-#include <sys/stat.h>
-#include <unistd.h>
-
-#endif
-
 
 #include "jsonmaker.h"
 
@@ -117,7 +101,7 @@ void JsonMaker::tickWork()
                 std::cout << "OK, an engine detected: " << rConfig->name << ", " << nameFromProtocol(rConfig->protocol) << std::endl;
                 goodConfigVec.push_back(*rConfig);
             } else {
-                std::cout << "not an engine: " << config.command << std::endl;
+                std::cout << "  not an engine: " << config.command << std::endl;
             }
         });
     }
@@ -135,6 +119,13 @@ void JsonMaker::completed()
     state = JsonMakerState::done;
     
     std::cout << "All engines / executable files are checked, finishing! Total engines: " << goodConfigVec.size() << std::endl;
+    
+    std::sort(goodConfigVec.begin(), goodConfigVec.end(), [](const Config& l, const Config& r)
+              {
+                  auto lname = l.name, rname = r.name;
+                  toLower(lname); toLower(rname);
+                  return lname.compare(rname) < 0;
+              });
     
     ConfigMng::instance->clear();
     for(auto && c : goodConfigVec) {
@@ -247,152 +238,69 @@ void JsonMaker::build(const std::string& mainJsonPath, const std::string& mainEn
     }
     
     std::cout << " executable file number: " << configVec.size() << ", concurrency: " << concurrency << std::endl << std::endl;
-
+    
     state = JsonMakerState::working;
     
     mainTimerId = timer.add(std::chrono::milliseconds(500), [=](CppTime::timer_id) { tick(); }, std::chrono::milliseconds(500));
 }
 
 #ifdef _WIN32
-static void findFiles(std::vector<std::string>& names, const std::string& dirname) {
-    std::string search_path = dirname + "/*.*";
-    
-    WIN32_FIND_DATAA file;
-    //        WIN32_FIND_DATA file;
-    HANDLE search_handle = FindFirstFileA(search_path.c_str(), &file);
-    if (search_handle) {
-        do {
-            std::string fullpath = dirname + "\\" + file.cFileName;
-            if ((file.dwFileAttributes | FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY) {
-                if (file.cFileName[0] != '.')
-                    findFiles(names, fullpath);
-            } else {
-                names.push_back(fullpath);
-            }
-        } while (FindNextFileA(search_handle, &file));
-        ::FindClose(search_handle);
-    }
-}
 
-std::vector<std::string> JsonMaker::listdir(std::string dirname) {
-    std::vector<std::string> pathVec;
-    findFiles(pathVec, dirname);
-    return pathVec;
-}
-
-i64 JsonMaker::getFileSize(const std::string& path)
+bool JsonMaker::isRunable(const std::string& path)
 {
-    // Good to compile with Visual C++
-    struct __stat64 fileStat;
-    int err = _stat64(path.c_str(), &fileStat );
-    if (0 != err) return 0;
-    return fileStat.st_size;
+    return isExecutable(path);
 }
-
-bool JsonMaker::isExecutable(const std::string& path)
-{
-    return path.find(".exe") != std::string::npos;
-}
-
 
 #else
 
-std::vector<std::string> JsonMaker::listdir(std::string dirname) {
-    DIR* d_fh;
-    struct dirent* entry;
-    
-    std::vector<std::string> vec;
-    
-    while( (d_fh = opendir(dirname.c_str())) == NULL) {
-        //        std::cerr << "Couldn't open directory: %s\n", dirname.c_str());
-        return vec;
-    }
-    
-    dirname += "/";
-    
-    while ((entry=readdir(d_fh)) != NULL) {
-        
-        // Don't descend up the tree or include the current directory
-        if(strncmp(entry->d_name, "..", 2) != 0 &&
-           strncmp(entry->d_name, ".", 1) != 0) {
-            
-            // If it's a directory print it's name and recurse into it
-            if (entry->d_type == DT_DIR) {
-                auto vec2 = listdir(dirname + entry->d_name);
-                vec.insert(vec.end(), vec2.begin(), vec2.end());
-            }
-            else {
-                auto s = dirname + entry->d_name;
-                vec.push_back(s);
-            }
-        }
-    }
-    
-    closedir(d_fh);
-    return vec;
-}
-
-i64 JsonMaker::getFileSize(const std::string& fileName)
-{
-    struct stat st;
-    if(stat(fileName.c_str(), &st) != 0) {
-        return 0;
-    }
-    return st.st_size;
-}
-
-static const std::set<std::string>extSet{
-    "txt", "pdf", "ini", "db", "mak", "def", "prj", "dat",
-    "htm", "html", "xml", "json", "doc", "docx", "md", "md5", "log", "bk",
-    "jpg", "jpeg", "gif", "png", "bmp", "rc", "rb",
+static const std::set<std::string>extSet {
+    "txt", "pdf", "ini", "db", "mak", "def", "prj", "sln", "dat",
+    "htm", "html", "xml", "json", "doc", "docx", "rtf", "md", "md5", "log", "bk",
+    "jpg", "jpeg", "gif", "png", "bmp", "ico", "rc", "rb",
     "zip", "7z", "rar", "arj", "gz", "tgz",
     "bok", "pgn", "lrn", "epd",
     "rtbw", "rtbz", "cp4", "atbw", "atbz", "emd", "cmp",
-    "h", "hpp", "c", "cpp", "java", "py", "bas", "o", "obj",
+    "h", "hpp", "c", "cpp", "cc", "java", "bas", "o", "obj",
     "bat", "bin", "exe", "dll"
 };
 
-bool JsonMaker::isExecutable(const std::string& path)
+static const std::set<std::string>exclusiveFileNameSet {
+    "makefile", "readme", "license",
+};
+
+bool JsonMaker::isRunable(const std::string& path)
 {
-    if (access(path.c_str(), X_OK)) return false;
+    if (!isExecutable(path)) return false;
     
     auto p = path.rfind(".");
-    if (p != std::string::npos && path.size() - p <= 4) {
+    if (p != std::string::npos && path.size() - p <= 5) {
         auto extString = path.substr(p + 1);
         toLower(extString);
-        return extSet.find(extString) == extSet.end();
+        if (extSet.find(extString) != extSet.end()) {
+            return false;
+        }
     }
-    return true;
+    
+    auto fileName = getFileName(path);
+    toLower(fileName);
+    return exclusiveFileNameSet.find(fileName) == exclusiveFileNameSet.end();
 }
 
 #endif
 
 std::vector<std::string> JsonMaker::listExcecutablePaths(const std::string& dirname)
 {
-    std::vector<std::string> v;
-    auto vec = listdir(dirname);
     
+    auto fullpath = getFullPath(dirname.c_str());
+    auto vec = listdir(fullpath);
+    
+    std::vector<std::string> v;
     for(auto && path : vec) {
-        if (isExecutable(path)) {
+        if (isRunable(path)) {
             v.push_back(path);
         }
     }
     return v;
 }
 
-std::string JsonMaker::currentWorkingFolder()
-{
-    char buf[1024];
-    
-#ifdef _WIN32
-    auto r = _getcwd(buf, sizeof(buf));
-#else
-    auto r = getcwd(buf, sizeof(buf));
-#endif
-    
-    if (!r) {
-        buf[0] = 0;
-    }
-    return buf;
-}
 

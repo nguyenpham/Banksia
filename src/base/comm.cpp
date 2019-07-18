@@ -1,5 +1,5 @@
 /*
- This file is part of Banksia, distributed under MIT license.
+ This file is part of Banksia.
  
  Copyright (c) 2019 Nguyen Hong Pham
  
@@ -27,6 +27,23 @@
 #include <regex>
 #include <fstream>
 #include <iomanip> // for setfill, setw
+
+// for scaning files from a given path
+#ifdef _WIN32
+
+#include <windows.h>
+#include <direct.h>
+#include <stdlib.h> // for full path
+
+#else
+
+#include <glob.h>
+#include <dirent.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
+#endif
+
 
 #include "comm.h"
 
@@ -232,6 +249,143 @@ namespace banksia {
 #endif
         return bt;
     }
+    
+    
+    
+    std::string currentWorkingFolder()
+    {
+        char buf[1024];
+        
+#ifdef _WIN32
+        auto r = _getcwd(buf, sizeof(buf));
+#else
+        auto r = getcwd(buf, sizeof(buf));
+#endif
+        
+        if (!r) {
+            buf[0] = 0;
+        }
+        return buf;
+    }
+    
+    std::string getFullPath(const char* path)
+    {
+#ifdef _WIN32
+        char buff[_MAX_PATH];
+        if (_fullpath( buff, path, _MAX_PATH) != NULL ) {
+            return buff;
+        }
+        return path;
+        
+#else
+        char buff[PATH_MAX];
+        char *home, *ptr;
+        if (*path == '~' && (home = getenv("HOME"))) {
+            char s[PATH_MAX];
+            ptr = realpath(strcat(strcpy(s, home), path+1), buff);
+        } else {
+            ptr = realpath(path, buff);
+        }
+        return ptr ? ptr : path;
+#endif
+    }
+    
+    
+#ifdef _WIN32
+    void findFiles(std::vector<std::string>& names, const std::string& dirname) {
+        std::string search_path = dirname + "/*.*";
+        
+        WIN32_FIND_DATAA file;
+        //        WIN32_FIND_DATA file;
+        HANDLE search_handle = FindFirstFileA(search_path.c_str(), &file);
+        if (search_handle) {
+            do {
+                std::string fullpath = dirname + "\\" + file.cFileName;
+                if ((file.dwFileAttributes | FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY) {
+                    if (file.cFileName[0] != '.')
+                        findFiles(names, fullpath);
+                } else {
+                    names.push_back(fullpath);
+                }
+            } while (FindNextFileA(search_handle, &file));
+            ::FindClose(search_handle);
+        }
+    }
+    
+    std::vector<std::string> listdir(std::string dirname) {
+        std::vector<std::string> pathVec;
+        findFiles(pathVec, dirname);
+        return pathVec;
+    }
+    
+    i64 getFileSize(const std::string& path)
+    {
+        // Good to compile with Visual C++
+        struct __stat64 fileStat;
+        int err = _stat64(path.c_str(), &fileStat );
+        if (0 != err) return 0;
+        return fileStat.st_size;
+    }
+    
+    bool isExecutable(const std::string& path)
+    {
+        return path.find(".exe") != std::string::npos;
+    }
+
+#else
+    
+    std::vector<std::string> listdir(std::string dirname) {
+        DIR* d_fh;
+        struct dirent* entry;
+        
+        std::vector<std::string> vec;
+        
+        while( (d_fh = opendir(dirname.c_str())) == NULL) {
+            //        std::cerr << "Couldn't open directory: %s\n", dirname.c_str());
+            return vec;
+        }
+        
+        dirname += "/";
+        
+        while ((entry=readdir(d_fh)) != NULL) {
+            
+            // Don't descend up the tree or include the current directory
+            if(strncmp(entry->d_name, "..", 2) != 0 &&
+               strncmp(entry->d_name, ".", 1) != 0) {
+                
+                // If it's a directory print it's name and recurse into it
+                if (entry->d_type == DT_DIR) {
+                    auto vec2 = listdir(dirname + entry->d_name);
+                    vec.insert(vec.end(), vec2.begin(), vec2.end());
+                }
+                else {
+                    auto s = dirname + entry->d_name;
+                    vec.push_back(s);
+                }
+            }
+        }
+        
+        closedir(d_fh);
+        return vec;
+    }
+    
+    i64 getFileSize(const std::string& fileName)
+    {
+        struct stat st;
+        if(stat(fileName.c_str(), &st) != 0) {
+            return 0;
+        }
+        return st.st_size;
+    }
+
+    bool isExecutable(const std::string& path)
+    {
+        return !access(path.c_str(), X_OK);
+    }
+    
+#endif
+
+
 }
 
 

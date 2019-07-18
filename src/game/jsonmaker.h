@@ -1,5 +1,5 @@
 /*
- This file is part of Banksia, distributed under MIT license.
+ This file is part of Banksia.
  
  Copyright (c) 2019 Nguyen Hong Pham
  
@@ -55,15 +55,10 @@ namespace banksia {
         void shutdown();
 
         static std::vector<std::string> listExcecutablePaths(const std::string& dirname);
-        static std::string currentWorkingFolder();
+        static bool isRunable(const std::string& path);
         
     private:
         virtual void tickWork() override;
-
-        static std::vector<std::string> listdir(std::string dirname);
-        static i64 getFileSize(const std::string& fileName);
-        static bool isExecutable(const std::string& path);
-        
         void completed();
         
     private:

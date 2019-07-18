@@ -1,5 +1,5 @@
 /*
- This file is part of Banksia, distributed under MIT license.
+ This file is part of Banksia.
  
  Copyright (c) 2019 Nguyen Hong Pham
  
@@ -50,6 +50,7 @@ namespace banksia {
     public:
         Engine() : Player("", PlayerType::engine) {}
         Engine(const Config& config) : Player(config.name, PlayerType::engine), config(config) {}
+        virtual ~Engine();
         
         virtual const char* className() const override { return "Engine"; }
         
@@ -83,7 +84,7 @@ namespace banksia {
     protected:
         virtual void log(const std::string& line, LogType engineLog) const;
 
-        virtual bool sendQuit() = 0;
+        virtual bool sendQuit();
         
         virtual void resetPing();
         virtual void resetIdle();
@@ -112,12 +113,15 @@ namespace banksia {
         int tick_ping, tick_idle, tick_being_kill = -1; //, tick_stopping = 0;
         std::function<void(const std::string&, const std::string&, LogType)> messageLogger = nullptr;
 
+        void deleteThread();
         int correctCmdCnt = 0;
         
     private:
         const int process_buffer_size = 16 * 1024;
         std::string lastIncompletedStdout;
+        TinyProcessLib::Process::id_type processId = 0;
         TinyProcessLib::Process* process = nullptr;
+        std::thread* pThread = nullptr;
     };
     
     

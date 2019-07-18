@@ -1,5 +1,5 @@
 /*
- This file is part of Banksia, distributed under MIT license.
+ This file is part of Banksia.
  
  Copyright (c) 2019 Nguyen Hong Pham
  
@@ -40,7 +40,7 @@
 
 namespace banksia {
     
-    const int BANKSIA_VERSION = (2 << 8) + 51;
+    const int BANKSIA_VERSION = (2 << 8) + 52;
     
 #ifdef _WIN32
     const std::string folderSlash = "\\";
@@ -173,7 +173,12 @@ namespace banksia {
     
     std::string getFileName(const std::string& path);
     std::string getFolder(const std::string& path);
-
+    std::string currentWorkingFolder();
+    std::string getFullPath(const char* path);
+    std::vector<std::string> listdir(std::string dirname);
+    i64 getFileSize(const std::string& path);
+    bool isExecutable(const std::string& path);
+    
     std::vector<std::string> splitString(const std::string& string, const std::string& regexString);
     std::vector<std::string> splitString(const std::string &s, char delim);
     

@@ -1,5 +1,5 @@
 /*
- This file is part of Banksia, distributed under MIT license.
+ This file is part of Banksia.
  
  Copyright (c) 2019 Nguyen Hong Pham
  
@@ -44,7 +44,8 @@ namespace banksia {
     public:
         WbEngine() : Engine() {}
         WbEngine(const Config& config) : Engine(config) {}
-        
+        virtual ~WbEngine() {}
+
         virtual const char* className() const override { return "WbEngine"; }
         
         virtual std::string protocolString() const override;
@@ -52,8 +53,6 @@ namespace banksia {
         virtual void newGame() override;
         
         virtual void prepareToDeattach() override;
-        
-        virtual bool sendQuit() override;
         
         virtual bool sendPing() override;
         virtual bool sendPong(const std::string&);
@@ -83,6 +82,8 @@ namespace banksia {
         
         bool isIdleCrash() const override;
         void tickPing() override;
+        
+        std::string move2String(const Move& move, const std::string& sanMoveString) const;
         
     private:
         std::string timeControlString() const;

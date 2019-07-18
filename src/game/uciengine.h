@@ -1,5 +1,5 @@
 /*
- This file is part of Banksia, distributed under MIT license.
+ This file is part of Banksia.
  
  Copyright (c) 2019 Nguyen Hong Pham
  
@@ -42,14 +42,13 @@ namespace banksia {
     public:
         UciEngine() : Engine() {}
         UciEngine(const Config& config) : Engine(config) {}
+        virtual ~UciEngine() {}
         
         virtual const char* className() const override { return "UciEngine"; }
         
         virtual std::string protocolString() const override;
         
         virtual void newGame() override;
-        
-        virtual bool sendQuit() override;
         
         virtual bool sendPing() override;
         virtual bool sendPong();

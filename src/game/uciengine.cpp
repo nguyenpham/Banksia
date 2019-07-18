@@ -1,5 +1,5 @@
 /*
- This file is part of Banksia, distributed under MIT license.
+ This file is part of Banksia.
  
  Copyright (c) 2019 Nguyen Hong Pham
  
@@ -87,12 +87,6 @@ void UciEngine::prepareToDeattach()
     tick_deattach = tick_period_deattach;
 }
 
-bool UciEngine::sendQuit()
-{
-    std::string str = "quit";
-    return write(str);
-}
-
 bool UciEngine::stop()
 {
     if (expectingBestmove) {
@@ -112,10 +106,11 @@ bool UciEngine::goPonder(const Move& pondermove)
     if (config.ponderable && pondermove.isValid()) {
         ponderingMove = pondermove;
         
-        auto goString = getGoString(pondermove);
-        assert(goString.find("ponder") != std::string::npos);
         expectingBestmove = true;
         computingState = EngineComputingState::pondering;
+
+        auto goString = getGoString(pondermove);
+        assert(goString.find("ponder") != std::string::npos);
         return write(goString);
     }
     return false;
@@ -138,9 +133,9 @@ bool UciEngine::go()
     }
     
     assert(!expectingBestmove && computingState == EngineComputingState::idle);
-    auto goString = getGoString(MoveFull::illegalMove);
     expectingBestmove = true;
     computingState = EngineComputingState::thinking;
+    auto goString = getGoString(MoveFull::illegalMove);
     return write(goString);
 }
 

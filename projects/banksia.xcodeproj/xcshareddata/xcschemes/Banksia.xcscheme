@@ -72,7 +72,11 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "-d /Users/nguyenpham/workspace/BanksiaMatch/engines"
+            argument = "-d ./engines"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-d /Users/nguyenpham/workspace/BanksiaMatch/engines/monik"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
