@@ -189,7 +189,9 @@ void Engine::parseLine(const std::string& line)
 void Engine::deleteThread()
 {
     if (pThread && pThread->joinable()) {
+#ifndef _WIN32
         pthread_cancel(pThread->native_handle());
+#endif
         pThread = nullptr;
         std::cout << "Warning: thread is still resident " << name << std::endl;
     }
