@@ -64,7 +64,8 @@ namespace banksia {
 #endif
         
 	protected:
-		u64 cpuUsage = 0, cpuTime = 0, memUsage = 0, memCall = 0;
+		u64 cpuUsage = 0, cpuTime = 0, memUsage = 0, memCall = 0, threadCnt = 0, threadCall = 0;
+		int threadMax = 0;
 
 	private:
         i64 tickCnt = 0;

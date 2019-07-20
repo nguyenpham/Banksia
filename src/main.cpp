@@ -60,7 +60,7 @@ int main(int argc, const char * argv[])
         std::string str = arg;
         auto ok = true;
         
-        if (arg == "-jsonpath" || arg == "-d" || arg == "-c") {
+        if (arg == "-jsonpath" || arg == "-d" || arg == "-c" || arg == "-v") {
             if (i + 1 < argc) {
                 i++;
                 str = argv[i];
@@ -81,6 +81,10 @@ int main(int argc, const char * argv[])
         mainJsonPath = argmap["-jsonpath"];
     }
     
+    if (argmap.find("-v") != argmap.end()) {
+        banksia::banksiaVerbose = argmap["-v"] == "on";
+    }
+
     banksia::JsonMaker maker;
     banksia::TourMng tourMng;
     
@@ -141,9 +145,10 @@ int main(int argc, const char * argv[])
             std::cout << tourMng.createTournamentStats() << std::endl;
             continue;
         }
-        if (cmd == "engineverbose" || cmd == "ev") {
+        if (cmd == "v") {
             std::string str = vec.size() > 1 ? vec[1] : "";
-            tourMng.showEgineInOutToScreen(str == "on");
+            //tourMng.showEgineInOutToScreen(str == "on");
+            banksia::banksiaVerbose = str == "on";
             continue;
         }
         
@@ -173,6 +178,7 @@ void show_usage(std::string name)
     << "  -u               update\n"
     << "  -c               concurrency (for updating only)\n"
     << "  -d PATH          main engines' folder, may have subfolder (for updating only)\n"
+    << "  -v on|off        turn on/off verbose (default on)\n"
     << "\n"
     << "Examples:\n"
     << "  " << name << " -jsonpath c:\\tour.json\n"
@@ -189,7 +195,7 @@ void show_help()
     << "Usage:\n"
     << "  help                    show this help message\n"
     << "  status                  current result\n"
-    << "  ev [on|off]             Show/not to screen engine's input / output (engineverbose)\n"
+    << "  v [on|off]              verbose on/off. Show/Don't show individual match (default on)\n"
     << "  quit                    quit\n"
     << std::endl;
 }

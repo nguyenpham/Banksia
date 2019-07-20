@@ -55,7 +55,7 @@ namespace banksia {
         void shutdown();
         
     private:
-        bool killPlayer(Player* player);
+        bool removePlayer(Player* player);
         
     private:
         std::mutex thelock;

@@ -227,9 +227,6 @@ void BookPolyglot::load(const std::string& _path, int _maxPly, int _top100)
     for(int i = 0; i < itemCnt; i++) {
         items[i].convertToLittleEndian();
     }
-    
-    std::cout << "BookPolyglot::load " << path << ", itemCnt: " << itemCnt << std::endl;
-    
 }
 
 bool BookPolyglot::isValid() const

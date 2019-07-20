@@ -68,6 +68,10 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "-v off"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "-d /Users/nguyenpham/workspace/BanksiaMatch/engines"
             isEnabled = "NO">
          </CommandLineArgument>

@@ -79,13 +79,21 @@ namespace banksia {
         virtual bool go();
         virtual bool oppositeMadeMove(const Move& move, const std::string& sanMoveString);
 
+        int getScore() const {
+            return score;
+        }
+        
+        int getDepth() const {
+            return depth;
+        }
+        
     protected:
         int idNumber; // a random number, main purpose for debugging
         std::string name;
         
         PlayerType type;
         PlayerState state;
-        int tick_state = 0;
+        int tick_state = 0, score, depth;
         
         bool ponderMode = false;
         

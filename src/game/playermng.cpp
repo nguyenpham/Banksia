@@ -61,7 +61,7 @@ void PlayerMng::tickWork()
         if (it != playerList.end()) {
             playerList.erase(it);
         }
-        killPlayer(player);
+        removePlayer(player);
     }
 }
 
@@ -117,11 +117,11 @@ bool PlayerMng::returnPlayer(Player* player)
         return true;
     }
     
-    return killPlayer(player);
+    return removePlayer(player);
 }
 
 
-bool PlayerMng::killPlayer(Player* player)
+bool PlayerMng::removePlayer(Player* player)
 {
     if (player == nullptr) return false;
     

@@ -40,7 +40,7 @@
 
 namespace banksia {
     
-    const int BANKSIA_VERSION = (2 << 8) + 52;
+    const int BANKSIA_VERSION = (2 << 8) + 6;
     
 #ifdef _WIN32
     const std::string folderSlash = "\\";
@@ -178,6 +178,7 @@ namespace banksia {
     std::vector<std::string> listdir(std::string dirname);
     i64 getFileSize(const std::string& path);
     bool isExecutable(const std::string& path);
+    bool isRunning(int pid);
     
     std::vector<std::string> splitString(const std::string& string, const std::string& regexString);
     std::vector<std::string> splitString(const std::string &s, char delim);
@@ -186,6 +187,9 @@ namespace banksia {
     ResultType string2ResultType(const std::string& s);
     std::string reasonType2String(ReasonType type);
     ReasonType string2ReasonType(const std::string& s);
+    
+    std::string side2String(Side side, bool shortFrom = true);
+    Side string2Side(const std::string& s);
     
 } // namespace banksia
 

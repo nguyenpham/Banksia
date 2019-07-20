@@ -54,7 +54,6 @@ namespace banksia {
         void newGame();
         
         void kickStart();
-//        void startPlaying();
         void pause();
         void stop();
         bool make(const Move& move, const std::string& moveString);
@@ -72,7 +71,8 @@ namespace banksia {
         virtual void tickWork() override;
         
         Player* getPlayer(Side side);
-        
+        const Player* getPlayer(Side side) const;
+
         GameState getState() const { return state; }
         void setState(GameState st);
         
@@ -80,9 +80,9 @@ namespace banksia {
         int getIdx() const;
         int getStateTick() const { return stateTick; }
         
-        std::string toPgn(std::string event = "", std::string site = "", int round = -1, int gameIdx = -1) const;
+        std::string toPgn(std::string event = "", std::string site = "", int round = -1, int gameIdx = -1, bool richMode = false) const;
         
-        std::string getGameTitleString() const;
+        std::string getGameTitleString(bool includeResult = false) const;
         
     public:
         ChessBoard board;

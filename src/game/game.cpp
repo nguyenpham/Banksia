@@ -196,18 +196,21 @@ void Game::moveFromPlayer(const Move& move, const std::string& moveString, const
     }
     
     assert(board.side == side);
+    auto sd = static_cast<int>(board.side);
+
     if (oldState == EngineComputingState::thinking) {
         if (make(move, moveString)) {
             assert(board.side != side);
             
-            auto lastHist = board.histList.back();
+            auto& lastHist = board.histList.back();
             lastHist.elapsed = timeConsumed;
+            lastHist.score = players[sd]->getScore();
+            lastHist.depth = players[sd]->getDepth();
             timeController.udateClockAfterMove(timeConsumed, lastHist.move.piece.side, int(board.histList.size()));
             
             startThinking(ponderMode ? ponderMove : Move::illegalMove);
         }
     } else if (oldState == EngineComputingState::pondering) { // missed ponderhit, stop called
-        auto sd = static_cast<int>(board.side);
         players[sd]->go();
     }
 }
@@ -257,15 +260,24 @@ void Game::gameOver(const Result& result)
 
 Player* Game::getPlayer(Side side)
 {
-    auto sd = static_cast<int>(side);
-    return players[sd];
+    return players[static_cast<int>(side)];
 }
 
-std::string Game::getGameTitleString() const
+const Player* Game::getPlayer(Side side) const
+{
+    return players[static_cast<int>(side)];
+}
+
+std::string Game::getGameTitleString(bool includeResult) const
 {
     std::string str;
     str += players[W] ? players[W]->getName() : "*";
-    str += " vs " + (players[B] ? players[B]->getName() : "*");
+    if (includeResult) {
+        str += " (" + board.result.toShortString() + ") ";
+    } else {
+        str += " vs ";
+    }
+    str += (players[B] ? players[B]->getName() : "*");
     return str;
 }
 
@@ -396,7 +408,7 @@ void Game::tickWork()
 }
 
 
-std::string Game::toPgn(std::string event, std::string site, int round, int gameIdx) const
+std::string Game::toPgn(std::string event, std::string site, int round, int gameIdx, bool richMode) const
 {
     std::ostringstream stringStream;
     
@@ -441,7 +453,7 @@ std::string Game::toPgn(std::string event, std::string site, int round, int game
     }
     
     // Move text
-    stringStream << board.toMoveListString(MoveNotation::san, 8, true);
+    stringStream << board.toMoveListString(MoveNotation::san, 8, true, richMode);
     
     if (board.result.result != ResultType::noresult) {
         if (board.histList.size() % 8 != 0) stringStream << " ";

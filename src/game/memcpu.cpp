@@ -24,11 +24,13 @@
 
 
 #include <sstream>
+#include <algorithm>
 
 #ifdef _WIN32
 
     #include <windows.h>
     #include <psapi.h>
+	#include <tlhelp32.h>
 
 #else
 
@@ -74,6 +76,32 @@ void MemCpu::tickUpdate()
     if (processId == 0) return;
 	tickCnt++;
     
+	{
+		// then get a process list snapshot.
+		HANDLE const  snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPALL, 0);
+
+		// initialize the process entry structure.
+		PROCESSENTRY32 entry = { 0 };
+		entry.dwSize = sizeof(entry);
+
+		// get the first process info.
+		BOOL  ret = true;
+		ret = Process32First(snapshot, &entry);
+		while (ret && entry.th32ProcessID != processId) {
+			ret = Process32Next(snapshot, &entry);
+		}
+		CloseHandle(snapshot);
+		if (ret) {
+			threadCnt += entry.cntThreads;
+			threadCall++;
+			if (threadMax < entry.cntThreads)
+				threadMax = entry.cntThreads;
+		}
+	}
+
+
+	/////
+
     auto hProcess = OpenProcess(  PROCESS_QUERY_INFORMATION |
                            PROCESS_VM_READ,
                            FALSE, processId);

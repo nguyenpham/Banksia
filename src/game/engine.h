@@ -23,8 +23,8 @@
  */
 
 
-#ifndef engineplayer_hpp
-#define engineplayer_hpp
+#ifndef engine_h
+#define engine_h
 
 #include <vector>
 #include <set>
@@ -114,7 +114,6 @@ namespace banksia {
         int tick_ping, tick_idle, tick_being_kill = -1; //, tick_stopping = 0;
         std::function<void(const std::string&, const std::string&, LogType)> messageLogger = nullptr;
 
-        void deleteThread();
         int correctCmdCnt = 0;
         
     private:
@@ -128,5 +127,5 @@ namespace banksia {
     
 } // namespace banksia
 
-#endif /* engineplayer_hpp */
+#endif /* engine_h */
 

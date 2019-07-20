@@ -62,6 +62,7 @@ void Player::setState(PlayerState st)
     state = st;
     tick_state = 0;
 }
+
 void Player::attach(ChessBoard* _board, const GameTimeController* _timeController,
                     std::function<void(const Move&, const std::string&, const Move&, double, EngineComputingState)> _moveReceiver,
                     std::function<void()> _resignFunc)
@@ -91,6 +92,7 @@ bool Player::goPonder(const Move& pondermove)
 bool Player::go()
 {
     setState(PlayerState::playing);
+    score = depth = 0;
     return true;
 }
 

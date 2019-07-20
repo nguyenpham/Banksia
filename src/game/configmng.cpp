@@ -249,7 +249,7 @@ void Option::setDefaultValue(const std::string& val, const std::vector<std::stri
 
 bool Option::isDefaultValue() const
 {
-    if (!overrideType)
+    if (overrideType)
         return false;
     
     switch (type) {

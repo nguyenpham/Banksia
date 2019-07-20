@@ -57,7 +57,7 @@ bool UciEngine::sendOptions()
         if (!isWritable()) {
             return false;
         }
-        
+
         auto o = ConfigMng::instance->checkOverrideOption(option);
         if (o.isDefaultValue()) {
             continue;
@@ -234,6 +234,12 @@ void UciEngine::parseLine(int cmdInt, const std::string& cmdString, const std::s
             }
             break;
             
+        case UciEngineCmd::info:
+            if (computingState == EngineComputingState::thinking) {
+                parseInfo(line);
+            }
+            break;
+            
         case UciEngineCmd::bestmove:
         {
             auto timeCtrl = timeController;
@@ -265,13 +271,12 @@ void UciEngine::parseLine(int cmdInt, const std::string& cmdString, const std::s
             if (!moveString.empty() && moveReceiver != nullptr) {
                 auto move = board->moveFromCoordiateString(moveString);
                 auto ponderMove = board->moveFromCoordiateString(ponderMoveString);
-                
                 (moveRecv)(move, moveString, ponderMove, period, oldComputingState);
             }
             
             break;
         }
-            
+
         case UciEngineCmd::uciok:
         {
             setState(PlayerState::ready);
@@ -280,6 +285,7 @@ void UciEngine::parseLine(int cmdInt, const std::string& cmdString, const std::s
             sendPing();
             break;
         }
+
         case UciEngineCmd::theId:
         {
             auto vec = splitString(line, ' ');
@@ -417,4 +423,45 @@ bool UciEngine::parseOption(const std::string& s)
     return false;
 }
 
+bool UciEngine::parseInfo(const std::string& line)
+{
+    assert(!line.empty());
 
+    std::string str;
+    auto p = line.find(" pv ");
+    if (p != std::string::npos) {
+        str = line.substr(5, p);
+    } else {
+        str = line.substr(5);
+    }
+
+    auto vec = splitString(str, ' ');
+
+    for(int i = 0; i < vec.size() - 1; i++) {
+        auto name = vec.at(i);
+        if (name == "depth") {
+            ++i;
+            auto s = vec.at(i);
+            depth = std::atoi(s.c_str());
+            continue;
+        }
+        
+        if (name == "score") {
+            ++i;
+            auto s = vec.at(i);
+            
+            auto iscpscore = false;
+            if (s == "cp") {
+                iscpscore = true;
+                ++i;
+                s = vec.at(i);
+            }
+            score = std::atoi(s.c_str());
+            if (!iscpscore) score *= 100;
+            continue;
+        }
+
+    }
+
+    return false;
+}

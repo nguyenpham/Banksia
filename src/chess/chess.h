@@ -80,7 +80,7 @@ namespace banksia {
         
         bool checkMake(int from, int dest, PieceType promotion);
         
-        std::string toMoveListString(MoveNotation notation, int itemPerLine, bool moveCounter) const;
+        std::string toMoveListString(MoveNotation notation, int itemPerLine, bool moveCounter, bool computingInfo) const;
         
         Move fromSanString(const std::string&);
         bool fromSanMoveList(const std::string&);
