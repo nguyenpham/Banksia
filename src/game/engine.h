@@ -23,8 +23,8 @@
  */
 
 
-#ifndef engineplayer_hpp
-#define engineplayer_hpp
+#ifndef engine_h
+#define engine_h
 
 #include <vector>
 #include <set>
@@ -121,14 +121,10 @@ namespace banksia {
         TinyProcessLib::Process::id_type processId = 0;
         TinyProcessLib::Process* process = nullptr;
         std::thread* pThread = nullptr;
-        
-#ifndef _WIN32
-        std::thread::native_handle_type native_handle = 0;
-#endif
     };
     
     
 } // namespace banksia
 
-#endif /* engineplayer_hpp */
+#endif /* engine_h */
 

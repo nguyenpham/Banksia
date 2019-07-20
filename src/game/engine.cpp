@@ -243,7 +243,6 @@ bool Engine::kickStart()
             pThread = nullptr;
         });
         
-        native_handle = processThread.native_handle();
         pThread = &processThread;
         processThread.detach();
         return true;
