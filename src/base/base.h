@@ -248,7 +248,8 @@ namespace banksia {
         int8_t castleRights[2];
         u64 hashKey;
         int quietCnt;
-        double elapsed;
+        int score = 0, depth = 0;
+        double elapsed = 0;
         std::string moveString, comment;
         
         void set(const MoveFull& _move) {
@@ -270,7 +271,7 @@ namespace banksia {
         
         int status;
         Result result;
-        
+
     public:
         void reset() {
             for (auto && p : pieces) {

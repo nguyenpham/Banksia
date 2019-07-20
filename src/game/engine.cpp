@@ -33,7 +33,17 @@ using namespace banksia;
 ////////////////////////////////////
 Engine::~Engine()
 {
-    deleteThread();
+//    deleteThread();
+    if (processId && isRunning(processId)) {
+        std::cout << "Warning 1: a chess engine/program refuses to stop, it may be still running, " << name << std::endl;
+        TinyProcessLib::Process::kill(processId, true);
+    }
+    
+    if (pThread && pThread->joinable()) {
+        std::cout << "Warning 2: a chess engine/program refuses to stop, it may be still running, " << name << std::endl;
+        pThread->join();
+    }
+
 }
 
 void Engine::tickWork()
@@ -60,7 +70,7 @@ void Engine::tickWork()
         if (tick_being_kill == 0) {
             TinyProcessLib::Process::kill(processId, true);
             process = nullptr;
-            deleteThread();
+//            deleteThread();
             setState(PlayerState::stopped);
             finished();
         }
@@ -186,17 +196,6 @@ void Engine::parseLine(const std::string& line)
     parseLine(it->second, cmdString, line);
 }
 
-void Engine::deleteThread()
-{
-    if (pThread && pThread->joinable()) {
-#ifndef _WIN32
-        pthread_cancel(pThread->native_handle());
-#endif
-        pThread = nullptr;
-        std::cout << "Warning: thread is still resident " << name << std::endl;
-    }
-}
-
 bool Engine::kickStart()
 {
     resetPing();
@@ -244,6 +243,7 @@ bool Engine::kickStart()
             pThread = nullptr;
         });
         
+        native_handle = processThread.native_handle();
         pThread = &processThread;
         processThread.detach();
         return true;
@@ -258,6 +258,10 @@ void Engine::attach(ChessBoard* board, const GameTimeController* timeController,
     Player::attach(board, timeController, moveFunc, resignFunc);
     tick_deattach = -1;
     tick_idle = 0;
+    
+    if (board == nullptr) {
+        messageLogger = nullptr;
+    }
 }
 
 bool Engine::isSafeToDeattach() const

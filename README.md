@@ -147,12 +147,15 @@ Below are some features/functions we need someone helps too:
 Working
 ---------
 - Improve interface
+- Support opening info ECO
+- Support endgame adjudication, using tablebases
 - Support some different tournament types: swiss
 - Support other chess variants (not soon event it is designed for multi-variants)
 
 
 History
 --------
+- 20 July 2019: v2.6, more info and more ways to control logs, improve engine managements
 - 16 July 2019: v2.5, multiple ways to select openings: new for each match, same for a pair, one for all matches; override options for central controlling; match statistics LOS & error margin
 - 14 July 2019: v2.2, knockout tournament and resumable the last tournament
 - 12 July 2019: v2.0, auto generating JSON files
@@ -165,7 +168,7 @@ History
 Terms of use
 ---------------
 
-The project is released under the liberal [MIT license](http://en.wikipedia.org/wiki/MIT_License), so basically you can use it with almost no restrictions.
+All codes and data in the folder 3rdparty are 3rd party libraries, copyrighted and released under their terms of use. Banksia code and data is released under the GPLv3+ license.
 
 
 Credits

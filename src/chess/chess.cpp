@@ -23,6 +23,7 @@
  */
 
 #include <random>
+#include <iomanip> // for setprecision
 
 #include "chess.h"
 
@@ -1209,7 +1210,7 @@ bool ChessBoard::createStringForLastMove(const MoveList& moveList)
     return true;
 }
 
-std::string ChessBoard::toMoveListString(MoveNotation notation, int itemPerLine, bool moveCounter) const
+std::string ChessBoard::toMoveListString(MoveNotation notation, int itemPerLine, bool moveCounter, bool computingInfo) const
 {
     std::ostringstream stringStream;
     
@@ -1235,10 +1236,25 @@ std::string ChessBoard::toMoveListString(MoveNotation notation, int itemPerLine,
         }
         
         // Comment
-        if (!hist.comment.empty() && moveCounter) {
-            stringStream << " {" << hist.comment << "} ";
+        auto haveComment = false;
+        if (computingInfo && hist.depth > 0) {
+            haveComment = true;
+            stringStream << " {" << (hist.score > 0 ? "+" : "")
+            << std::setprecision(2) << ((float)hist.score / 100.0) << "/"
+            << hist.depth
+            << " " << std::setprecision(2) << hist.elapsed;
         }
-        
+        if (!hist.comment.empty() && moveCounter) {
+            stringStream << (haveComment ? "; " : " {");
+
+            haveComment = true;
+            stringStream << hist.comment ;
+        }
+
+        if (haveComment) {
+            stringStream << "} ";
+        }
+
         c++;
         if (itemPerLine > 0 && c >= itemPerLine) {
             c = 0;

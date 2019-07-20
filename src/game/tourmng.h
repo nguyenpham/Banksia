@@ -71,7 +71,7 @@ namespace banksia {
         std::string startFen;
         std::vector<Move> startMoves;
         
-        ResultType resultType = ResultType::noresult;
+        Result result;
         int gameIdx = 0, round = 0, pairId;
     };
     
@@ -83,7 +83,7 @@ namespace banksia {
     {
     public:
         std::string name;
-        int gameCnt = 0, winCnt = 0, drawCnt = 0, lossCnt = 0, elo = 0;
+        int gameCnt = 0, winCnt = 0, drawCnt = 0, lossCnt = 0, abnormalCnt = 0, elo = 0;
         int whiteCnt = 0; // for knockdown
         virtual const char* className() const override { return "TourPlayer"; }
         
@@ -159,7 +159,7 @@ namespace banksia {
 
         void finishTournament();
         
-        void engineLog(int gameIdx, const std::string& name, const std::string& line, LogType logType);
+        void engineLog(const Game* game, const std::string& name, const std::string& line, LogType logType, Side bySide = Side::none);
         
         bool createNextRoundMatches();
         
@@ -176,7 +176,7 @@ namespace banksia {
         
         virtual void tickWork() override;
         
-        void matchLog(const std::string& line);
+        void matchLog(const std::string& line, bool verbose);
         int uncompletedMatches();
         
     protected:
@@ -207,7 +207,8 @@ namespace banksia {
         static void showPathInfo(const std::string& name, const std::string& path, bool mode);
         
     private:
-
+        static std::string createLogPath(std::string opath, bool onefile, bool usesurfix, bool includeGameResult, const Game* game, Side forSide = Side::none);
+        
         int previousElapsed = 0;
         time_t startTime;
         
@@ -215,15 +216,16 @@ namespace banksia {
         std::mutex matchMutex, logMutex;
 
         std::string pgnPath;
-        bool pgnPathMode = true;
+        bool pgnPathMode = true, logPgnAllInOneMode = false;
+        bool logPgnRichMode = false, logPgnGameTitleSurfix = false;
         
         std::string logResultPath;
         bool logResultMode = false;
         
-        std::string logEngineInOutPath;
-        bool logEngineAllInOneMode = false;
-        bool logEngineInOutMode = false;
-        bool logEngineInOutShowTime = false;
+        std::string logEnginePath;
+        bool logEngineAllInOneMode = false, logEngineMode = false;
+        bool logEngineShowTime = false, logEngineGameTitleSurfix = false;
+        bool logEngineBySides = false;
 
         bool logScreenEngineInOutMode = false;
     };

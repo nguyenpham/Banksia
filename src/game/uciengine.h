@@ -72,6 +72,7 @@ namespace banksia {
     private:
         std::string timeControlString() const;
         bool parseOption(const std::string& str);
+        bool parseInfo(const std::string& line);
         
         bool expectingBestmove = false;
         Move ponderingMove;

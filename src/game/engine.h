@@ -113,7 +113,6 @@ namespace banksia {
         int tick_ping, tick_idle, tick_being_kill = -1; //, tick_stopping = 0;
         std::function<void(const std::string&, const std::string&, LogType)> messageLogger = nullptr;
 
-        void deleteThread();
         int correctCmdCnt = 0;
         
     private:
@@ -122,6 +121,10 @@ namespace banksia {
         TinyProcessLib::Process::id_type processId = 0;
         TinyProcessLib::Process* process = nullptr;
         std::thread* pThread = nullptr;
+        
+#ifndef _WIN32
+        std::thread::native_handle_type native_handle = 0;
+#endif
     };
     
     

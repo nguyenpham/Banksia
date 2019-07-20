@@ -35,6 +35,8 @@
 #include <direct.h>
 #include <stdlib.h> // for full path
 
+#include <tlhelp32.h> // for isRunning
+
 #else
 
 #include <glob.h>
@@ -42,13 +44,16 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include <sys/types.h>
+#include <signal.h>
+
 #endif
 
 
 #include "comm.h"
 
 namespace banksia {
-    bool banksiaVerbose = false;
+    bool banksiaVerbose = true;
     
     extern const char* pieceTypeName;
     extern const char* reasonStrings[11];
@@ -61,6 +66,13 @@ namespace banksia {
     // noresult, win, draw, loss
     const char* resultStrings[] = {
         "*", "1-0", "1/2-1/2", "0-1", nullptr
+    };
+
+    const char* sideStrings[] = {
+        "black", "white", "none", nullptr
+    };
+    const char* shortSideStrings[] = {
+        "b", "w", "n", nullptr
     };
 
     static std::mutex consoleMutex;
@@ -95,6 +107,25 @@ namespace banksia {
         return ReasonType::noreason;
     }
     
+    std::string side2String(Side side, bool shortFrom)
+    {
+        auto sd = static_cast<int>(side);
+        if (sd < 0 || sd > 1) sd = 2;
+        return shortFrom ? shortSideStrings[sd] : sideStrings[sd];
+    }
+    
+    Side string2Side(std::string s)
+    {
+        toLower(s);
+        for(int i = 0; sideStrings[i]; i++) {
+            if (sideStrings[i] == s || shortSideStrings[i] == s) {
+                return static_cast<Side>(i);
+            }
+        }
+        return Side::none;
+
+    }
+
     void printText(const std::string& str)
     {
         std::lock_guard<std::mutex> dolock(consoleMutex);
@@ -332,6 +363,29 @@ namespace banksia {
         return path.find(".exe") != std::string::npos;
     }
 
+    bool isRunning(int pid)
+    {
+        HANDLE pss = CreateToolhelp32Snapshot(TH32CS_SNAPALL, 0);
+        
+        PROCESSENTRY32 pe = { 0 };
+        pe.dwSize = sizeof(pe);
+        
+        if (Process32First(pss, &pe))
+        {
+            do
+            {
+                // pe.szExeFile can also be useful
+                if (pe.th32ProcessID == pid)
+                    return true;
+            }
+            while(Process32Next(pss, &pe));
+        }
+        
+        CloseHandle(pss);
+        
+        return false;
+    }
+
 #else
     
     std::vector<std::string> listdir(std::string dirname) {
@@ -381,6 +435,11 @@ namespace banksia {
     bool isExecutable(const std::string& path)
     {
         return !access(path.c_str(), X_OK);
+    }
+    
+    bool isRunning(int pid)
+    {
+        return 0 == kill(pid, 0);
     }
     
 #endif
