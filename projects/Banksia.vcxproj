@@ -32,6 +32,7 @@
     <ClInclude Include="..\src\game\game.h" />
     <ClInclude Include="..\src\game\jsonengine.h" />
     <ClInclude Include="..\src\game\jsonmaker.h" />
+    <ClInclude Include="..\src\game\memcpu.h" />
     <ClInclude Include="..\src\game\player.h" />
     <ClInclude Include="..\src\game\playermng.h" />
     <ClInclude Include="..\src\game\time.h" />
@@ -52,6 +53,7 @@
     <ClCompile Include="..\src\game\game.cpp" />
     <ClCompile Include="..\src\game\jsonengine.cpp" />
     <ClCompile Include="..\src\game\jsonmaker.cpp" />
+    <ClCompile Include="..\src\game\memcpu.cpp" />
     <ClCompile Include="..\src\game\player.cpp" />
     <ClCompile Include="..\src\game\playermng.cpp" />
     <ClCompile Include="..\src\game\time.cpp" />

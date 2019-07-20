@@ -33,6 +33,10 @@ using namespace banksia;
 ////////////////////////////////////
 Engine::~Engine()
 {
+	std::cout << "Cpu usage " << name << ", values: " << cpuUsage << ", " << cpuTime << ", " << memUsage << ", " << memCall << std::endl;
+	//if (memCall > 0 && cpuTime > 0) {
+		std::cout << "Cpu " << name << ", cpu %: " << cpuUsage * 100 / std::max(1ULL, cpuTime) << ", mem: " << memUsage / std::max(1ULL, memCall) << std::endl;
+	//}
     deleteThread();
 }
 
@@ -67,6 +71,7 @@ void Engine::tickWork()
     }
     
     tickPing();
+	tickUpdate();
 }
 
 void Engine::tickPing()
@@ -232,6 +237,8 @@ bool Engine::kickStart()
             process = &engineProcess;
             setState(PlayerState::starting);
             write(protocolString());
+
+			init(processId);
             
             engineProcess.get_exit_status();
             

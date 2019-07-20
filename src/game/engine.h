@@ -34,13 +34,14 @@
 
 #include "player.h"
 #include "configmng.h"
+#include "memcpu.h"
 
 namespace banksia {
     enum class LogType {
         toEngine, fromEngine, system
     };
     
-    class Engine : public Player
+    class Engine : public Player, public MemCpu
     {
     protected:
         const int tick_period_ping = 30; // 20s

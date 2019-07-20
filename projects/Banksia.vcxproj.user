@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LocalDebuggerCommandArguments>-jsonpath c:\match\tour.json</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-jsonpath c:\match\tour.json -no</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerWorkingDirectory>c:\match</LocalDebuggerWorkingDirectory>
   </PropertyGroup>
@@ -11,7 +11,7 @@
     <LocalDebuggerWorkingDirectory>c:\match</LocalDebuggerWorkingDirectory>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>-jsonpath c:\match\tour.json</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-jsonpath c:\match\tour.json -no</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerWorkingDirectory>c:\match</LocalDebuggerWorkingDirectory>
   </PropertyGroup>
