@@ -34,14 +34,13 @@
 
 #include "player.h"
 #include "configmng.h"
-#include "memcpu.h"
 
 namespace banksia {
     enum class LogType {
         toEngine, fromEngine, system
     };
     
-    class Engine : public Player, public MemCpu
+    class Engine : public Player
     {
     protected:
         const int tick_period_ping = 30; // 20s
@@ -115,11 +114,11 @@ namespace banksia {
         std::function<void(const std::string&, const std::string&, LogType)> messageLogger = nullptr;
 
         int correctCmdCnt = 0;
-        
+        TinyProcessLib::Process::id_type processId = 0;
+
     private:
         const int process_buffer_size = 16 * 1024;
         std::string lastIncompletedStdout;
-        TinyProcessLib::Process::id_type processId = 0;
         TinyProcessLib::Process* process = nullptr;
         std::thread* pThread = nullptr;
     };

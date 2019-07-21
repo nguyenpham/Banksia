@@ -28,14 +28,13 @@
 
 #include <stdio.h>
 #include "../base/comm.h"
+#include "engine.h"
 
 //#if (defined _WIN32)
-//
 //#include <windows.h>
-//
 //#endif
 
-typedef struct _MYFILETIME {
+typedef struct {
 	unsigned int dwLowDateTime;
 	unsigned int dwHighDateTime;
 } MYFILETIME;
@@ -43,17 +42,43 @@ typedef struct _MYFILETIME {
 
 namespace banksia {
 
-    class MemCpu
+    class Profile {
+    public:
+        u64 cpuTotal = 0, cpuTime = 0;
+        u64 memTotal = 0, memCall = 0;
+        u64 threadTotal = 0, threadCall = 0;
+        int memMax = 0, threadMax = 0;
+        
+        static std::string memSizeString(u64 memSize);
+        std::string toString() const;
+        void reset() {
+            memset(this, 0, sizeof(Profile));
+        }
+        
+        bool isEmpty() const {
+            return cpuTime == 0;
+        }
+         
+        void addFrom(const Profile& o);
+    };
+    
+    class EngineProfile : public Engine
     {
     public:
-        MemCpu();
-        virtual ~MemCpu();
+        EngineProfile();
+        EngineProfile(const Config& config);
+
+        virtual ~EngineProfile();
         
-        void tickUpdate();
-        void init(int pid);
+        void setProfileMode(bool mode);
+        virtual void tickWork() override;
+
+        Profile profile;
 
     private:
-#ifdef _WIN32
+//#ifdef _WIN32
+        void resetProfile();
+
         //system total times
 		MYFILETIME m_ftPrevSysKernel;
 		MYFILETIME m_ftPrevSysUser;
@@ -61,15 +86,11 @@ namespace banksia {
         //process times
 		MYFILETIME m_ftPrevProcKernel;
 		MYFILETIME m_ftPrevProcUser;
-#endif
+//#endif
         
-	protected:
-		u64 cpuUsage = 0, cpuTime = 0, memUsage = 0, memCall = 0, threadCnt = 0, threadCall = 0;
-		int threadMax = 0;
-
 	private:
+        bool profileMode = false;
         i64 tickCnt = 0;
-        int processId = 0;
     };
     
 } // namespace banksia

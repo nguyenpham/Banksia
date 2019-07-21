@@ -33,15 +33,6 @@ using namespace banksia;
 ////////////////////////////////////
 Engine::~Engine()
 {
-	std::cout << "Cpu usage " << name << ", values: " << cpuUsage << ", " << cpuTime << ", " << memUsage << ", " << memCall << std::endl;
-	//if (memCall > 0 && cpuTime > 0) {
-	threadCall = std::max(1ULL, threadCall);
-		std::cout << "Cpu " << name << ", cpu %: " << cpuUsage * 100 / std::max(1ULL, cpuTime) 
-			<< ", mem: " << memUsage / std::max(1ULL, memCall)
-			<< ", threads: " << int(threadCnt / threadCall) << ", max: " << threadMax
-			<< std::endl;
-	//}
-
 	if (processId && isRunning(processId)) {
         std::cout << "Warning 1: a chess engine/program refuses to stop, it may be still running, " << name << std::endl;
         TinyProcessLib::Process::kill(processId, true);
@@ -84,7 +75,6 @@ void Engine::tickWork()
     }
     
     tickPing();
-	tickUpdate();
 }
 
 void Engine::tickPing()
@@ -240,8 +230,6 @@ bool Engine::kickStart()
             setState(PlayerState::starting);
             write(protocolString());
 
-			init(processId);
-            
             engineProcess.get_exit_status();
             
             // engine has just exited

@@ -25,6 +25,7 @@
 
 #include <sstream>
 #include <algorithm>
+#include <iomanip> // for setprecision
 
 #ifdef _WIN32
 
@@ -40,126 +41,172 @@
 
 using namespace banksia;
 
-MemCpu::~MemCpu()
+//std::string Profile::memSizeString(u64 memSize)
+//{
+//    if (memSize > 1024 * 1024) {
+//        return std::to_string(memSize / (1024 * 1024)) + "M";
+//    }
+//    if (memSize > 1024) {
+//        return std::to_string(memSize / 1024) + "K";
+//    }
+//    return std::to_string(memSize);
+//}
+
+std::string Profile::toString() const
 {
-}
-
-void MemCpu::init(int pid)
-{
-    processId = pid;
-}
-
-#ifdef _WIN32
-
-MemCpu::MemCpu()
-{
-    ZeroMemory(&m_ftPrevSysKernel, sizeof(FILETIME));
-    ZeroMemory(&m_ftPrevSysUser, sizeof(FILETIME));
-    ZeroMemory(&m_ftPrevProcKernel, sizeof(FILETIME));
-    ZeroMemory(&m_ftPrevProcUser, sizeof(FILETIME));
-}
-
-u64 subtractTimes(const FILETIME& ftA, const MYFILETIME& ftB)
-{
-	LARGE_INTEGER a, b;
-	a.LowPart = ftA.dwLowDateTime;
-	a.HighPart = ftA.dwHighDateTime;
-
-	b.LowPart = ftB.dwLowDateTime;
-	b.HighPart = ftB.dwHighDateTime;
-
-	return a.QuadPart - b.QuadPart;
-}
-
-void MemCpu::tickUpdate()
-{
-    if (processId == 0) return;
-	tickCnt++;
+    std::ostringstream stringStream;
     
-	{
-		// then get a process list snapshot.
-		HANDLE const  snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPALL, 0);
+    stringStream
+    << std::right << std::setw(4) << cpuTotal * 100 / std::max(1ULL, cpuTime)
+    << std::right << std::setw(8) << int(memTotal / (std::max(1ULL, memCall) * 1024 * 1024))
+    << std::right << std::setw(8) << int(memMax / (1024 * 1024))
+    << std::right << std::setw(4) << int(threadTotal /  std::max(1ULL, threadCall)) << threadMax;
 
-		// initialize the process entry structure.
-		PROCESSENTRY32 entry = { 0 };
-		entry.dwSize = sizeof(entry);
+    return stringStream.str();
+}
 
-		// get the first process info.
-		BOOL  ret = true;
-		ret = Process32First(snapshot, &entry);
-		while (ret && entry.th32ProcessID != processId) {
-			ret = Process32Next(snapshot, &entry);
-		}
-		CloseHandle(snapshot);
-		if (ret) {
-			threadCnt += entry.cntThreads;
-			threadCall++;
-			if (threadMax < entry.cntThreads)
-				threadMax = entry.cntThreads;
-		}
-	}
+void Profile::addFrom(const Profile& o)
+{
+    cpuTotal += o.cpuTotal;
+    cpuTime += o.cpuTime;
+    memTotal += o.memTotal;
+    memCall += o.memCall;
+    threadTotal += o.threadTotal;
+    threadCall += o.threadCall;
+    memMax = std::max(memMax, o.memMax);
+    threadMax = std::max(threadMax, o.threadMax);
+    
+}
+
+//////////////////////////////////////////
+EngineProfile::EngineProfile()
+: Engine()
+{
+}
+EngineProfile::EngineProfile(const Config& config)
+: Engine(config)
+{
+}
+
+EngineProfile::~EngineProfile()
+{
+}
+
+void EngineProfile::setProfileMode(bool mode)
+{
+    profileMode = mode;
+}
+
+//#ifdef _WIN32
 
 
-	/////
 
-    auto hProcess = OpenProcess(  PROCESS_QUERY_INFORMATION |
-                           PROCESS_VM_READ,
-                           FALSE, processId);
-    if (nullptr == hProcess)
+void EngineProfile::resetProfile()
+{
+    //    ZeroMemory(&m_ftPrevSysKernel, sizeof(FILETIME));
+    //    ZeroMemory(&m_ftPrevSysUser, sizeof(FILETIME));
+    //    ZeroMemory(&m_ftPrevProcKernel, sizeof(FILETIME));
+    //    ZeroMemory(&m_ftPrevProcUser, sizeof(FILETIME));
+}
+
+
+//u64 subtractTimes(const FILETIME& ftA, const MYFILETIME& ftB)
+//{
+//    LARGE_INTEGER a, b;
+//    a.LowPart = ftA.dwLowDateTime;
+//    a.HighPart = ftA.dwHighDateTime;
+//
+//    b.LowPart = ftB.dwLowDateTime;
+//    b.HighPart = ftB.dwHighDateTime;
+//
+//    return a.QuadPart - b.QuadPart;
+//}
+
+void EngineProfile::tickWork()
+{
+    Engine::tickWork();
+    
+    if (!profileMode || state == PlayerState::stopped || processId == 0) {
         return;
-
-    if ((tickCnt & 0x1) == 0) {
-        PROCESS_MEMORY_COUNTERS_EX pmc;
-        GetProcessMemoryInfo(hProcess, (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
-        memUsage += pmc.PrivateUsage;
-        memCall++;
     }
 
-    FILETIME ftSysIdle, ftSysKernel, ftSysUser;
-    FILETIME ftProcCreation, ftProcExit, ftProcKernel, ftProcUser;
+    tickCnt++;
     
-    if (!GetSystemTimes(&ftSysIdle, &ftSysKernel, &ftSysUser) ||
-        !GetProcessTimes(hProcess, &ftProcCreation, &ftProcExit, &ftProcKernel, &ftProcUser))
-    {
-        return;
-    }
-    
-    if (m_ftPrevSysKernel.dwLowDateTime)
-    {
-        /*
-         CPU usage is calculated by getting the total amount of time the system has operated
-         since the last measurement (made up of kernel + user) and the total
-         amount of time the process has run (kernel + user).
-         */
-        auto ftSysKernelDiff = subtractTimes(ftSysKernel, m_ftPrevSysKernel);
-        auto ftSysUserDiff = subtractTimes(ftSysUser, m_ftPrevSysUser);
-        
-        auto ftProcKernelDiff = subtractTimes(ftProcKernel, m_ftPrevProcKernel);
-        auto ftProcUserDiff = subtractTimes(ftProcUser, m_ftPrevProcUser);
- 
-        cpuTime +=  ftSysKernelDiff + ftSysUserDiff;
-        cpuUsage += ftProcKernelDiff + ftProcUserDiff;
-    }
-    
-    m_ftPrevSysKernel = *(MYFILETIME*)&ftSysKernel;
-    m_ftPrevSysUser = *(MYFILETIME*)&ftSysUser;
-    m_ftPrevProcKernel = *(MYFILETIME*)&ftProcKernel;
-    m_ftPrevProcUser = *(MYFILETIME*)&ftProcUser;
-
-    CloseHandle( hProcess );
+//    {
+//        // then get a process list snapshot.
+//        HANDLE const  snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPALL, 0);
+//
+//        // initialize the process entry structure.
+//        PROCESSENTRY32 entry = { 0 };
+//        entry.dwSize = sizeof(entry);
+//
+//        // get the first process info.
+//        BOOL  ret = true;
+//        ret = Process32First(snapshot, &entry);
+//        while (ret && entry.th32ProcessID != processId) {
+//            ret = Process32Next(snapshot, &entry);
+//        }
+//        CloseHandle(snapshot);
+//        if (ret) {
+//            threadCnt += entry.cntThreads;
+//            threadCall++;
+//            if (threadMax < entry.cntThreads)
+//                threadMax = entry.cntThreads;
+//        }
+//    }
+//
+//
+//    /////
+//
+//    auto hProcess = OpenProcess(  PROCESS_QUERY_INFORMATION |
+//                           PROCESS_VM_READ,
+//                           FALSE, processId);
+//    if (nullptr == hProcess)
+//        return;
+//
+//    if ((tickCnt & 0x1) == 0) {
+//        PROCESS_MEMORY_COUNTERS_EX pmc;
+//        GetProcessMemoryInfo(hProcess, (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
+//        memUsage += pmc.PrivateUsage;
+//        memCall++;
+//    }
+//
+//    FILETIME ftSysIdle, ftSysKernel, ftSysUser;
+//    FILETIME ftProcCreation, ftProcExit, ftProcKernel, ftProcUser;
+//    
+//    if (!GetSystemTimes(&ftSysIdle, &ftSysKernel, &ftSysUser) ||
+//        !GetProcessTimes(hProcess, &ftProcCreation, &ftProcExit, &ftProcKernel, &ftProcUser))
+//    {
+//        return;
+//    }
+//    
+//    if (m_ftPrevSysKernel.dwLowDateTime)
+//    {
+//        /*
+//         CPU usage is calculated by getting the total amount of time the system has operated
+//         since the last measurement (made up of kernel + user) and the total
+//         amount of time the process has run (kernel + user).
+//         */
+//        auto ftSysKernelDiff = subtractTimes(ftSysKernel, m_ftPrevSysKernel);
+//        auto ftSysUserDiff = subtractTimes(ftSysUser, m_ftPrevSysUser);
+//        
+//        auto ftProcKernelDiff = subtractTimes(ftProcKernel, m_ftPrevProcKernel);
+//        auto ftProcUserDiff = subtractTimes(ftProcUser, m_ftPrevProcUser);
+// 
+//        cpuTime +=  ftSysKernelDiff + ftSysUserDiff;
+//        cpuUsage += ftProcKernelDiff + ftProcUserDiff;
+//    }
+//    
+//    m_ftPrevSysKernel = *(MYFILETIME*)&ftSysKernel;
+//    m_ftPrevSysUser = *(MYFILETIME*)&ftSysUser;
+//    m_ftPrevProcKernel = *(MYFILETIME*)&ftProcKernel;
+//    m_ftPrevProcUser = *(MYFILETIME*)&ftProcUser;
+//
+//    CloseHandle( hProcess );
 }
 
 
+//
+//#else
 
-#else
-
-
-MemCpu::MemCpu()
-{
-}
-
-void MemCpu::tickUpdate()
-{
-}
-
-#endif
+//#endif
