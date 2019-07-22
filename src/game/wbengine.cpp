@@ -537,15 +537,13 @@ void WbEngine::parseLine(int cmdInt, const std::string& cmdString, const std::st
             // 9 156 1084 48000 Nf3 Nc6 Nc3 Nf6
             // ply score time nodes pv
             auto vec = splitString(line, ' ');
-            if (vec.size() > 2) {
-                auto scoreStr = vec.at(1);
-                if (!scoreStr.empty()) {
-                    auto c = scoreStr[0];
-                    if (isdigit(c) || c == '-' || c == '+') {
-                        engineSentCorrectCmds();
-                        score = std::atoi(scoreStr.c_str());
-                        depth = std::atoi(vec[0].c_str());
-                    }
+            if (vec.size() >= 4) {
+                depth = std::atoi(vec[0].c_str());
+                score = std::atoi(vec[1].c_str());
+                nodes = std::atoi(vec[3].c_str());
+                
+                if (depth > 0 && nodes > 0) {
+                    engineSentCorrectCmds();
                 }
             }
         }

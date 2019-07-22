@@ -92,7 +92,7 @@ bool Player::goPonder(const Move& pondermove)
 bool Player::go()
 {
     setState(PlayerState::playing);
-    score = depth = 0;
+    score = depth = 0; nodes = 0;
     return true;
 }
 

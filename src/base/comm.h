@@ -40,7 +40,7 @@
 
 namespace banksia {
     
-    const int BANKSIA_VERSION = (2 << 8) + 6;
+    const int BANKSIA_VERSION = (2 << 8) + 7;
     
 #ifdef _WIN32
     const std::string folderSlash = "\\";
@@ -189,7 +189,7 @@ namespace banksia {
     ReasonType string2ReasonType(const std::string& s);
     
     std::string side2String(Side side, bool shortFrom = true);
-    Side string2Side(const std::string& s);
+    Side string2Side(std::string s);
     
 } // namespace banksia
 

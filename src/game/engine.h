@@ -39,7 +39,14 @@ namespace banksia {
     enum class LogType {
         toEngine, fromEngine, system
     };
-    
+
+//    class EngineStats {
+//    public:
+//        i64 nodes = 0, depths = 0, elapse = 0;
+//        void add(const EngineStats& o) {
+//            nodes += o.nodes; depths += o.depths; elapse += o.elapse;
+//        }
+//    };
     class Engine : public Player
     {
     protected:

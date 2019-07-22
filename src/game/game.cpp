@@ -206,6 +206,7 @@ void Game::moveFromPlayer(const Move& move, const std::string& moveString, const
             lastHist.elapsed = timeConsumed;
             lastHist.score = players[sd]->getScore();
             lastHist.depth = players[sd]->getDepth();
+            lastHist.nodes = players[sd]->getNodes();
             timeController.udateClockAfterMove(timeConsumed, lastHist.move.piece.side, int(board.histList.size()));
             
             startThinking(ponderMode ? ponderMove : Move::illegalMove);

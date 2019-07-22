@@ -87,13 +87,20 @@ namespace banksia {
             return depth;
         }
         
+        i64 getNodes() const {
+            return nodes;
+        }
+
     protected:
         int idNumber; // a random number, main purpose for debugging
         std::string name;
         
         PlayerType type;
         PlayerState state;
-        int tick_state = 0, score, depth;
+        int tick_state = 0;
+        // for stats
+        int score, depth;
+        i64 nodes;
         
         bool ponderMode = false;
         

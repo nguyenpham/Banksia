@@ -4,13 +4,16 @@
 Overview
 -----------
 
-Banksia (a name of an Australian native wildflowers) is an open source tournament manager for chess engines, written in C++11. It can be compiled and run on some popular platforms such as Windows, MacOS, Linux.
+Banksia (the name after an Australian native wildflowers) is an open source tournament manager for chess engines, written in C++11. It can be compiled and run on some popular platforms such as Windows, MacOS, Linux.
 
-The project is an attempt to fulfil my dream about a chess tournament manager: small, fast, portable, easy to use, easy to integrate to other systems, resumable, able to automatically generate all configurations, files which are needed for tournaments. Basically from nothing, a user can configure automatically within few minutes then he can start running a total new tournament.
+The project is an attempt to fulfil my dream about a chess tournament manager: small, fast, portable, easy to use, easy to integrate to other systems, resumable, able to automatically generate all configurations, files which are needed for tournaments.
 
-About design: To manage engines, games and the complicated events / relationships between them, the app uses a timer with few c++ callback functions. I believe it is one of the simplest way thus the code is not hard for programmers to follow, understand, maintain and modify.
+Basically from nothing, a user can configure automatically within few minutes then he can start running a total new tournament.
+
+About design: To manage engines, games and the complicated events / relationships between them, the app uses a timer with few c++ callback functions. I believe it is one of the simplest methods. The code is not hard for programmers to follow, understand, maintain and modify.
 
 ![Demo](banksia.jpg)
+*(Banksia)*
 
 Some features
 -----------
@@ -18,7 +21,7 @@ Some features
 - Small, fast
 - Simple and short (in terms of design and implementation)
 - Support UCI and Winboard protocols
-- Support opening book formats edp, pgn, bin (Polyglot)
+- Support opening book formats: edp, pgn, bin (Polyglot)
 - Tournament: concurrency, round robin, knockout, ponderable, resumable
 - Controlled mainly by 2 JSON files (one for configurations of engines, one for tournament management). That is very flexible, easy way to setup and change
 - Can auto generate all necessary JSON files
@@ -80,7 +83,6 @@ When working, the app may display some information into screen as well as saving
 - results
 - engine input / output log
 - game pgn file
-
 
 Bellow is the screen of a tournament between 3 chess engines:
 
@@ -155,6 +157,7 @@ Working
 
 History
 --------
+- 22 July 2019: v2.7, inclusive players (for playing in all matches, given sides), more info for tournament stats
 - 20 July 2019: v2.6, more info and more ways to control logs, improve engine managements
 - 16 July 2019: v2.5, multiple ways to select openings: new for each match, same for a pair, one for all matches; override options for central controlling; match statistics LOS & error margin
 - 14 July 2019: v2.2, knockout tournament and resumable the last tournament
@@ -168,7 +171,7 @@ History
 Terms of use
 ---------------
 
-All codes and data in the folder 3rdparty are 3rd party libraries, copyrighted and released under their terms of use. Banksia code and data is released under the GPLv3+ license.
+All codes and data in the folder 3rdparty are 3rd party libraries, copyrighted by them and under their terms of use. Banksia code and data are released under the GPLv3+ license.
 
 
 Credits

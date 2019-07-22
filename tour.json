@@ -4,19 +4,21 @@
         "concurrency" : 2,
         "event" : "Computer event",
         "games per pair" : 2,
-        "help" : "type: roundrobin, knockout; event, site for PGN header; shuffle: random players for roundrobin",
+        "guide" : "type: roundrobin, knockout; event, site for PGN header; shuffle: random players for roundrobin",
         "ponder" : false,
         "resumable" : true,
         "shuffle players" : false,
         "site" : "Somewhere on Earth",
         "type" : "roundrobin"
     },
-    "time control": {
-        "mode": "standard",
-        "moves": 40,
-        "time": 3.5,
-        "increment": 0.5,
-        "margin": 0.3
+    "time control" :
+    {
+        "guide" : "unit's second; mode: standard, infinite, depth, movetime; margin: an extra delay time before checking if time's over",
+        "increment" : 0.5,
+        "margin" : 0.8,
+        "mode" : "standard",
+        "moves" : 40,
+        "time" : 6.0
     },
     
     "engine configurations" : {
@@ -26,13 +28,20 @@
     
     "players": [ "stockfish", "sf", "fruit", "gaviota-1.0", "crafty" ],
 
+    "inclusive players" : {
+        "guide":"matches are counted with players in this list only; side: white, black, any",
+        "mode" : true,
+        "players" : [],
+        "side" : "both"
+    },
+
     "opening books" :
     {
         "base" :
         {
             "allone fen" : "",
             "allone san moves" : "",
-            "help" : "seed for random; select types: samepair: same opening for a pair, allnew: all games use different openings, allone: all games use one opening, given by 'allone fen' or 'allone san moves' or randomly from books",
+            "guide" : "seed for random; select types: samepair: same opening for a pair, allnew: all games use different openings, allone: all games use one opening, given by 'allone fen' or 'allone san moves' or randomly from books",
             "seed" : -1,
             "select type" : "allnew"
         },
@@ -49,7 +58,7 @@
                 "type" : "pgn"
             },
             {
-                "help" : "maxply: ply to play; top100: percents of top moves (for a given position) to select ranndomly an opening move, 0 is always the best",
+                "guide" : "maxply: ply to play; top100: percents of top moves (for a given position) to select ranndomly an opening move, 0 is always the best",
                 "maxply" : 12,
                 "mode" : false,
                 "path" : "",
@@ -60,8 +69,12 @@
     },
     "override options" :
     {
-        "help" : "options in this section will relplace engines' options which are same names and types",
-        "mode" : true,
+        "base" :
+        {
+            "guide" : "options will relplace engines' options which are same names and types, 'value' is the most important, others ignored; to avoid some options from specific engines being overridden, add and set field 'overridable' to false for them",
+            "mode" : true
+        },
+
         "options" :
         [
             {
@@ -94,7 +107,7 @@
             },
             {
                 "default" : 2,
-                "help" : "set cores for Winboard engines",
+                "guide" : "set cores for Winboard engines",
                 "max" : 128,
                 "min" : 1,
                 "name" : "cores",
@@ -103,7 +116,7 @@
             },
             {
                 "default" : 64,
-                "help" : "unit: MB; set memory for Winboard engines",
+                "guide" : "unit: MB; set memory for Winboard engines",
                 "max" : 4096,
                 "min" : 1,
                 "name" : "memory",
@@ -117,13 +130,19 @@
         "engine" :
         {
             "mode" : true,
+            "game title surfix" : true,
+            "one file" : false,
+            "separate by sides" : false,
             "path" : "c:\\match\\logengine.txt",
-            "all in one" : false,
             "show time" : true
         },
         "pgn" :
         {
+            "guide" : "one file: if false, log will store in multi files with game idx as surfix; game title surfix: use players names and results for file name surfix, affect when 'one file' is false; rich info: log more info such as scores, depths, elapses",
             "mode" : true,
+            "rich info" : true,
+            "one file" : false,
+            "game title surfix" : true,
             "path" : "c:\\match\\games.pgn"
         },
         "result" :

@@ -40,6 +40,16 @@ namespace banksia {
         roundrobin, knockout, none
     };
     
+    class EngineStats {
+    public:
+        i64 nodes = 0, depths = 0, moves = 0, games = 0;
+        double elapsed = 0.0;
+        
+        void add(const EngineStats& o) {
+            nodes += o.nodes; depths += o.depths; moves += o.moves; games += o.games; elapsed += o.elapsed;
+        }
+    };
+    
     enum class MatchState {
         none, playing, completed, error
     };
@@ -208,6 +218,12 @@ namespace banksia {
         
     private:
         static std::string createLogPath(std::string opath, bool onefile, bool usesurfix, bool includeGameResult, const Game* game, Side forSide = Side::none);
+        
+        std::map<std::string, EngineStats> engineStatsMap;
+        // inclusive players
+        bool inclusivePlayerMode = false;
+        std::set<std::string> inclusivePlayers;
+        Side inclusivePlayerSide = Side::none;
         
         int previousElapsed = 0;
         time_t startTime;

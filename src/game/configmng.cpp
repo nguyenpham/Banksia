@@ -809,7 +809,11 @@ bool ConfigMng::insert(const Config& config)
 
 bool ConfigMng::loadOverrideOptions(const Json::Value& oo)
 {
-    overrideOptionMode = oo.isMember("mode") && oo["mode"].asBool();
+    if (oo.isMember("base")) {
+        auto v = oo["base"];
+        overrideOptionMode = v.isMember("mode") && v["mode"].asBool();
+    }
+    
     if (!overrideOptionMode || !oo.isMember("options")) {
         return false;
     }
