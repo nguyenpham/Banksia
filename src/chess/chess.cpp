@@ -101,8 +101,8 @@ bool ChessBoard::isValid() const {
             if (!isPiece(4, PieceType::king, Side::black)) {
                 return false;
             }
-            if (((castleRights[B] & CASTLERIGHT_LONG) && !isPiece(0, PieceType::rook, Side::black)) ||
-                ((castleRights[B] & CASTLERIGHT_SHORT) && !isPiece(7, PieceType::rook, Side::black))) {
+            if (((castleRights[B] & CastleRight_long) && !isPiece(0, PieceType::rook, Side::black)) ||
+                ((castleRights[B] & CastleRight_short) && !isPiece(7, PieceType::rook, Side::black))) {
                 return false;
             }
         }
@@ -111,8 +111,8 @@ bool ChessBoard::isValid() const {
             if (!isPiece(60, PieceType::king, Side::white)) {
                 return false;
             }
-            if (((castleRights[W] & CASTLERIGHT_LONG) && !isPiece(56, PieceType::rook, Side::white)) ||
-                ((castleRights[W] & CASTLERIGHT_SHORT) && !isPiece(63, PieceType::rook, Side::white))) {
+            if (((castleRights[W] & CastleRight_long) && !isPiece(56, PieceType::rook, Side::white)) ||
+                ((castleRights[W] & CastleRight_short) && !isPiece(63, PieceType::rook, Side::white))) {
                 return false;
             }
         }
@@ -246,16 +246,16 @@ void ChessBoard::setFen(const std::string& fen) {
         for(auto && ch : str) {
             switch (ch) {
                 case 'K':
-                    castleRights[W] |= CASTLERIGHT_SHORT;
+                    castleRights[W] |= CastleRight_short;
                     break;
                 case 'k':
-                    castleRights[B] |= CASTLERIGHT_SHORT;
+                    castleRights[B] |= CastleRight_short;
                     break;
                 case 'Q':
-                    castleRights[W] |= CASTLERIGHT_LONG;
+                    castleRights[W] |= CastleRight_long;
                     break;
                 case 'q':
-                    castleRights[B] |= CASTLERIGHT_LONG;
+                    castleRights[B] |= CastleRight_long;
                     break;
                     
                 default:
@@ -311,16 +311,16 @@ std::string ChessBoard::getFen(int halfCount, int fullMoveCount) const {
     stringStream << (side == Side::white ? " w " : " b ");
     
     if (castleRights[W] + castleRights[B]) {
-        if (castleRights[W] & CASTLERIGHT_SHORT) {
+        if (castleRights[W] & CastleRight_short) {
             stringStream << "K";
         }
-        if (castleRights[W] & CASTLERIGHT_LONG) {
+        if (castleRights[W] & CastleRight_long) {
             stringStream << "Q";
         }
-        if (castleRights[B] & CASTLERIGHT_SHORT) {
+        if (castleRights[B] & CastleRight_short) {
             stringStream << "k";
         }
-        if (castleRights[B] & CASTLERIGHT_LONG) {
+        if (castleRights[B] & CastleRight_long) {
             stringStream << "q";
         }
     } else {
@@ -339,18 +339,18 @@ std::string ChessBoard::getFen(int halfCount, int fullMoveCount) const {
     return stringStream.str();
 }
 
-void ChessBoard::gen_addMove(MoveList& moveList, int from, int dest, bool captureOnly) const
+void ChessBoard::gen_addMove(std::vector<MoveFull>& moveList, int from, int dest, bool captureOnly) const
 {
     auto toSide = getPiece(dest).side;
     auto movingPiece = getPiece(from);
     auto fromSide = movingPiece.side;
     
     if (fromSide != toSide && (!captureOnly || toSide != Side::none)) {
-        moveList.add(MoveFull(movingPiece, from, dest));
+        moveList.push_back(MoveFull(movingPiece, from, dest));
     }
 }
 
-void ChessBoard::gen_addPawnMove(MoveList& moveList, int from, int dest, bool captureOnly) const
+void ChessBoard::gen_addPawnMove(std::vector<MoveFull>& moveList, int from, int dest, bool captureOnly) const
 {
     auto toSide = getPiece(dest).side;
     auto movingPiece = getPiece(from);
@@ -359,12 +359,12 @@ void ChessBoard::gen_addPawnMove(MoveList& moveList, int from, int dest, bool ca
     assert(movingPiece.type == PieceType::pawn);
     if (fromSide != toSide && (!captureOnly || toSide != Side::none)) {
         if (dest >= 8 && dest < 56) {
-            moveList.add(MoveFull(movingPiece, from, dest));
+            moveList.push_back(MoveFull(movingPiece, from, dest));
         } else {
-            moveList.add(MoveFull(movingPiece, from, dest, PieceType::queen));
-            moveList.add(MoveFull(movingPiece, from, dest, PieceType::rook));
-            moveList.add(MoveFull(movingPiece, from, dest, PieceType::bishop));
-            moveList.add(MoveFull(movingPiece, from, dest, PieceType::knight));
+            moveList.push_back(MoveFull(movingPiece, from, dest, PieceType::queen));
+            moveList.push_back(MoveFull(movingPiece, from, dest, PieceType::rook));
+            moveList.push_back(MoveFull(movingPiece, from, dest, PieceType::bishop));
+            moveList.push_back(MoveFull(movingPiece, from, dest, PieceType::knight));
         }
     }
 }
@@ -373,22 +373,22 @@ void ChessBoard::clearCastleRights(int rookPos, Side rookSide) {
     switch (rookPos) {
         case 0:
             if (rookSide == Side::black) {
-                castleRights[B] &= ~CASTLERIGHT_LONG;
+                castleRights[B] &= ~CastleRight_long;
             }
             break;
         case 7:
             if (rookSide == Side::black) {
-                castleRights[B] &= ~CASTLERIGHT_SHORT;
+                castleRights[B] &= ~CastleRight_short;
             }
             break;
         case 56:
             if (rookSide == Side::white) {
-                castleRights[W] &= ~CASTLERIGHT_LONG;
+                castleRights[W] &= ~CastleRight_long;
             }
             break;
         case 63:
             if (rookSide == Side::white) {
-                castleRights[W] &= ~CASTLERIGHT_SHORT;
+                castleRights[W] &= ~CastleRight_short;
             }
             break;
     }
@@ -406,20 +406,19 @@ int ChessBoard::findKing(Side side) const
 }
 
 
-void ChessBoard::genLegalOnly(MoveList& moveList, Side attackerSide) {
+void ChessBoard::genLegalOnly(std::vector<MoveFull>& moveList, Side attackerSide) {
     gen(moveList, attackerSide);
     
+    std::vector<MoveFull> moves;
     Hist hist;
-    int j = 0;
-    for (int i = 0; i < moveList.end; i++) {
-        make(moveList.list[i], hist);
+    for (auto && move : moveList) {
+        make(move, hist);
         if (!isIncheck(attackerSide)) {
-            moveList.list[j] = moveList.list[i];
-            j++;
+            moves.push_back(move);
         }
         takeBack(hist);
     }
-    moveList.end = j;
+    moveList = moves;
 }
 
 bool ChessBoard::isIncheck(Side beingAttackedSide) const {
@@ -440,20 +439,19 @@ bool ChessBoard::isLegalMove(int from, int dest, PieceType promotion)
         return false;
     }
     
-    MoveList moveList;
+    std::vector<MoveFull> moveList;
     genLegal(moveList, piece.side, from, dest, promotion);
-    return moveList.end > 0;
+    return !moveList.empty();
 }
 
-void ChessBoard::genLegal(MoveList& moves, Side side, int from, int dest, PieceType promotion)
+void ChessBoard::genLegal(std::vector<MoveFull>& moves, Side side, int from, int dest, PieceType promotion)
 {
-    MoveList moveList;
+    std::vector<MoveFull> moveList;
     gen(moveList, side);
     
     Hist hist;
     
-    for (int i = 0; i < moveList.end; i++) {
-        auto move = moveList.list[i];
+    for (auto && move : moveList) {
         
         if ((from >= 0 && move.from != from) || (dest >= 0 && move.dest != dest)) {
             continue;
@@ -461,7 +459,7 @@ void ChessBoard::genLegal(MoveList& moves, Side side, int from, int dest, PieceT
         
         make(move, hist);
         if (!isIncheck(side)) {
-            moves.add(move);
+            moves.push_back(move);
         }
         takeBack(hist);
     }
@@ -469,7 +467,9 @@ void ChessBoard::genLegal(MoveList& moves, Side side, int from, int dest, PieceT
 
 ////////////////////////////////////////////////////////////////////////
 
-void ChessBoard::gen(MoveList& moves, Side side) const {
+void ChessBoard::gen(std::vector<MoveFull>& moves, Side side) const {
+    moves.reserve(Chess_MaxMoveNumber);
+    
     bool captureOnly = false;
     
     for (int pos = 0; pos < 64; ++pos) {
@@ -515,26 +515,26 @@ void ChessBoard::gen(MoveList& moves, Side side) const {
                 if ((pos ==  4 && castleRights[B]) ||
                     (pos == 60 && castleRights[W])) {
                     if (pos == 4) {
-                        if ((castleRights[B] & CASTLERIGHT_LONG) &&
+                        if ((castleRights[B] & CastleRight_long) &&
                             pieces[1].isEmpty() && pieces[2].isEmpty() &&pieces[3].isEmpty() &&
                             !beAttacked(2, Side::white) && !beAttacked(3, Side::white)) {
                             assert(isPiece(0, PieceType::rook, Side::black));
                             gen_addMove(moves, 4, 2, captureOnly);
                         }
-                        if ((castleRights[B] & CASTLERIGHT_SHORT) &&
+                        if ((castleRights[B] & CastleRight_short) &&
                             pieces[5].isEmpty() && pieces[6].isEmpty() &&
                             !beAttacked(5, Side::white) && !beAttacked(6, Side::white)) {
                             assert(isPiece(7, PieceType::rook, Side::black));
                             gen_addMove(moves, 4, 6, captureOnly);
                         }
                     } else {
-                        if ((castleRights[W] & CASTLERIGHT_LONG) &&
+                        if ((castleRights[W] & CastleRight_long) &&
                             pieces[57].isEmpty() && pieces[58].isEmpty() && pieces[59].isEmpty() &&
                             !beAttacked(58, Side::black) && !beAttacked(59, Side::black)) {
                             assert(isPiece(56, PieceType::rook, Side::white));
                             gen_addMove(moves, 60, 58, captureOnly);
                         }
-                        if ((castleRights[W] & CASTLERIGHT_SHORT) &&
+                        if ((castleRights[W] & CastleRight_short) &&
                             pieces[61].isEmpty() && pieces[62].isEmpty() &&
                             !beAttacked(61, Side::black) && !beAttacked(62, Side::black)) {
                             assert(isPiece(63, PieceType::rook, Side::white));
@@ -857,7 +857,7 @@ void ChessBoard::make(const MoveFull& move, Hist& hist) {
     
     switch (p.type) {
         case PieceType::king: {
-            castleRights[static_cast<int>(p.side)] &= ~(CASTLERIGHT_LONG|CASTLERIGHT_SHORT);
+            castleRights[static_cast<int>(p.side)] &= ~(CastleRight_long|CastleRight_short);
             if (abs(move.from - move.dest) == 2) { // castle
                 int rookPos = move.from + (move.from < move.dest ? 3 : -4);
                 int newRookPos = (move.from + move.dest) / 2;
@@ -909,18 +909,18 @@ void ChessBoard::make(const MoveFull& move, Hist& hist) {
     //    assert(hashKey == initHashKey());
     
     if (hist.castleRights[W] != castleRights[W]) {
-        if ((hist.castleRights[W] & CASTLERIGHT_SHORT) != (castleRights[W] & CASTLERIGHT_SHORT)) {
+        if ((hist.castleRights[W] & CastleRight_short) != (castleRights[W] & CastleRight_short)) {
             hashKey ^= RandomCastle[0];
         }
-        if ((hist.castleRights[W] & CASTLERIGHT_LONG) != (castleRights[W] & CASTLERIGHT_LONG)) {
+        if ((hist.castleRights[W] & CastleRight_long) != (castleRights[W] & CastleRight_long)) {
             hashKey ^= RandomCastle[1];
         }
     }
     if (hist.castleRights[B] != castleRights[B]) {
-        if ((hist.castleRights[B] & CASTLERIGHT_SHORT) != (castleRights[B] & CASTLERIGHT_SHORT)) {
+        if ((hist.castleRights[B] & CastleRight_short) != (castleRights[B] & CastleRight_short)) {
             hashKey ^= RandomCastle[2];
         }
-        if ((hist.castleRights[B] & CASTLERIGHT_LONG) != (castleRights[B] & CASTLERIGHT_LONG)) {
+        if ((hist.castleRights[B] & CastleRight_long) != (castleRights[B] & CastleRight_long)) {
             hashKey ^= RandomCastle[3];
         }
     }
@@ -998,10 +998,9 @@ Result ChessBoard::rule()
     
     // Mated or stalemate
     auto haveLegalMove = false;
-    MoveList moveList;
+    std::vector<MoveFull> moveList;
     gen(moveList, side);
-    for(int i = 0; i < moveList.end; i++) {
-        auto move = moveList.list[i];
+    for(auto && move : moveList) {
         Hist hist;
         make(move, hist);
         if (!isIncheck(side)) {
@@ -1102,12 +1101,10 @@ bool ChessBoard::checkMake(int from, int dest, PieceType promotion)
         return false;
     }
     
-    MoveList moveList;
+    std::vector<MoveFull> moveList;
     gen(moveList, side);
     
-    for (int i = 0; i < moveList.end; i++) {
-        auto move = moveList.list[i];
-        
+    for (auto && move : moveList) {
         if (move.from != from || move.dest != dest || move.promotion != promotion) {
             continue;
         }
@@ -1129,7 +1126,7 @@ bool ChessBoard::checkMake(int from, int dest, PieceType promotion)
     return false;
 }
 
-bool ChessBoard::createStringForLastMove(const MoveList& moveList)
+bool ChessBoard::createStringForLastMove(const std::vector<MoveFull>& moveList)
 {
     if (histList.empty()) {
         return false;
@@ -1152,8 +1149,7 @@ bool ChessBoard::createStringForLastMove(const MoveList& moveList)
     auto ambi = false, sameCol = false, sameRow = false;
     
     if (movePiece.type != PieceType::king) {
-        for(int i = 0; i < moveList.end; i++) {
-            auto m = moveList.list[i];
+        for(auto && m : moveList) {
             if (m.dest == hist->move.dest
                 && m.from != hist->move.from
                 && pieces.at(m.from).type == movePiece.type) {
@@ -1201,9 +1197,9 @@ bool ChessBoard::createStringForLastMove(const MoveList& moveList)
     
     // incheck
     if (isIncheck(side)) {
-        MoveList moveList;
+        std::vector<MoveFull> moveList;
         genLegalOnly(moveList, side);
-        str += moveList.isEmpty() ? "#" : "+";
+        str += moveList.empty() ? "#" : "+";
     }
     
     hist->moveString = str;
@@ -1239,10 +1235,13 @@ std::string ChessBoard::toMoveListString(MoveNotation notation, int itemPerLine,
         auto haveComment = false;
         if (computingInfo && hist.depth > 0) {
             haveComment = true;
-            stringStream << " {" << (hist.score > 0 ? "+" : "")
-            << std::setprecision(2) << ((float)hist.score / 100.0) << "/"
+            stringStream.precision(1);
+            stringStream << std::fixed;
+
+            stringStream << " {"
+            << std::showpos << ((double)hist.score / 100.0) << std::noshowpos << "/"
             << hist.depth
-            << " " << std::setprecision(2) << hist.elapsed;
+            << " " << hist.elapsed;
         }
         if (!hist.comment.empty() && moveCounter) {
             stringStream << (haveComment ? "; " : " {");
@@ -1347,12 +1346,11 @@ Move ChessBoard::fromSanString(const std::string& str)
         }
         
         if (from < 0) {
-            MoveList moveList;
+            std::vector<MoveFull> moveList;
             gen(moveList, side);
             
             std::vector<Move> goodMoves;
-            for(int i = 0; i < moveList.end; i++) {
-                auto m = moveList.list[i];
+            for (auto && m : moveList) {
                 if (m.dest != dest || m.promotion != promotion ||
                     getPiece(m.from).type != pieceType) {
                     continue;
@@ -1392,13 +1390,12 @@ u64 ChessBoard::perft(int depth)
     
     u64 nodes = 0;
     
-    MoveList moveList;
+    std::vector<MoveFull> moveList;
     gen(moveList, side);
     
     Hist hist;
     auto theSide = side;
-    for (int i = 0; i < moveList.end; i++) {
-        auto move = moveList.list[i];
+    for (auto && move : moveList) {
         make(move);
         if (!isIncheck(theSide)) {
             nodes += perft(depth - 1);
@@ -1483,16 +1480,16 @@ u64 ChessBoard::initHashKey() const
         //        black can castle short     2
         //        black can castle long      3
         
-        if (castleRights[W] & CASTLERIGHT_SHORT) {
+        if (castleRights[W] & CastleRight_short) {
             key ^= RandomCastle[0];
         }
-        if (castleRights[W] & CASTLERIGHT_LONG) {
+        if (castleRights[W] & CastleRight_long) {
             key ^= RandomCastle[1];
         }
-        if (castleRights[B] & CASTLERIGHT_SHORT) {
+        if (castleRights[B] & CastleRight_short) {
             key ^= RandomCastle[2];
         }
-        if (castleRights[B] & CASTLERIGHT_LONG) {
+        if (castleRights[B] & CastleRight_long) {
             key ^= RandomCastle[3];
         }
     }

@@ -71,12 +71,13 @@ namespace banksia {
         virtual ~EngineProfile();
         
         void setProfileMode(bool mode);
-        virtual void tickWork() override;
 
         Profile profile;
 
+#ifdef _WIN32
+        virtual void tickWork() override;
+
     private:
-//#ifdef _WIN32
         void resetProfile();
 
         //system total times
@@ -86,7 +87,7 @@ namespace banksia {
         //process times
 		MYFILETIME m_ftPrevProcKernel;
 		MYFILETIME m_ftPrevProcUser;
-//#endif
+#endif
         
 	private:
         bool profileMode = false;

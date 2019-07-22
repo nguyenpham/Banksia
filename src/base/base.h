@@ -193,53 +193,6 @@ namespace banksia {
         }
     };
     
-    class MoveList {
-    public:
-        static const int MaxMoveNumber = 250;
-        
-        MoveFull list[MaxMoveNumber];
-        int end;
-        
-        MoveList() {
-            reset();
-        }
-        
-        void reset() {
-            end = 0;
-        }
-        
-        bool isEmpty() const {
-            return end == 0;
-        }
-        
-        bool isFull() const {
-            return end >= MaxMoveNumber - 2;
-        }
-        
-        void add(const MoveFull& move) {
-            list[end] = move;
-            end++;
-        }
-        
-        void add(Piece piece, int from, int dest, PieceType promotion = PieceType::empty) {
-            list[end].set(piece, from, dest, promotion);
-            end++;
-        }
-        
-        bool isValid() const {
-            return end >= 0 && end < MaxMoveNumber;
-        }
-        
-        std::string toString() const {
-            std::ostringstream stringStream;
-            
-            for (int i = 0; i < end; i++) {
-                stringStream << i + 1 << ") " << list[i].toString() << " ";
-            }
-            return stringStream.str();
-        }
-    };
-    
     class Hist {
     public:
         MoveFull move;
@@ -248,9 +201,12 @@ namespace banksia {
         int8_t castleRights[2];
         u64 hashKey;
         int quietCnt;
+        std::string moveString, comment;
+
+        // for statistic
+        i64 nodes = 0;
         int score = 0, depth = 0;
         double elapsed = 0;
-        std::string moveString, comment;
         
         void set(const MoveFull& _move) {
             move = _move;

@@ -446,6 +446,13 @@ bool UciEngine::parseInfo(const std::string& line)
             continue;
         }
         
+        if (name == "nodes") {
+            ++i;
+            auto s = vec.at(i);
+            nodes = std::atoi(s.c_str());
+            continue;
+        }
+        
         if (name == "score") {
             ++i;
             auto s = vec.at(i);

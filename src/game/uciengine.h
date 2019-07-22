@@ -29,7 +29,7 @@
 #include <stdio.h>
 
 #include "engine.h"
-#include "memcpu.h"
+#include "engineprofile.h"
 
 namespace banksia {
     

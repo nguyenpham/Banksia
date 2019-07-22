@@ -232,7 +232,8 @@ void TourMng::fixJson(Json::Value& d, const std::string& path)
     if (!d.isMember(s)) {
         // Defaults and values should be different to make sure it will be sent
         const static std::string ooString =
-        "{\"mode\" : true, \"guide\" : \"options will relplace engines' options which are same names and types, 'value' is the most important, others ignored; to avoid some options from specific engines being overridden, add and set field 'overridable' to false for them\",\
+        "{\"base\" : { \"mode\" : true, \"guide\" : \"options will relplace engines' options which are same names and types, 'value' is the most important, others ignored; to avoid some options from specific engines being overridden, add and set field 'overridable' to false for them\"\
+        },\
         \"options\" :[{\"default\" : \"\",\"name\" : \"SyzygyPath\",\"type\" : \"string\",\"value\" : \"\"},\
         {\"default\" : 2,\"max\" : 100,\"min\" : 1,\"name\" : \"SyzygyProbeDepth\",\"type\" : \"spin\",\"value\" : 1},\
         {\"default\":false,\"name\" : \"Syzygy50MoveRule\",\"type\" : \"check\",\"value\" : true},\
@@ -247,6 +248,18 @@ void TourMng::fixJson(Json::Value& d, const std::string& path)
         d[s] = v;
     }
     
+    s = "inclusive players";
+    if (!d.isMember(s)) {
+        const static std::string jString =
+        "{ \"guide\":\"matches are counted with players in this list only; side: white, black, any\",\
+        \"mode\" : false,\
+        \"players\" : [],\
+        \"side\" : \"both\"}";
+
+        Json::Value v;
+        JsonSavable::loadFromJsonString(jString, v, true);
+        d[s] = v;
+    }
     
     { // logs
         Json::Value a;
@@ -372,6 +385,35 @@ bool TourMng::parseJsonAfterLoading(Json::Value& d)
             }
         }
     }
+
+    inclusivePlayers.clear();
+    s = "inclusive players";
+    if (d.isMember(s)) {
+        auto v = d[s];
+        inclusivePlayerMode = v.isMember("mode") && v["mode"].asBool();
+        if (v.isMember("side")) {
+            auto str = v["side"].asString();
+            inclusivePlayerSide = string2Side(str);
+        }
+        if (v.isMember("players")) {
+            const Json::Value& array = v["players"];
+            for (int i = 0; i < int(array.size()); i++) {
+                auto str = array[i].isString() ? array[i].asString() : "";
+                if (!str.empty()) {
+                    if (ConfigMng::instance->isNameExistent(str)) {
+                        inclusivePlayers.insert(str);
+                    } else {
+                        std::cerr << "Error: player " << str << " (in \"inclusive Players\") is not existent in engine configurations." << std::endl;
+                    }
+                }
+            }
+        }
+        
+        if (inclusivePlayerMode) {
+            std::cout << "Warning: inclusive mode is on. Matchs are played only if they have players in inclusive list" << std::endl;
+        }
+    }
+
     
     // time control
     auto ok = false;
@@ -567,123 +609,6 @@ void TourMng::finishTournament()
     exit(0);
 }
 
-std::string TourMng::createTournamentStats()
-{
-    std::map<std::string, TourPlayer> resultMap;
-    
-    auto abnormalCnt = 0;
-    for(auto && m : matchRecordList) {
-        if (m.result.result == ResultType::noresult) { // hm
-            continue;
-        }
-        
-        for(int sd = 0; sd < 2; sd++) {
-            auto name = m.playernames[sd];
-            if (name.empty()) { // lucky players (in knockout) won without opponents
-                continue;
-            }
-            TourPlayer r;
-            auto it = resultMap.find(name);
-            if (it == resultMap.end()) {
-                r.name = name;
-            } else {
-                r = it->second; assert(r.name == name);
-            }
-            
-            auto lossCnt = r.lossCnt;
-            r.gameCnt++;
-            switch (m.result.result) {
-                case ResultType::win:
-                    if (sd == W) r.winCnt++; else r.lossCnt++;
-                    break;
-                case ResultType::draw:
-                    r.drawCnt++;
-                    break;
-                case ResultType::loss:
-                    if (sd == B) r.winCnt++; else r.lossCnt++;
-                    break;
-                default:
-                    assert(false);
-                    break;
-            }
-            
-            if (lossCnt < r.lossCnt) {
-                if (m.result.reason == ReasonType::illegalmove || m.result.reason == ReasonType::crash || m.result.reason == ReasonType::timeout) {
-                    r.abnormalCnt++;
-                    abnormalCnt++;
-                }
-            }
-            resultMap[name] = r;
-        }
-    }
-    
-    auto maxNameLen = 0;
-    std::vector<TourPlayer> resultList;
-    for (auto && s : resultMap) {
-        resultList.push_back(s.second);
-        maxNameLen = std::max(maxNameLen, int(s.second.name.length()));
-    }
-    
-    std::sort(resultList.begin(), resultList.end(), [](const TourPlayer& lhs, const TourPlayer& rhs)
-              {
-                  return rhs.smaller(lhs); // return lhs.smaller(rhs);
-              });
-    
-    
-    std::stringstream stringStream;
-    
-    
-    auto separateLineSz = maxNameLen + 68 + (abnormalCnt ? 20 : 0);
-    for(int i = 0; i < separateLineSz; i++) {
-        stringStream << "-";
-    }
-    stringStream << std::endl;
-    
-    stringStream << "  #  "
-    << std::left << std::setw(maxNameLen + 2) << "name"
-    << "games    wins%   draws%  losses%    score     los%   elo+/-"
-    << (abnormalCnt ? "     fails" : "")
-    << std::endl;
-
-    for(int i = 0; i < resultList.size(); i++) {
-        auto r = resultList.at(i);
-        
-        auto d = double(std::max(1, r.gameCnt));
-        double win = double(r.winCnt * 100) / d, draw = double(r.drawCnt * 100) / d, loss = double(r.lossCnt * 100) / d;
-        
-        double score = double(r.winCnt) + double(r.drawCnt) / 2;
-        Elo elo(r.winCnt, r.drawCnt, r.lossCnt);
-        
-        stringStream
-        << std::right << std::setw(3) << (i + 1) << ". "
-        << std::left << std::setw(maxNameLen + 2) << r.name
-        << std::right << std::setw(5) << r.gameCnt
-        << std::fixed << std::setprecision(1)
-        << std::right << std::setw(9) << win // << std::left << std::setw(0) << "%"
-        << std::right << std::setw(9) << draw // << std::left << std::setw(0) << "%"
-        << std::right << std::setw(9) << loss // << std::left << std::setw(0) << "%"
-        << std::right << std::setw(9) << score
-        << std::right << std::setw(9) << elo.los * 100
-        << std::right << std::setw(9) << elo.elo_difference;
-        
-        if (r.abnormalCnt) {
-            stringStream << std::right << std::setw(9) << r.abnormalCnt;
-        }
-        
-        stringStream << std::left << std::setw(0) << std::endl;
-    }
-    
-    for(int i = 0; i < separateLineSz; i++) {
-        stringStream << "-";
-    }
-
-    if (abnormalCnt) {
-        stringStream << std::endl << "Failed games (timeout, crashed, illegal moves): " << abnormalCnt << " of " << matchRecordList.size();
-    }
-    
-    return stringStream.str();
-}
-
 void TourMng::playMatches()
 {
     if (matchRecordList.empty()) {
@@ -723,6 +648,16 @@ void TourMng::addMatchRecord(MatchRecord& record)
 
 void TourMng::addMatchRecord_simple(MatchRecord& record)
 {
+    if (inclusivePlayerMode) {
+        auto ok = inclusivePlayerSide != Side::black && inclusivePlayers.find(record.playernames[W]) != inclusivePlayers.end();
+        if (!ok) {
+            ok = inclusivePlayerSide != Side::white && inclusivePlayers.find(record.playernames[B]) != inclusivePlayers.end();
+            
+            if (!ok) {
+                return;
+            }
+        }
+    }
     record.gameIdx = int(matchRecordList.size());
     bookMng.getRandomBook(record.pairId, record.startFen, record.startMoves);
     matchRecordList.push_back(record);
@@ -1093,42 +1028,6 @@ std::string TourMng::createLogPath(std::string opath, bool onefile, bool usesurf
     return opath;
 }
 
-void TourMng::matchCompleted(Game* game)
-{
-    if (game == nullptr) return;
-    
-    auto gIdx = game->getIdx();
-    if (gIdx >= 0 && gIdx < matchRecordList.size()) {
-        auto record = &matchRecordList[gIdx];
-        assert(record->state == MatchState::playing);
-        record->state = MatchState::completed;
-        record->result = game->board.result;
-        
-        if (pgnPathMode && !pgnPath.empty()) {
-            auto pgnString = game->toPgn(eventName, siteName, record->round, record->gameIdx, logPgnRichMode);
-            auto path = createLogPath(pgnPath, logPgnAllInOneMode, logPgnGameTitleSurfix, true, game);
-            if (!path.empty()) {
-                append2TextFile(path, pgnString);
-            }
-        }
-    }
-    
-    auto wplayer = game->getPlayer(Side::white), bplayer = game->getPlayer(Side::black);
-    if (wplayer && bplayer) {
-        std::string infoString = std::to_string(gIdx + 1) + ") " + game->getGameTitleString() + ", #" + std::to_string(game->board.histList.size()) + ", " + game->board.result.toString();
-        
-        matchLog(infoString, banksiaVerbose);
-        // Add extra info to help understanding log
-        if (!logEngineBySides) {
-            engineLog(game, getAppName(), infoString, LogType::system);
-        }
-    }
-
-    checkToExtendMatches(gIdx);
-    
-    saveMatchRecords();
-}
-
 void TourMng::setupTimeController(TimeControlMode mode, int val, double t0, double t1, double t2)
 {
     timeController.setup(mode, val, t0, t1, t2);
@@ -1346,5 +1245,244 @@ bool TourMng::loadMatchRecords(bool autoYesReply)
     
     startTournament();
     return true;
+}
+
+void TourMng::matchCompleted(Game* game)
+{
+    if (game == nullptr) return;
+    
+    auto gIdx = game->getIdx();
+    if (gIdx >= 0 && gIdx < matchRecordList.size()) {
+        auto record = &matchRecordList[gIdx];
+        assert(record->state == MatchState::playing);
+        record->state = MatchState::completed;
+        record->result = game->board.result;
+        
+        EngineStats engineStats[2];
+        for(auto && hist : game->board.histList) {
+            // not for uncomputing moves
+            if (hist.nodes == 0) {
+                continue;
+            }
+            auto sd = static_cast<int>(hist.move.piece.side);
+            engineStats[sd].nodes += hist.nodes;
+            engineStats[sd].depths += hist.depth;
+            engineStats[sd].elapsed += hist.elapsed;
+            engineStats[sd].moves++;
+        }
+        
+        for(int sd = 0; sd < 2; sd++) {
+            engineStats[sd].games++;
+            auto side = static_cast<Side>(sd);
+            auto name = game->getPlayer(side)->getName();
+            auto it = engineStatsMap.find(name);
+            if (it != engineStatsMap.end()) {
+                engineStats[sd].add(it->second);
+            }
+            engineStatsMap[name] = engineStats[sd];
+            //            std::cout << "adding, sd: " << sd << ", name: " << name << ", #n: " << game->board.histList.size()
+            //            << ", games: " << engineStats[sd].games
+            //            << ", nodes: " << engineStats[sd].nodes
+            //            << ", depths: " << engineStats[sd].depths
+            //            << ", moves: " << engineStats[sd].moves
+            //            << ", elapsed: " << engineStats[sd].elapsed
+            //            << std::endl;
+        }
+        
+        if (pgnPathMode && !pgnPath.empty()) {
+            auto pgnString = game->toPgn(eventName, siteName, record->round, record->gameIdx, logPgnRichMode);
+            auto path = createLogPath(pgnPath, logPgnAllInOneMode, logPgnGameTitleSurfix, true, game);
+            if (!path.empty()) {
+                append2TextFile(path, pgnString);
+            }
+        }
+    }
+    
+    auto wplayer = game->getPlayer(Side::white), bplayer = game->getPlayer(Side::black);
+    if (wplayer && bplayer) {
+        std::string infoString = std::to_string(gIdx + 1) + ") " + game->getGameTitleString() + ", #" + std::to_string(game->board.histList.size()) + ", " + game->board.result.toString();
+        
+        matchLog(infoString, banksiaVerbose);
+        // Add extra info to help understanding log
+        if (!logEngineBySides) {
+            engineLog(game, getAppName(), infoString, LogType::system);
+        }
+    }
+    
+    checkToExtendMatches(gIdx);
+    
+    saveMatchRecords();
+}
+
+std::string TourMng::createTournamentStats()
+{
+    std::map<std::string, TourPlayer> resultMap;
+    
+    auto abnormalCnt = 0;
+    for(auto && m : matchRecordList) {
+        if (m.result.result == ResultType::noresult) { // hm
+            continue;
+        }
+        
+        for(int sd = 0; sd < 2; sd++) {
+            auto name = m.playernames[sd];
+            if (name.empty()) { // lucky players (in knockout) won without opponents
+                continue;
+            }
+            TourPlayer r;
+            auto it = resultMap.find(name);
+            if (it == resultMap.end()) {
+                r.name = name;
+            } else {
+                r = it->second; assert(r.name == name);
+            }
+
+            auto lossCnt = r.lossCnt;
+            r.gameCnt++;
+            switch (m.result.result) {
+                case ResultType::win:
+                    if (sd == W) r.winCnt++; else r.lossCnt++;
+                    break;
+                case ResultType::draw:
+                    r.drawCnt++;
+                    break;
+                case ResultType::loss:
+                    if (sd == B) r.winCnt++; else r.lossCnt++;
+                    break;
+                default:
+                    assert(false);
+                    break;
+            }
+            
+            if (lossCnt < r.lossCnt) {
+                if (m.result.reason == ReasonType::illegalmove || m.result.reason == ReasonType::crash || m.result.reason == ReasonType::timeout) {
+                    r.abnormalCnt++;
+                    abnormalCnt++;
+                }
+            }
+            resultMap[name] = r;
+        }
+    }
+    
+    auto maxNameLen = 0;
+    std::vector<TourPlayer> resultList;
+    for (auto && s : resultMap) {
+        resultList.push_back(s.second);
+        maxNameLen = std::max(maxNameLen, int(s.second.name.length()));
+    }
+    
+    std::sort(resultList.begin(), resultList.end(), [](const TourPlayer& lhs, const TourPlayer& rhs)
+              {
+                  return rhs.smaller(lhs); // return lhs.smaller(rhs);
+              });
+    
+    
+    std::stringstream stringStream;
+    stringStream.precision(1);
+    stringStream << std::fixed;
+    
+    auto separateLineSz = maxNameLen + 68;
+    for(int i = 0; i < separateLineSz; i++) {
+        stringStream << "-";
+    }
+    stringStream << std::endl;
+    
+    stringStream << "  #  "
+    << std::left << std::setw(maxNameLen + 2) << "name"
+    << "games    wins%   draws%  losses%    score     los%   elo+/-"
+    << std::endl;
+    
+    for(int i = 0; i < resultList.size(); i++) {
+        auto r = resultList.at(i);
+        
+        auto d = double(std::max(1, r.gameCnt));
+        double win = double(r.winCnt * 100) / d, draw = double(r.drawCnt * 100) / d, loss = double(r.lossCnt * 100) / d;
+        
+        double score = double(r.winCnt) + double(r.drawCnt) / 2;
+        Elo elo(r.winCnt, r.drawCnt, r.lossCnt);
+        
+        stringStream
+        << std::right << std::setw(3) << (i + 1) << ". "
+        << std::left << std::setw(maxNameLen + 2) << r.name
+        << std::right << std::setw(5) << r.gameCnt
+//        << std::fixed << std::setprecision(1)
+        << std::right << std::setw(9) << win // << std::left << std::setw(0) << "%"
+        << std::right << std::setw(9) << draw // << std::left << std::setw(0) << "%"
+        << std::right << std::setw(9) << loss // << std::left << std::setw(0) << "%"
+        << std::right << std::setw(9) << score
+        << std::right << std::setw(9) << elo.los * 100
+        << std::right << std::setw(9) << elo.elo_difference;
+        
+        stringStream << std::left << std::setw(0) << std::endl;
+    }
+    
+    for(int i = 0; i < separateLineSz; i++) {
+        stringStream << "-";
+    }
+    
+    /////////////
+    stringStream << std::endl << "\nTech (a. = average game, moves = computing-in-turn moves):\n";
+    
+    EngineStats allStats;
+    for(auto && s : engineStatsMap) {
+        allStats.add(s.second);
+    }
+    
+    stringStream
+    << std::right << "  #  "
+    << std::left << std::setw(maxNameLen + 2) << "name"
+    << std::right << std::setw(9) << "a.nodes"
+    << std::right << std::setw(9) << "a.depths"
+    << std::right << std::setw(9) << "a.moves"
+    << std::right << std::setw(9) << "a.time"
+    << std::right << std::setw(9) << "a.t/m";
+
+    if (abnormalCnt) {
+        stringStream << std::right << std::setw(9) << "fails";
+    }
+    stringStream << std::endl;
+    
+    for(int i = 0; i < resultList.size(); i++) {
+        auto r = resultList.at(i);
+        auto stats = engineStatsMap[r.name];
+        
+        auto games = std::max(1LL, stats.games);
+        auto moves = std::max(1LL, stats.moves);
+        auto nodeStr = std::to_string(int(stats.nodes / (moves * 1024))) + "K";
+
+        stringStream
+        << std::right << std::setw(3) << (i + 1) << ". "
+        << std::left << std::setw(maxNameLen + 2) << r.name
+        << std::right << std::setw(9) << nodeStr
+        << std::right << std::setw(9) << double(stats.depths) / moves
+        << std::right << std::setw(9) << double(stats.moves) / games
+        << std::right << std::setw(9) << stats.elapsed / games
+        << std::right << std::setw(9) << stats.elapsed / double(std::max(1LL, stats.moves));
+
+        if (r.abnormalCnt) {
+            stringStream << std::right << std::setw(9) << r.abnormalCnt;
+        }
+        stringStream << std::endl;
+    }
+
+    auto games = std::max(1LL, allStats.games);
+    auto moves = std::max(1LL, allStats.moves);
+    auto nodeStr = std::to_string(int(allStats.nodes / (moves * 1024))) + "K";
+
+    stringStream
+    << "     "
+    << std::left << std::setw(maxNameLen + 2) << "all ---"
+    << std::right << std::setw(9) << nodeStr
+    << std::right << std::setw(9) << double(allStats.depths) / moves
+    << std::right << std::setw(9) << double(allStats.moves) / games
+    << std::right << std::setw(9) << allStats.elapsed / games
+    << std::right << std::setw(9) << allStats.elapsed / double(std::max(1LL, allStats.moves))
+    << std::endl;
+
+    if (abnormalCnt) {
+        stringStream << "Failed games (timeout, crashed, illegal moves): " << abnormalCnt << " of " << matchRecordList.size();
+    }
+
+    return stringStream.str();
 }
 

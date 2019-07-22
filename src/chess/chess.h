@@ -35,10 +35,12 @@ namespace banksia {
     
     class ChessBoard : public BoardCore {
         
-        const int CASTLERIGHT_LONG  = (1<<0);
-        const int CASTLERIGHT_SHORT = (1<<1);
-        const int CASTLERIGHT_MASK  = (CASTLERIGHT_LONG|CASTLERIGHT_SHORT);
+        const int CastleRight_long  = (1<<0);
+        const int CastleRight_short = (1<<1);
+        const int CastleRight_mask  = (CastleRight_long|CastleRight_short);
         
+        const int Chess_MaxMoveNumber = 250;
+
     protected:
         int enpassant;
         int8_t castleRights[2];
@@ -64,11 +66,11 @@ namespace banksia {
         
         bool isLegalMove(int from, int dest, PieceType promotion = PieceType::empty);
         
-        virtual void gen(MoveList& moveList, Side attackerSide) const;
-        virtual void genLegalOnly(MoveList& moveList, Side attackerSide);
+        virtual void gen(std::vector<MoveFull>& moveList, Side attackerSide) const;
+        virtual void genLegalOnly(std::vector<MoveFull>& moveList, Side attackerSide);
         virtual bool isIncheck(Side beingAttackedSide) const;
         virtual bool beAttacked(int pos, Side attackerSide) const;
-        void genLegal(MoveList& moves, Side side, int from, int dest, PieceType promotion);
+        void genLegal(std::vector<MoveFull>& moves, Side side, int from, int dest, PieceType promotion);
         
         virtual void make(const MoveFull& move, Hist& hist);
         virtual void takeBack(const Hist& hist);
@@ -94,10 +96,10 @@ namespace banksia {
         u64 hashKeyEnpassant(int enpassant) const;
         
     private:
-        bool createStringForLastMove(const MoveList& moveList);
+        bool createStringForLastMove(const std::vector<MoveFull>& moveList);
         
-        void gen_addMove(MoveList& moveList, int from, int dest, bool capOnly) const;
-        void gen_addPawnMove(MoveList& moveList, int from, int dest, bool capOnly) const;
+        void gen_addMove(std::vector<MoveFull>& moveList, int from, int dest, bool capOnly) const;
+        void gen_addPawnMove(std::vector<MoveFull>& moveList, int from, int dest, bool capOnly) const;
         
     };
     
