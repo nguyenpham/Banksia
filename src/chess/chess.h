@@ -95,6 +95,9 @@ namespace banksia {
         virtual u64 xorHashKey(int pos) const override;
         u64 hashKeyEnpassant(int enpassant) const;
         
+        std::string commentEcoString();
+        static void parseEco(const std::string& path);
+        
     private:
         bool createStringForLastMove(const std::vector<MoveFull>& moveList);
         

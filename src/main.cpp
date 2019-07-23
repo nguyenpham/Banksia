@@ -31,6 +31,7 @@ void show_usage(std::string name);
 void show_help();
 
 
+
 int main(int argc, const char * argv[])
 {
 #if defined(_MSC_VER)
@@ -42,6 +43,9 @@ int main(int argc, const char * argv[])
 #define SIGPIPE     13
     signal(SIGPIPE, SIG_IGN);
     
+//    {
+//        banksia::ChessBoard::parseEco("/Users/nguyenpham/workspace/Banksia/data/eco.pgn");
+//    }
     std::cout << "Banksia, Chess Tournament Manager, by Nguyen Pham - version " << banksia::getVersion() << std::endl;
     
     if (argc < 2) {

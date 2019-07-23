@@ -409,7 +409,7 @@ void Game::tickWork()
 }
 
 
-std::string Game::toPgn(std::string event, std::string site, int round, int gameIdx, bool richMode) const
+std::string Game::toPgn(std::string event, std::string site, int round, int gameIdx, bool richMode)
 {
     std::ostringstream stringStream;
     
@@ -453,6 +453,11 @@ std::string Game::toPgn(std::string event, std::string site, int round, int game
         stringStream << "[SetUp \t\"1\"]" << std::endl;
     }
     
+    auto ecoString = board.commentEcoString();
+    
+    if (!ecoString.empty()) {
+        stringStream << "[ECO \t\"" << ecoString << "\"]" << std::endl;
+    }
     // Move text
     stringStream << board.toMoveListString(MoveNotation::san, 8, true, richMode);
     
