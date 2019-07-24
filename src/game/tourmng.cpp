@@ -133,6 +133,10 @@ bool TourPlayer::smaller(const TourPlayer& other) const {
     || (winCnt == other.winCnt && (lossCnt > other.lossCnt || (lossCnt == other.lossCnt && drawCnt < other.drawCnt)));
 }
 
+double TourPlayer::getScore() const
+{
+    return winCnt * 1.0 + drawCnt * 0.5;
+}
 
 //////////////////////////////
 TourMng::TourMng()
@@ -144,7 +148,7 @@ TourMng::~TourMng()
 }
 
 static const char* tourTypeNames[] = {
-    "roundrobin", "knockout", nullptr
+    "roundrobin", "knockout", "swiss", nullptr
 };
 
 // To create json file
@@ -160,6 +164,9 @@ void TourMng::fixJson(Json::Value& d, const std::string& path)
         
         if (!v.isMember("type")) {
             v["type"] = tourTypeNames[0];
+        }
+        if (!v.isMember("swiss rounds")) {
+            v["swiss rounds"] = 6;
         }
         s = "games per pair";
         if (!v.isMember(s)) {
@@ -193,7 +200,8 @@ void TourMng::fixJson(Json::Value& d, const std::string& path)
         
         s = "guide";
         if (!v.isMember(s)) {
-            v[s] = "type: " + std::string(tourTypeNames[0]) + ", " + std::string(tourTypeNames[1]) + "; event, site for PGN tags; shuffle: random players for roundrobin";
+            v[s] = "type: " + std::string(tourTypeNames[0]) + ", " + std::string(tourTypeNames[1]) + ", " + std::string(tourTypeNames[3])
+            + "; event, site for PGN tags; shuffle: random players for roundrobin";
         }
         
         d["base"] = v;
@@ -321,6 +329,11 @@ bool TourMng::parseJsonAfterLoading(Json::Value& d)
             }
         }
         
+        s = "swiss rounds";
+        if (v.isMember(s)) {
+            swissRounds = std::max(1, v[s].asInt());
+        }
+
         s = "resumable";
         resumable = v.isMember(s) ? v[s].asBool() : true;
         
@@ -567,9 +580,14 @@ void TourMng::startTournament()
 {
     startTime = time(nullptr);
     
-    std::string info =
-    "type: " + std::string(tourTypeNames[static_cast<int>(type)])
-    + ", timer: " + timeController.toString()
+    std::string info = "type: " + std::string(tourTypeNames[static_cast<int>(type)]);
+    
+    if (type == TourType::swiss) {
+        info += ", rounds: " + std::to_string(swissRounds);
+    }
+    
+    info +=
+    ", timer: " + timeController.toString()
     + ", players: " + std::to_string(participantList.size())
     + ", matches: " + std::to_string(matchRecordList.size())
     + ", concurrency: " + std::to_string(gameConcurrency)
@@ -672,6 +690,9 @@ bool TourMng::createNextRoundMatches()
         case TourType::knockout:
             return createNextKnockoutMatchList();
             
+        case TourType::swiss:
+            return createNextSwisstMatchList();
+
         default:
             break;
     }
@@ -736,147 +757,6 @@ int TourMng::getLastRound() const
     return lastRound;
 }
 
-std::vector<TourPlayer> TourMng::getKnockoutWinnerList()
-{
-    std::vector<TourPlayer> winList;
-    auto lastRound = getLastRound();
-    
-    std::set<std::string> lostSet;
-    std::vector<std::string> nameList;
-    std::map<int, TourPlayerPair> pairMap;
-    
-    for(auto && r : matchRecordList) {
-        if (r.round != lastRound) {
-            continue;
-        }
-        
-        assert(r.state == MatchState::completed);
-        TourPlayerPair thePair;
-        auto it = pairMap.find(r.pairId);
-        if (it != pairMap.end()) thePair = it->second;
-        else {
-            thePair.pair[0].name = r.playernames[0];
-            thePair.pair[1].name = r.playernames[1];
-        }
-        
-        if (r.result.result == ResultType::win || r.result.result == ResultType::loss) {
-            auto idxW = thePair.pair[W].name == r.playernames[W] ? W : B;
-            auto winIdx = r.result.result == ResultType::win ? idxW : (1 - idxW);
-            thePair.pair[winIdx].winCnt++;
-        }
-        auto whiteSd = thePair.pair[W].name == r.playernames[W] ? W : B;
-        thePair.pair[whiteSd].whiteCnt++;
-        pairMap[r.pairId] = thePair;
-    }
-    
-    for(auto && p : pairMap) {
-        auto thePair = p.second;
-        assert(thePair.pair[0].winCnt != thePair.pair[1].winCnt || thePair.pair[0].whiteCnt != thePair.pair[1].whiteCnt);
-        auto winIdx = W;
-        if (thePair.pair[B].winCnt > thePair.pair[W].winCnt ||
-            (thePair.pair[B].winCnt == thePair.pair[W].winCnt && thePair.pair[B].whiteCnt < thePair.pair[W].whiteCnt)) {
-            winIdx = B;
-        }
-        winList.push_back(thePair.pair[winIdx]);
-    }
-    
-    return winList;
-}
-
-
-bool TourMng::createNextKnockoutMatchList()
-{
-    auto winList = getKnockoutWinnerList();
-    return createKnockoutMatchList(winList, getLastRound() + 1);
-}
-
-bool TourMng::createKnockoutMatchList(const std::vector<std::string>& nameList)
-{
-    std::vector<TourPlayer> vec;
-    for(auto && name : nameList) {
-        TourPlayer tourPlayer;
-        tourPlayer.name = name;
-        vec.push_back(tourPlayer);
-    }
-    
-    return createKnockoutMatchList(vec, 0);
-}
-
-bool TourMng::createKnockoutMatchList(std::vector<TourPlayer> playerVec, int round)
-{
-    if (playerVec.size() < 2) {
-        if (playerVec.size() == 1) {
-            auto str = "\n* The winner is " + playerVec.front().name;
-            matchLog(str, true);
-        }
-        return false;
-    }
-    // odd players, one won't have opponent and he is lucky to set win
-    if (playerVec.size() & 1) {
-        
-        std::set<std::string> luckSet;
-        for(auto && r : matchRecordList) {
-            if (r.playernames[0].empty() || r.playernames[1].empty()) {
-                auto idx = r.playernames[0].empty() ? 1 : 0;
-                luckSet.insert(r.playernames[idx]);
-            }
-        }
-        
-        TourPlayer luckPlayer;
-        for (int i = 0; i < 10; i++) {
-            auto k = std::rand() % playerVec.size();
-            if (luckSet.find(playerVec.at(k).name) == luckSet.end()) {
-                luckPlayer = playerVec.at(k);
-                
-                auto it = playerVec.begin();
-                std::advance(it, k);
-                playerVec.erase(it);
-                break;
-            }
-        }
-        
-        if (playerVec.size() & 1) {
-            luckPlayer = playerVec.front();
-            playerVec.erase(playerVec.begin());
-        }
-        
-        // the odd and the lucky player wins all games in the round
-        MatchRecord record(luckPlayer.name, "", false);
-        record.round = round;
-        record.state = MatchState::completed;
-        record.result.result = ResultType::win; // win
-        record.pairId = std::rand();
-        addMatchRecord_simple(record);
-        
-        auto str = "\n* Player " + luckPlayer.name + " is an odd (no opponent in " + std::to_string(playerVec.size()) + " players) and set won for round " + std::to_string(round + 1);
-        matchLog(str, banksiaVerbose);
-    }
-    
-    std::sort(playerVec.begin(), playerVec.end(), [](const TourPlayer& lhs, const TourPlayer& rhs)
-              {
-                  return lhs.elo > rhs.elo;
-              });
-    
-    auto n = playerVec.size() / 2;
-    
-    auto addCnt = 0;
-    for(int i = 0; i < n; i++) {
-        auto name0 = playerVec.at(i).name;
-        auto name1 = playerVec.at(i + n).name;
-        
-        // random swap to avoid name0 player plays all white side
-        MatchRecord record(name0, name1, rand() & 1);
-        record.round = round;
-        addMatchRecord(record);
-        addCnt++;
-    }
-    
-    auto str = "\nKnockout round: " + std::to_string(round + 1) + ", pairs: " + std::to_string(n) + ", matches: " + std::to_string(uncompletedMatches());
-    
-    matchLog(str, true);
-    return addCnt > 0;
-}
-
 void TourMng::reset()
 {
     matchRecordList.clear();
@@ -933,8 +813,9 @@ bool TourMng::createMatchList(std::vector<std::string> nameList, TourType tourTy
             break;
         }
         case TourType::knockout:
+        case TourType::swiss:
         {
-            createKnockoutMatchList(nameList);
+            pairingMatchList(nameList);
             break;
         }
             
@@ -1001,6 +882,188 @@ bool TourMng::createMatch(int gameIdx, const std::string& whiteName, const std::
         playerMng.returnPlayer(engines[sd]);
     }
     return false;
+}
+
+std::vector<TourPlayer> TourMng::getKnockoutWinnerList()
+{
+    std::vector<TourPlayer> winList;
+    auto lastRound = getLastRound();
+    
+    std::set<std::string> lostSet;
+    std::vector<std::string> nameList;
+    std::map<int, TourPlayerPair> pairMap;
+    
+    for(auto && r : matchRecordList) {
+        if (r.round != lastRound) {
+            continue;
+        }
+        
+        assert(r.state == MatchState::completed);
+        TourPlayerPair thePair;
+        auto it = pairMap.find(r.pairId);
+        if (it != pairMap.end()) thePair = it->second;
+        else {
+            thePair.pair[0].name = r.playernames[0];
+            thePair.pair[1].name = r.playernames[1];
+        }
+        
+        if (r.result.result == ResultType::win || r.result.result == ResultType::loss) {
+            auto idxW = thePair.pair[W].name == r.playernames[W] ? W : B;
+            auto winIdx = r.result.result == ResultType::win ? idxW : (1 - idxW);
+            thePair.pair[winIdx].winCnt++;
+        }
+        auto whiteSd = thePair.pair[W].name == r.playernames[W] ? W : B;
+        thePair.pair[whiteSd].whiteCnt++;
+        pairMap[r.pairId] = thePair;
+    }
+    
+    for(auto && p : pairMap) {
+        auto thePair = p.second;
+        assert(thePair.pair[0].winCnt != thePair.pair[1].winCnt || thePair.pair[0].whiteCnt != thePair.pair[1].whiteCnt);
+        auto winIdx = W;
+        if (thePair.pair[B].winCnt > thePair.pair[W].winCnt ||
+            (thePair.pair[B].winCnt == thePair.pair[W].winCnt && thePair.pair[B].whiteCnt < thePair.pair[W].whiteCnt)) {
+            winIdx = B;
+        }
+        winList.push_back(thePair.pair[winIdx]);
+    }
+    
+    return winList;
+}
+
+
+bool TourMng::createNextKnockoutMatchList()
+{
+    auto list = getKnockoutWinnerList();
+    return pairingMatchList(list, getLastRound() + 1);
+}
+
+bool TourMng::createNextSwisstMatchList()
+{
+    auto round = getLastRound() + 1;
+    if (round >= swissRounds) {
+        return false;
+    }
+    auto list = collectStats();
+    return pairingMatchList(list, round + 1);
+}
+
+bool TourMng::pairingMatchList(const std::vector<std::string>& nameList)
+{
+    std::vector<TourPlayer> vec;
+    for(auto && name : nameList) {
+        TourPlayer tourPlayer;
+        tourPlayer.name = name;
+        vec.push_back(tourPlayer);
+    }
+    
+    return pairingMatchList(vec, 0);
+}
+
+bool TourMng::pairingMatchList(std::vector<TourPlayer> playerVec, int round)
+{
+    if (playerVec.size() < 2) {
+        if (playerVec.size() == 1) {
+            auto str = "\n* The winner is " + playerVec.front().name;
+            matchLog(str, true);
+        }
+        return false;
+    }
+    
+    // odd/bye players, one won't have opponent and he is lucky to set win
+    if (playerVec.size() & 1) {
+        
+        std::set<std::string> luckSet;
+        for(auto && r : matchRecordList) {
+            if (r.playernames[0].empty() || r.playernames[1].empty()) {
+                auto idx = r.playernames[0].empty() ? 1 : 0;
+                luckSet.insert(r.playernames[idx]);
+            }
+        }
+        
+        TourPlayer luckPlayer;
+        for (int i = 0; i < 10; i++) {
+            auto k = std::rand() % playerVec.size();
+            if (luckSet.find(playerVec.at(k).name) == luckSet.end()) {
+                luckPlayer = playerVec.at(k);
+                
+                auto it = playerVec.begin();
+                std::advance(it, k);
+                playerVec.erase(it);
+                break;
+            }
+        }
+        
+        if (playerVec.size() & 1) {
+            luckPlayer = playerVec.front();
+            playerVec.erase(playerVec.begin());
+        }
+        
+        // the odd and the lucky player wins all games in the round
+        MatchRecord record(luckPlayer.name, "", false);
+        record.round = round;
+        record.state = MatchState::completed;
+        record.result.result = ResultType::win; // win
+        record.pairId = std::rand();
+        addMatchRecord_simple(record);
+        
+        auto str = "\n* Player " + luckPlayer.name + " is an odd (no opponent in " + std::to_string(playerVec.size()) + " players) and set won for round " + std::to_string(round + 1);
+        matchLog(str, banksiaVerbose);
+    }
+    
+    std::sort(playerVec.begin(), playerVec.end(), [](const TourPlayer& lhs, const TourPlayer& rhs)
+              {
+                  return lhs.elo > rhs.elo;
+              });
+    
+    std::set<std::string> pairedSet;
+    for(auto && m : matchRecordList) {
+        if (m.playernames[0].empty() || m.playernames[1].empty()) continue;
+        pairedSet.insert(m.playernames[0] + "*" + m.playernames[1]);
+    }
+    
+    auto n = playerVec.size(); assert((n & 1) == 0); // must be even
+    
+    auto addCnt = 0;
+    for(int i = 0; i < n; ++i) {
+        auto& player0 = playerVec.at(i);
+        if (player0.flag & 1) continue;
+        auto name0 = player0.name;
+        auto succ = false;
+        for(int j = i + 1; j < n; ++j) {
+            auto& player1 = playerVec.at(j);
+            if (player1.flag & 1) continue;
+            auto name1 = player1.name;
+            
+            if (pairedSet.find(name0 + "*" + name1) != pairedSet.end()) {
+                continue;
+            }
+
+            player0.flag |= 1; player1.flag |= 1;
+            
+            // random swap to avoid name0 player plays all white side
+            auto swap = rand() & 1;
+            
+            if (type == TourType::swiss) {
+                swap = player0.whiteCnt > player1.whiteCnt;
+            }
+            MatchRecord record(name0, name1, swap);
+            record.round = round;
+            addMatchRecord(record);
+            addCnt++;
+            succ = true;
+            break;
+        }
+        
+        if (!succ) {
+            std::cerr << "Error: cannot create a pair for player " << name0 << std::endl;
+        }
+    }
+    
+    auto str = "\nKnockout round: " + std::to_string(round + 1) + ", pairs: " + std::to_string(n) + ", matches: " + std::to_string(uncompletedMatches());
+    
+    matchLog(str, true);
+    return addCnt > 0;
 }
 
 std::string TourMng::createLogPath(std::string opath, bool onefile, bool usesurfix, bool includeGameResult, const Game* game, Side forSide)
@@ -1314,21 +1377,21 @@ void TourMng::matchCompleted(Game* game)
     saveMatchRecords();
 }
 
-std::string TourMng::createTournamentStats()
+std::vector<TourPlayer> TourMng::collectStats() const
 {
     std::map<std::string, TourPlayer> resultMap;
     
-    auto abnormalCnt = 0;
     for(auto && m : matchRecordList) {
-        if (m.result.result == ResultType::noresult) { // hm
+        if (m.result.result == ResultType::noresult) { // hm ?
             continue;
         }
         
         for(int sd = 0; sd < 2; sd++) {
             auto name = m.playernames[sd];
-            if (name.empty()) { // lucky players (in knockout) won without opponents
+            if (name.empty()) { // bye players (in knockout) won without opponents
                 continue;
             }
+            
             TourPlayer r;
             auto it = resultMap.find(name);
             if (it == resultMap.end()) {
@@ -1336,7 +1399,11 @@ std::string TourMng::createTournamentStats()
             } else {
                 r = it->second; assert(r.name == name);
             }
-
+            
+            if (m.playernames[1 - sd].empty()) { // bye player
+                r.byeCnt++; assert(r.byeCnt == 1);
+            }
+            
             auto lossCnt = r.lossCnt;
             r.gameCnt++;
             switch (m.result.result) {
@@ -1357,20 +1424,30 @@ std::string TourMng::createTournamentStats()
             if (lossCnt < r.lossCnt) {
                 if (m.result.reason == ReasonType::illegalmove || m.result.reason == ReasonType::crash || m.result.reason == ReasonType::timeout) {
                     r.abnormalCnt++;
-                    abnormalCnt++;
                 }
             }
             resultMap[name] = r;
         }
     }
     
-    auto maxNameLen = 0;
     std::vector<TourPlayer> resultList;
     for (auto && s : resultMap) {
         resultList.push_back(s.second);
-        maxNameLen = std::max(maxNameLen, int(s.second.name.length()));
     }
+    return resultList;
+}
+
+std::string TourMng::createTournamentStats()
+{
     
+    auto resultList = collectStats();
+    
+    auto maxNameLen = 0, abnormalCnt = 0;
+    for (auto && r : resultList) {
+        maxNameLen = std::max(maxNameLen, int(r.name.length()));
+        abnormalCnt += r.abnormalCnt;
+    }
+
     std::sort(resultList.begin(), resultList.end(), [](const TourPlayer& lhs, const TourPlayer& rhs)
               {
                   return rhs.smaller(lhs); // return lhs.smaller(rhs);

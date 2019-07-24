@@ -35,9 +35,8 @@
 #include "../3rdparty/cpptime/cpptime.h"
 
 namespace banksia {
-    // TODO: swiss
     enum class TourType {
-        roundrobin, knockout, none
+        roundrobin, knockout, swiss, none
     };
     
     class EngineStats {
@@ -93,13 +92,14 @@ namespace banksia {
     {
     public:
         std::string name;
-        int gameCnt = 0, winCnt = 0, drawCnt = 0, lossCnt = 0, abnormalCnt = 0, elo = 0;
-        int whiteCnt = 0; // for knockdown
+        int gameCnt = 0, winCnt = 0, drawCnt = 0, lossCnt = 0, abnormalCnt = 0, elo = 0, flag = 0;
+        int byeCnt = 0, whiteCnt = 0; // for swiss and knockdown
         virtual const char* className() const override { return "TourPlayer"; }
         
         virtual bool isValid() const override;
         virtual std::string toString() const override;
         
+        double getScore() const;
         bool smaller(const TourPlayer& other) const;
     };
     
@@ -160,6 +160,8 @@ namespace banksia {
         bool loadMatchRecords(bool autoYesReply);
 
     protected:
+        std::vector<TourPlayer> collectStats() const;
+        
         void reset();
         
         virtual bool parseJsonAfterLoading(Json::Value&) override;
@@ -172,15 +174,22 @@ namespace banksia {
         void engineLog(const Game* game, const std::string& name, const std::string& line, LogType logType, Side bySide = Side::none);
         
         bool createNextRoundMatches();
-        
         int getLastRound() const;
         void checkToExtendMatches(int gIdx);
+        
+
+        // for all
+        bool pairingMatchList(const std::vector<std::string>& nameList);
+        bool pairingMatchList(std::vector<TourPlayer> playerVec, int round);
+
+        // Knockout
         std::vector<TourPlayer> getKnockoutWinnerList();
-        bool createKnockoutMatchList(const std::vector<std::string>& nameList);
-        bool createKnockoutMatchList(std::vector<TourPlayer> playerVec, int round);
-        
         bool createNextKnockoutMatchList();
-        
+
+        // Swiss
+        bool createNextSwisstMatchList();
+
+        //
         void matchCompleted(Game* game);
         bool addGame(Game* game);
         
@@ -211,7 +220,7 @@ namespace banksia {
         void removeMatchRecordFile();
         
     protected:
-        int gameConcurrency = 1, gameperpair = 1;
+        int gameConcurrency = 1, gameperpair = 1, swissRounds = 6;
         bool resumable = true;
 
         static void showPathInfo(const std::string& name, const std::string& path, bool mode);

@@ -4,11 +4,12 @@
         "concurrency" : 2,
         "event" : "Computer event",
         "games per pair" : 2,
-        "guide" : "type: roundrobin, knockout; event, site for PGN header; shuffle: random players for roundrobin",
+        "guide" : "type: roundrobin, swiss, knockout; event, site for PGN header; shuffle: random players for roundrobin",
         "ponder" : false,
         "resumable" : true,
         "shuffle players" : false,
         "site" : "Somewhere on Earth",
+        "swiff rounds" : 6,
         "type" : "roundrobin"
     },
     "time control" :
