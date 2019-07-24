@@ -1426,6 +1426,45 @@ bool ChessBoard::fromSanMoveList(const std::string& str)
     return true;
 }
 
+int ChessBoard::toPieceCount(int* pieceCnt) const
+{
+    assert(pieceCnt);
+    memset(pieceCnt, 0, 14 * sizeof(int));
+    auto totalCnt = 0;;
+    for(int i = 0; i < 64; i++) {
+        auto piece = getPiece(i);
+        if (piece.isEmpty()) continue;
+        totalCnt++;
+        auto sd = static_cast<int>(piece.side), type = static_cast<int>(piece.type);
+        pieceCnt[sd * 14 + type]++;
+    }
+    
+    assert(totalCnt >= 2 && totalCnt <= 32);
+    return totalCnt;
+}
+
+u64 ChessBoard::materialKey() const
+{
+    int pieceCnt[14];
+    toPieceCount(pieceCnt);
+    return materialKey(pieceCnt);
+}
+
+u64 ChessBoard::materialKey(const int* pieceCnt)
+{
+    u64 key = 0;
+    for(int sd = 0; sd < 2; sd++) {
+        for(int t = static_cast<int>(PieceType::king) + 1; t <= static_cast<int>(PieceType::pawn); t++) {
+            int idx = sd * 7 + t;
+            auto cnt = pieceCnt[idx];
+            auto k = idx * 10 + cnt; // max is 10 pieces for a type
+            key ^= RandomPiece[k];
+        }
+    }
+    
+    return key;
+}
+
 u64 ChessBoard::xorHashKey(int pos) const
 {
     assert(isPositionValid(pos ));

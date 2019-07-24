@@ -95,6 +95,10 @@ namespace banksia {
         virtual u64 xorHashKey(int pos) const override;
         u64 hashKeyEnpassant(int enpassant) const;
         
+        int toPieceCount(int* pieceCnt) const;
+        u64 materialKey() const;
+        static u64 materialKey(const int* pieceCnt);
+
     private:
         bool createStringForLastMove(const std::vector<MoveFull>& moveList);
         

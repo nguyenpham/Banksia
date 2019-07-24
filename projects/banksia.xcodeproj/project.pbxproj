@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		B1019E4722D61C7A002FA111 /* jsonmaker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B1019E4522D61C7A002FA111 /* jsonmaker.cpp */; };
 		B1019E4A22D6A6F0002FA111 /* jsonengine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B1019E4822D6A6F0002FA111 /* jsonengine.cpp */; };
+		B10E66CE22E6B62800AEC1F6 /* tbprobe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B10E66CC22E6B62800AEC1F6 /* tbprobe.cpp */; };
 		B1A7050322C62DE100013B1C /* chess.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B1A704D922C62DE100013B1C /* chess.cpp */; };
 		B1A7050422C62DE100013B1C /* base.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B1A704DC22C62DE100013B1C /* base.cpp */; };
 		B1A7050522C62DE100013B1C /* comm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B1A704DD22C62DE100013B1C /* comm.cpp */; };
@@ -45,6 +46,8 @@
 		B1019E4622D61C7A002FA111 /* jsonmaker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = jsonmaker.h; sourceTree = "<group>"; };
 		B1019E4822D6A6F0002FA111 /* jsonengine.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = jsonengine.cpp; sourceTree = "<group>"; };
 		B1019E4922D6A6F0002FA111 /* jsonengine.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = jsonengine.h; sourceTree = "<group>"; };
+		B10E66CC22E6B62800AEC1F6 /* tbprobe.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tbprobe.cpp; sourceTree = "<group>"; };
+		B10E66CD22E6B62800AEC1F6 /* tbprobe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tbprobe.h; sourceTree = "<group>"; };
 		B1A704D822C62DE100013B1C /* chess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = chess.h; sourceTree = "<group>"; };
 		B1A704D922C62DE100013B1C /* chess.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = chess.cpp; sourceTree = "<group>"; };
 		B1A704DB22C62DE100013B1C /* comm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = comm.h; sourceTree = "<group>"; };
@@ -96,6 +99,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		B10E66CB22E6B62800AEC1F6 /* syzygy */ = {
+			isa = PBXGroup;
+			children = (
+				B10E66CC22E6B62800AEC1F6 /* tbprobe.cpp */,
+				B10E66CD22E6B62800AEC1F6 /* tbprobe.h */,
+			);
+			path = syzygy;
+			sourceTree = "<group>";
+		};
 		B1A704D622C62DE100013B1C /* src */ = {
 			isa = PBXGroup;
 			children = (
@@ -112,6 +124,7 @@
 		B1A704D722C62DE100013B1C /* chess */ = {
 			isa = PBXGroup;
 			children = (
+				B10E66CB22E6B62800AEC1F6 /* syzygy */,
 				B1A704D822C62DE100013B1C /* chess.h */,
 				B1A704D922C62DE100013B1C /* chess.cpp */,
 			);
@@ -275,6 +288,7 @@
 			files = (
 				B1019E4722D61C7A002FA111 /* jsonmaker.cpp in Sources */,
 				B1A7050622C62DE100013B1C /* tourmng.cpp in Sources */,
+				B10E66CE22E6B62800AEC1F6 /* tbprobe.cpp in Sources */,
 				B1A7051C22C84E4900013B1C /* process_unix.cpp in Sources */,
 				B1A7050C22C62DE100013B1C /* engine.cpp in Sources */,
 				B1A7050722C62DE100013B1C /* player.cpp in Sources */,

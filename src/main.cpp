@@ -27,6 +27,8 @@
 #include "game/jsonmaker.h"
 #include "game/tourmng.h"
 
+#include "chess/syzygy/tbprobe.h"
+
 void show_usage(std::string name);
 void show_help();
 
@@ -41,6 +43,11 @@ int main(int argc, const char * argv[])
     // SIGPIPE 13      write on a pipe with no one to read it
 #define SIGPIPE     13
     signal(SIGPIPE, SIG_IGN);
+    
+    {
+        Tablebases::init("/Users/nguyenpham/workspace/BanksiaMatch/syzygy345");
+        std::cout << "Done" << std::endl;
+    }
     
     std::cout << "Banksia, Chess Tournament Manager, by Nguyen Pham - version " << banksia::getVersion() << std::endl;
     
