@@ -31,6 +31,7 @@ void show_usage(std::string name);
 void show_help();
 
 
+
 int main(int argc, const char * argv[])
 {
 #if defined(_MSC_VER)
@@ -42,6 +43,9 @@ int main(int argc, const char * argv[])
 #define SIGPIPE     13
     signal(SIGPIPE, SIG_IGN);
     
+//    {
+//        banksia::ChessBoard::parseEco("/Users/nguyenpham/workspace/Banksia/data/eco.pgn");
+//    }
     std::cout << "Banksia, Chess Tournament Manager, by Nguyen Pham - version " << banksia::getVersion() << std::endl;
     
     if (argc < 2) {
@@ -99,24 +103,31 @@ int main(int argc, const char * argv[])
             concurrency = std::atoi(argmap["-c"].c_str());
         }
         
-        // The app will be terminated when all jobs done
+        // The app will be auto terminated when all jobs done
         maker.build(mainJsonPath, mainEnginesPath, concurrency);
     } else {
-        if (!tourMng.loadFromJsonFile(mainJsonPath)) {
-            return -1;
-        }
-        
+//        if (!tourMng.loadFromJsonFile(mainJsonPath)) {
+//            return -1;
+//        }
+//
+//        auto noReply = argmap.find("-no") != argmap.end();
+//        auto yesReply = argmap.find("-yes") != argmap.end();
+//
+//        if (noReply || !tourMng.loadMatchRecords(yesReply)) {
+//            if (!tourMng.createMatchList()) {
+//                return -1;
+//            }
+//
+//            // The app will be terminated when all matches completed
+//            tourMng.startTournament();
+//        }
         
         auto noReply = argmap.find("-no") != argmap.end();
         auto yesReply = argmap.find("-yes") != argmap.end();
 
-        if (noReply || !tourMng.loadMatchRecords(yesReply)) {
-            if (!tourMng.createMatchList()) {
-                return -1;
-            }
-            
-            // The app will be terminated when all matches completed
-            tourMng.startTournament();
+        // The app will be auto terminated when all matches completed
+        if (!tourMng.start(mainJsonPath, yesReply, noReply)) {
+            return -1;
         }
     }
     

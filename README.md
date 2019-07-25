@@ -13,6 +13,7 @@ Basically from nothing, a user can configure automatically within few minutes th
 About design: To manage engines, games and the complicated events / relationships between them, the app uses a timer with few c++ callback functions. I believe it is one of the simplest methods. The code is not hard for programmers to follow, understand, maintain and modify.
 
 ![Demo](banksia.jpg)
+
 *(Banksia)*
 
 Some features
@@ -22,7 +23,7 @@ Some features
 - Simple and short (in terms of design and implementation)
 - Support UCI and Winboard protocols
 - Support opening book formats: edp, pgn, bin (Polyglot)
-- Tournament: concurrency, round robin, knockout, ponderable, resumable
+- Tournament: round robin, knockout, swiss, concurrency, ponderable, resumable
 - Controlled mainly by 2 JSON files (one for configurations of engines, one for tournament management). That is very flexible, easy way to setup and change
 - Can auto generate all necessary JSON files
 - Controllable by keyboard when games playing (type anything from keyboard to display the help)
@@ -149,14 +150,13 @@ Below are some features/functions we need someone helps too:
 Working
 ---------
 - Improve interface
-- Support opening info ECO
 - Support endgame adjudication, using tablebases
-- Support some different tournament types: swiss
 - Support other chess variants (not soon event it is designed for multi-variants)
 
 
 History
 --------
+- - July 2019: v3.0, swiss, opening ECO
 - 22 July 2019: v2.7, inclusive players (for playing in all matches, given sides), more info for tournament stats
 - 20 July 2019: v2.6, more info and more ways to control logs, improve engine managements
 - 16 July 2019: v2.5, multiple ways to select openings: new for each match, same for a pair, one for all matches; override options for central controlling; match statistics LOS & error margin
@@ -164,7 +164,7 @@ History
 - 12 July 2019: v2.0, auto generating JSON files
 - 10 July 2019: v1.5, Polyglot's opening books
 - 8 July 2019: v1.0, Winboard protocol
-- 3 July 2019: v0.03, pgn opening
+- 3 July 2019: v0.03, PGN opening
 - 1 July 2019: version 0.01, first release
 
 

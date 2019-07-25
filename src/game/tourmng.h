@@ -141,7 +141,7 @@ namespace banksia {
         void createMatch(MatchRecord&);
         bool createMatch(int gameIdx, const std::string& whiteName, const std::string& blackName, const std::string& startFen, const std::vector<Move>& startMoves);
         
-        void startTournament();
+        bool start(const std::string& mainJsonPath, bool yesReply, bool noReply);
         
         void playMatches();
         void setupTimeController(TimeControlMode mode, int val = 0, double t0 = 0, double t1 = 0, double t2 = 0);
@@ -160,6 +160,7 @@ namespace banksia {
         bool loadMatchRecords(bool autoYesReply);
 
     protected:
+        void startTournament();
         std::vector<TourPlayer> collectStats() const;
         
         void reset();
@@ -226,6 +227,8 @@ namespace banksia {
         static void showPathInfo(const std::string& name, const std::string& path, bool mode);
         
     private:
+        void showTournamentInfo();
+        
         static std::string createLogPath(std::string opath, bool onefile, bool usesurfix, bool includeGameResult, const Game* game, Side forSide = Side::none);
         
         std::map<std::string, EngineStats> engineStatsMap;

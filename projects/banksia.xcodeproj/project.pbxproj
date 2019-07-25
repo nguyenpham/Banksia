@@ -45,6 +45,7 @@
 		B1019E4622D61C7A002FA111 /* jsonmaker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = jsonmaker.h; sourceTree = "<group>"; };
 		B1019E4822D6A6F0002FA111 /* jsonengine.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = jsonengine.cpp; sourceTree = "<group>"; };
 		B1019E4922D6A6F0002FA111 /* jsonengine.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = jsonengine.h; sourceTree = "<group>"; };
+		B10E66C722E5D09000AEC1F6 /* eco.pgn */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = eco.pgn; path = ../data/eco.pgn; sourceTree = "<group>"; };
 		B1A704D822C62DE100013B1C /* chess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = chess.h; sourceTree = "<group>"; };
 		B1A704D922C62DE100013B1C /* chess.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = chess.cpp; sourceTree = "<group>"; };
 		B1A704DB22C62DE100013B1C /* comm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = comm.h; sourceTree = "<group>"; };
@@ -201,6 +202,7 @@
 		B1E0A98022BFC8B20023122C = {
 			isa = PBXGroup;
 			children = (
+				B10E66C722E5D09000AEC1F6 /* eco.pgn */,
 				B1A7053922C96C4000013B1C /* engines.json */,
 				B1A7053A22C96C4000013B1C /* tour.json */,
 				B1A7051422C7506400013B1C /* README.md */,

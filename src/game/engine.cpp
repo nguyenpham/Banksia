@@ -33,7 +33,6 @@ using namespace banksia;
 ////////////////////////////////////
 Engine::~Engine()
 {
-//    deleteThread();
     if (processId && isRunning(processId)) {
         std::cout << "Warning 1: a chess engine/program refuses to stop, it may be still running, " << name << std::endl;
         TinyProcessLib::Process::kill(processId, true);
@@ -43,7 +42,6 @@ Engine::~Engine()
         std::cout << "Warning 2: a chess engine/program refuses to stop, it may be still running, " << name << std::endl;
         pThread->join();
     }
-
 }
 
 void Engine::tickWork()
@@ -70,7 +68,6 @@ void Engine::tickWork()
         if (tick_being_kill == 0) {
             TinyProcessLib::Process::kill(processId, true);
             process = nullptr;
-//            deleteThread();
             setState(PlayerState::stopped);
             finished();
         }
