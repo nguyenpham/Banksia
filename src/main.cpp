@@ -82,12 +82,20 @@ int main(int argc, const char * argv[])
     
     std::string mainJsonPath;
     if (argmap.find("-jsonpath") != argmap.end()) {
-        mainJsonPath = argmap["-jsonpath"];
+		mainJsonPath = argmap["-jsonpath"];
     }
     
     if (argmap.find("-v") != argmap.end()) {
         banksia::banksiaVerbose = argmap["-v"] == "on";
     }
+    if (argmap.find("-profile") != argmap.end()) {
+#ifdef _WIN32
+		banksia::profileMode = true;
+		std::cout << "Warning: profile mode is on." << std::endl;
+#else
+		std::cout << "Sorry: profile is just implemented for Windows only." << std::endl;
+#endif
+	}
 
     banksia::JsonMaker maker;
     banksia::TourMng tourMng;
@@ -106,21 +114,11 @@ int main(int argc, const char * argv[])
         // The app will be auto terminated when all jobs done
         maker.build(mainJsonPath, mainEnginesPath, concurrency);
     } else {
-//        if (!tourMng.loadFromJsonFile(mainJsonPath)) {
-//            return -1;
-//        }
-//
-//        auto noReply = argmap.find("-no") != argmap.end();
-//        auto yesReply = argmap.find("-yes") != argmap.end();
-//
-//        if (noReply || !tourMng.loadMatchRecords(yesReply)) {
-//            if (!tourMng.createMatchList()) {
-//                return -1;
-//            }
-//
-//            // The app will be terminated when all matches completed
-//            tourMng.startTournament();
-//        }
+        
+        if (mainJsonPath.empty()) {
+            std::cerr << "Error: jsonpath is empty." << std::endl;
+            return -1;
+        }
         
         auto noReply = argmap.find("-no") != argmap.end();
         auto yesReply = argmap.find("-yes") != argmap.end();
@@ -190,6 +188,11 @@ void show_usage(std::string name)
     << "  -c               concurrency (for updating only)\n"
     << "  -d PATH          main engines' folder, may have subfolder (for updating only)\n"
     << "  -v on|off        turn on/off verbose (default on)\n"
+    
+#ifdef _WIN32
+    << "  -profile         profile engines (cpu, mem, threads)\n"
+#endif
+    
     << "\n"
     << "Examples:\n"
     << "  " << name << " -jsonpath c:\\tour.json\n"

@@ -152,6 +152,7 @@ namespace banksia {
     
     // Some useful / library functions
     extern bool banksiaVerbose;
+    extern bool profileMode;
     extern const char* pieceTypeName;
     extern const char* reasonStrings[11];
     

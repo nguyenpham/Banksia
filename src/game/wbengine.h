@@ -29,10 +29,11 @@
 #include <stdio.h>
 
 #include "engine.h"
+#include "engineprofile.h"
 
 namespace banksia {
     
-    class WbEngine : public Engine
+    class WbEngine : public EngineProfile
     {
     private:
         enum class WbEngineCmd {
@@ -42,8 +43,8 @@ namespace banksia {
         };
         
     public:
-        WbEngine() : Engine() {}
-        WbEngine(const Config& config) : Engine(config) {}
+        WbEngine() : EngineProfile() {}
+        WbEngine(const Config& config) : EngineProfile(config) {}
         virtual ~WbEngine() {}
 
         virtual const char* className() const override { return "WbEngine"; }

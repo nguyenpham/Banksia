@@ -54,7 +54,8 @@
 
 namespace banksia {
     bool banksiaVerbose = true;
-    
+    bool profileMode = false;
+
     extern const char* pieceTypeName;
     extern const char* reasonStrings[11];
     

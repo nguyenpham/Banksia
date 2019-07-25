@@ -1094,9 +1094,9 @@ bool TourMng::pairingMatchList(std::vector<TourPlayer> playerVec, int round)
             std::cerr << "Error: cannot create a pair for player " << name0 << std::endl;
         }
     }
-    
+
     std::string str = "\n" + std::string(tourTypeNames[static_cast<int>(type)]) + " round: " + std::to_string(round + 1) + ", pairs: " + std::to_string(addCnt) + ", matches: " + std::to_string(uncompletedMatches());
-    
+
     matchLog(str, true);
     return addCnt > 0;
 }
@@ -1396,10 +1396,36 @@ void TourMng::matchCompleted(Game* game)
         }
     }
     
-    auto wplayer = game->getPlayer(Side::white), bplayer = game->getPlayer(Side::black);
+    auto wplayer = (EngineProfile*)game->getPlayer(Side::white), bplayer = (EngineProfile*)game->getPlayer(Side::black);
     if (wplayer && bplayer) {
-        std::string infoString = std::to_string(gIdx + 1) + ") " + game->getGameTitleString() + ", #" + std::to_string(game->board.histList.size()) + ", " + game->board.result.toString();
+		std::ostringstream stringStream;
+
+		stringStream << (gIdx + 1) << ") " << game->getGameTitleString()
+        << ", #" <<game->board.histList.size()
+        << ", " << game->board.result.toString();
         
+        if (profileMode) {
+			auto w = int(std::max(wplayer->getName().length(), bplayer->getName().length()));
+			stringStream
+				<< "\n\t" << std::setw(w) << wplayer->getName() << std::setw(0) << ": " << wplayer->profile.toString(false)
+				<< "\n\t" << std::setw(w) << bplayer->getName() << std::setw(0) << ": " << bplayer->profile.toString(false);
+
+            Profile profile = wplayer->profile;
+            auto it = profileMap.find(wplayer->getName());
+            if (it != profileMap.end()) {
+                profile.addFrom(it->second);
+            }
+            profileMap[wplayer->getName()] = profile;
+            
+            profile = bplayer->profile;
+            it = profileMap.find(bplayer->getName());
+            if (it != profileMap.end()) {
+                profile.addFrom(it->second);
+            }
+            profileMap[bplayer->getName()] = profile;
+        }
+        
+		auto infoString = stringStream.str();
         matchLog(infoString, banksiaVerbose);
         // Add extra info to help understanding log
         if (!logEngineBySides) {
@@ -1501,9 +1527,11 @@ std::string TourMng::createTournamentStats()
     
     stringStream << "  #  "
     << std::left << std::setw(maxNameLen + 2) << "name"
-    << "games    wins%   draws%  losses%    score     los%   elo+/-"
+    << "games   wins%  draws% losses%   score    los%  elo+/-"
     << std::endl;
     
+	const int w = 8, pw = 7;
+
     for(int i = 0; i < resultList.size(); i++) {
         auto r = resultList.at(i);
         
@@ -1518,12 +1546,12 @@ std::string TourMng::createTournamentStats()
         << std::left << std::setw(maxNameLen + 2) << r.name
         << std::right << std::setw(5) << r.gameCnt
 //        << std::fixed << std::setprecision(1)
-        << std::right << std::setw(9) << win // << std::left << std::setw(0) << "%"
-        << std::right << std::setw(9) << draw // << std::left << std::setw(0) << "%"
-        << std::right << std::setw(9) << loss // << std::left << std::setw(0) << "%"
-        << std::right << std::setw(9) << score
-        << std::right << std::setw(9) << elo.los * 100
-        << std::right << std::setw(9) << elo.elo_difference;
+        << std::right << std::setw(w) << win // << std::left << std::setw(0) << "%"
+        << std::right << std::setw(w) << draw // << std::left << std::setw(0) << "%"
+        << std::right << std::setw(w) << loss // << std::left << std::setw(0) << "%"
+        << std::right << std::setw(w) << score
+        << std::right << std::setw(w) << elo.los * 100
+        << std::right << std::setw(w) << elo.elo_difference;
         
         stringStream << std::left << std::setw(0) << std::endl;
     }
@@ -1533,7 +1561,7 @@ std::string TourMng::createTournamentStats()
     }
     
     /////////////
-    stringStream << std::endl << "\nTech (a. = average game, moves = computing-in-turn moves):\n";
+    stringStream << std::endl << "\nTech (average):\n";
     
     EngineStats allStats;
     for(auto && s : engineStatsMap) {
@@ -1543,15 +1571,27 @@ std::string TourMng::createTournamentStats()
     stringStream
     << std::right << "  #  "
     << std::left << std::setw(maxNameLen + 2) << "name"
-    << std::right << std::setw(9) << "a.nodes"
-    << std::right << std::setw(9) << "a.depths"
-    << std::right << std::setw(9) << "a.moves"
-    << std::right << std::setw(9) << "a.time"
-    << std::right << std::setw(9) << "a.t/m";
+    << std::right << std::setw(w) << "nodes"
+    << std::right << std::setw(w) << "depths"
+    << std::right << std::setw(w) << "moves"
+    << std::right << std::setw(w) << "time"
+    << std::right << std::setw(w) << "t/m";
 
     if (abnormalCnt) {
-        stringStream << std::right << std::setw(9) << "fails";
+        stringStream << std::right << std::setw(w) << "#fails";
     }
+    
+    if (profileMode) {
+        stringStream
+        << std::right << std::setw(pw) << "cpu"
+        << std::right << std::setw(pw) << "think"
+        << std::right << std::setw(pw) << "mem"
+        << std::right << std::setw(pw) << "max"
+        << std::right << std::setw(pw + 1) << "threads"
+        << std::right << std::setw(pw - 1) << "max"
+        ;
+    }
+    
     stringStream << std::endl;
     
     for(int i = 0; i < resultList.size(); i++) {
@@ -1565,14 +1605,25 @@ std::string TourMng::createTournamentStats()
         stringStream
         << std::right << std::setw(3) << (i + 1) << ". "
         << std::left << std::setw(maxNameLen + 2) << r.name
-        << std::right << std::setw(9) << nodeStr
-        << std::right << std::setw(9) << double(stats.depths) / moves
-        << std::right << std::setw(9) << double(stats.moves) / games
-        << std::right << std::setw(9) << stats.elapsed / games
-        << std::right << std::setw(9) << stats.elapsed / double(std::max(1LL, stats.moves));
+        << std::right << std::setw(w) << nodeStr
+        << std::right << std::setw(w) << double(stats.depths) / moves
+        << std::right << std::setw(w) << double(stats.moves) / games
+        << std::right << std::setw(w) << stats.elapsed / games
+        << std::right << std::setw(w) << stats.elapsed / double(std::max(1LL, stats.moves));
 
-        if (r.abnormalCnt) {
-            stringStream << std::right << std::setw(9) << r.abnormalCnt;
+        if (abnormalCnt) {
+			stringStream << std::right << std::setw(w);
+			if (r.abnormalCnt)
+				stringStream << r.abnormalCnt;
+			else
+				stringStream << "";
+		}
+        
+        if (profileMode) {
+            auto it = profileMap.find(r.name);
+            if (it != profileMap.end()) {
+				stringStream << std::left << std::setw(0) << it->second.toString(true);
+            }
         }
         stringStream << std::endl;
     }
@@ -1581,15 +1632,29 @@ std::string TourMng::createTournamentStats()
     auto moves = std::max(1LL, allStats.moves);
     auto nodeStr = std::to_string(int(allStats.nodes / (moves * 1024))) + "K";
 
-    stringStream
-    << "     "
-    << std::left << std::setw(maxNameLen + 2) << "all ---"
-    << std::right << std::setw(9) << nodeStr
-    << std::right << std::setw(9) << double(allStats.depths) / moves
-    << std::right << std::setw(9) << double(allStats.moves) / games
-    << std::right << std::setw(9) << allStats.elapsed / games
-    << std::right << std::setw(9) << allStats.elapsed / double(std::max(1LL, allStats.moves))
-    << std::endl;
+	stringStream
+		<< "     "
+		<< std::left << std::setw(maxNameLen + 2) << "all ---"
+		<< std::right << std::setw(w) << nodeStr
+		<< std::right << std::setw(w) << double(allStats.depths) / moves
+		<< std::right << std::setw(w) << double(allStats.moves) / games
+		<< std::right << std::setw(w) << allStats.elapsed / games
+		<< std::right << std::setw(w) << allStats.elapsed / double(std::max(1LL, allStats.moves));
+
+	if (abnormalCnt) {
+		stringStream << std::right << std::setw(w) << abnormalCnt;
+	}
+
+	if (profileMode) {
+		Profile profile;
+		for (auto && p : profileMap) {
+			profile.addFrom(p.second);
+		}
+		
+		stringStream << std::left << std::setw(0) << profile.toString(true);
+	}
+
+	stringStream << std::endl;
 
     if (abnormalCnt) {
         stringStream << "Failed games (timeout, crashed, illegal moves): " << abnormalCnt << " of " << matchRecordList.size();

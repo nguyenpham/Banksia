@@ -269,7 +269,7 @@ bool WbEngine::sendPong(const std::string& str)
 
 void WbEngine::tickWork()
 {
-    Engine::tickWork();
+    EngineProfile::tickWork();
 
     if (getState() == PlayerState::starting &&
         tick_delay_2_ready > 0) {

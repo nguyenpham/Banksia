@@ -226,6 +226,8 @@ namespace banksia {
 
         static void showPathInfo(const std::string& name, const std::string& path, bool mode);
         
+        std::map<std::string, Profile> profileMap;
+        
     private:
         void showTournamentInfo();
         

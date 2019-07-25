@@ -9,13 +9,13 @@
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "../src/game/tourmng.cpp"
-            timestampString = "585704628.377192"
+            filePath = "../src/base/comm.cpp"
+            timestampString = "585764130.7848409"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1060"
-            endingLineNumber = "1060"
-            landmarkName = "TourMng::pairingMatchList(std::vector&lt;TourPlayer&gt; playerVec, int round)"
+            startingLineNumber = "546"
+            endingLineNumber = "546"
+            landmarkName = "JsonSavable::loadFromJsonString(const std::string&amp; string, Json::Value&amp; jsonData, bool verbose)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -25,45 +25,29 @@
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "../src/game/tourmng.cpp"
-            timestampString = "585704628.377492"
+            filePath = "../src/base/comm.cpp"
+            timestampString = "585764130.785118"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1098"
-            endingLineNumber = "1098"
-            landmarkName = "TourMng::pairingMatchList(std::vector&lt;TourPlayer&gt; playerVec, int round)"
+            startingLineNumber = "537"
+            endingLineNumber = "537"
+            landmarkName = "JsonSavable::loadFromJsonString(const std::string&amp; string, Json::Value&amp; jsonData, bool verbose)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            shouldBeEnabled = "No"
+            shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "../src/game/tourmng.cpp"
-            timestampString = "585704628.377685"
+            filePath = "../src/base/comm.cpp"
+            timestampString = "585764130.7852989"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1084"
-            endingLineNumber = "1084"
-            landmarkName = "TourMng::pairingMatchList(std::vector&lt;TourPlayer&gt; playerVec, int round)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/game/tourmng.cpp"
-            timestampString = "585704628.377872"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "157"
-            endingLineNumber = "157"
-            landmarkName = "TourMng::start(const std::string&amp; mainJsonPath, bool yesReply, bool noReply)"
+            startingLineNumber = "491"
+            endingLineNumber = "491"
+            landmarkName = "JsonSavable::loadFromJsonFile(const std::string&amp; path, Json::Value&amp; jsonData, bool verbose)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

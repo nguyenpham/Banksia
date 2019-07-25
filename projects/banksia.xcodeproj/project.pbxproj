@@ -25,6 +25,7 @@
 		B1A7051C22C84E4900013B1C /* process_unix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B1A7051822C84E4900013B1C /* process_unix.cpp */; };
 		B1A7051D22C84E4900013B1C /* process.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B1A7051922C84E4900013B1C /* process.cpp */; };
 		B1A7053D22C9ADA400013B1C /* book.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B1A7053B22C9ADA400013B1C /* book.cpp */; };
+		B1B5FA9E22E369D700767119 /* engineprofile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B1B5FA9D22E369D700767119 /* engineprofile.cpp */; };
 		B1F9B07722CBB26E005E1A3E /* wbengine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B1F9B07522CBB26E005E1A3E /* wbengine.cpp */; };
 /* End PBXBuildFile section */
 
@@ -45,6 +46,7 @@
 		B1019E4622D61C7A002FA111 /* jsonmaker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = jsonmaker.h; sourceTree = "<group>"; };
 		B1019E4822D6A6F0002FA111 /* jsonengine.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = jsonengine.cpp; sourceTree = "<group>"; };
 		B1019E4922D6A6F0002FA111 /* jsonengine.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = jsonengine.h; sourceTree = "<group>"; };
+		B10BFED322E92B4000116CEF /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
 		B10E66C722E5D09000AEC1F6 /* eco.pgn */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = eco.pgn; path = ../data/eco.pgn; sourceTree = "<group>"; };
 		B1A704D822C62DE100013B1C /* chess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = chess.h; sourceTree = "<group>"; };
 		B1A704D922C62DE100013B1C /* chess.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = chess.cpp; sourceTree = "<group>"; };
@@ -81,6 +83,8 @@
 		B1A7053A22C96C4000013B1C /* tour.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = tour.json; path = ../tour.json; sourceTree = "<group>"; };
 		B1A7053B22C9ADA400013B1C /* book.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = book.cpp; sourceTree = "<group>"; };
 		B1A7053C22C9ADA400013B1C /* book.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = book.h; sourceTree = "<group>"; };
+		B1B5FA9C22E369D700767119 /* engineprofile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = engineprofile.h; sourceTree = "<group>"; };
+		B1B5FA9D22E369D700767119 /* engineprofile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = engineprofile.cpp; sourceTree = "<group>"; };
 		B1E0A98922BFC8B20023122C /* Banksia */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Banksia; sourceTree = BUILT_PRODUCTS_DIR; };
 		B1F9B07522CBB26E005E1A3E /* wbengine.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = wbengine.cpp; sourceTree = "<group>"; };
 		B1F9B07622CBB26E005E1A3E /* wbengine.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = wbengine.h; sourceTree = "<group>"; };
@@ -133,6 +137,9 @@
 		B1A704DF22C62DE100013B1C /* game */ = {
 			isa = PBXGroup;
 			children = (
+				B10BFED322E92B4000116CEF /* CMakeLists.txt */,
+				B1B5FA9D22E369D700767119 /* engineprofile.cpp */,
+				B1B5FA9C22E369D700767119 /* engineprofile.h */,
 				B1A704E022C62DE100013B1C /* time.h */,
 				B1A704F122C62DE100013B1C /* time.cpp */,
 				B1A704E422C62DE100013B1C /* configmng.h */,
@@ -285,6 +292,7 @@
 				B1A7050422C62DE100013B1C /* base.cpp in Sources */,
 				B1A7050D22C62DE100013B1C /* game.cpp in Sources */,
 				B1A7050822C62DE100013B1C /* uciengine.cpp in Sources */,
+				B1B5FA9E22E369D700767119 /* engineprofile.cpp in Sources */,
 				B1A7050A22C62DE100013B1C /* playermng.cpp in Sources */,
 				B1A7050E22C62DE100013B1C /* time.cpp in Sources */,
 				B1A7050322C62DE100013B1C /* chess.cpp in Sources */,

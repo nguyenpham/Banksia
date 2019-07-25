@@ -228,7 +228,7 @@ bool Engine::kickStart()
             process = &engineProcess;
             setState(PlayerState::starting);
             write(protocolString());
-            
+
             engineProcess.get_exit_status();
             
             // engine has just exited

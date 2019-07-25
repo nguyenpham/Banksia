@@ -156,7 +156,7 @@ Working
 
 History
 --------
-- - July 2019: v3.0, swiss, opening ECO
+- - July 2019: v3.0, Swiss, opening ECO, profile
 - 22 July 2019: v2.7, inclusive players (for playing in all matches, given sides), more info for tournament stats
 - 20 July 2019: v2.6, more info and more ways to control logs, improve engine managements
 - 16 July 2019: v2.5, multiple ways to select openings: new for each match, same for a pair, one for all matches; override options for central controlling; match statistics LOS & error margin

@@ -114,11 +114,11 @@ namespace banksia {
         std::function<void(const std::string&, const std::string&, LogType)> messageLogger = nullptr;
 
         int correctCmdCnt = 0;
-        
+        TinyProcessLib::Process::id_type processId = 0;
+
     private:
         const int process_buffer_size = 16 * 1024;
         std::string lastIncompletedStdout;
-        TinyProcessLib::Process::id_type processId = 0;
         TinyProcessLib::Process* process = nullptr;
         std::thread* pThread = nullptr;
     };
