@@ -180,6 +180,9 @@ namespace banksia {
         Option checkOverrideOption(const Option& option);
         Option getOverrideOption(const std::string& name);
         
+        void setSyzygyPath(const std::string& path) { syzygyPath = path; }
+        std::string getSyzygyPath() const { return syzygyPath; }
+
     protected:
         Json::Value createJsonForSaving() override;
         
@@ -190,6 +193,11 @@ namespace banksia {
         std::map<std::string, Option> overrideOptions;
 
         bool editingMode = false, overrideOptionMode = false;
+        
+        int overrideOptionThreads = 0;
+        int overrideOptionMemory = 0;
+
+        std::string syzygyPath;
     };
     
     extern ConfigMng configMng;

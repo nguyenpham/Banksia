@@ -28,6 +28,7 @@
 
 #include "game.h"
 #include "engine.h"
+#include "tourmng.h"
 
 using namespace banksia;
 
@@ -37,11 +38,11 @@ Game::Game()
     players[0] = players[1] = nullptr;
 }
 
-Game::Game(Player* player0, Player* player1, const TimeController& timeController, bool ponderMode)
+Game::Game(Player* player0, Player* player1, const TimeController& timeController, const GameConfig& gameConfig)
+: state(GameState::none), gameConfig(gameConfig)
 {
-    state = GameState::none;
     players[0] = players[1] = nullptr;
-    set(player0, player1, timeController, ponderMode);
+    set(player0, player1, timeController);
 }
 
 Game::~Game()
@@ -78,10 +79,10 @@ int Game::getIdx() const
     return idx;
 }
 
-void Game::set(Player* player0, Player* player1, const TimeController& _timeController, bool _ponderMode)
+void Game::set(Player* player0, Player* player1, const TimeController& _timeController)
 {
     timeController.cloneFrom(_timeController);
-    ponderMode = _ponderMode;
+//    ponderMode = _ponderMode;
     
     attachPlayer(player0, Side::white);
     attachPlayer(player1, Side::black);
@@ -105,7 +106,7 @@ void Game::attachPlayer(Player* player, Side side)
     
     players[sd] = player;
     
-    player->setPonderMode(ponderMode);
+    player->setPonderMode(gameConfig.ponderMode);
     player->attach(&board, &timeController,
                    [=](const Move& move, const std::string& moveString, const Move& ponderMove, double timeConsumed, EngineComputingState state) {
                        moveFromPlayer(move, moveString, ponderMove, timeConsumed, side, state);
@@ -209,7 +210,7 @@ void Game::moveFromPlayer(const Move& move, const std::string& moveString, const
             lastHist.nodes = players[sd]->getNodes();
             timeController.udateClockAfterMove(timeConsumed, lastHist.move.piece.side, int(board.histList.size()));
             
-            startThinking(ponderMode ? ponderMove : Move::illegalMove);
+            startThinking(gameConfig.ponderMode ? ponderMove : Move::illegalMove);
         }
     } else if (oldState == EngineComputingState::pondering) { // missed ponderhit, stop called
         players[sd]->go();
@@ -224,6 +225,22 @@ bool Game::make(const Move& move, const std::string& moveString)
         if (result.result != ResultType::noresult) {
             gameOver(result);
             return false;
+        }
+        
+        if (gameConfig.adjudicationMode) {
+            if (gameConfig.adjudicationMaxGameLength && board.histList.size() >= gameConfig.adjudicationMaxGameLength) {
+                Result result(ResultType::draw, ReasonType::adjudication);
+                gameOver(result);
+                return false;
+            }
+            
+            if (gameConfig.adjudicationEgtbMode) {
+                auto result = board.probeSyzygy();
+                if (result.result != ResultType::noresult) {
+                    gameOver(result);
+                    return false;
+                }
+            }
         }
         
         assert(board.isValid());
@@ -385,7 +402,7 @@ void Game::tickWork()
             }
             break;
         }
-            
+
         case GameState::ending: // state set by TourMng AFTER getting stats
         {
             auto cnt = 0;
@@ -409,7 +426,7 @@ void Game::tickWork()
 }
 
 
-std::string Game::toPgn(std::string event, std::string site, int round, int gameIdx, bool richMode) const
+std::string Game::toPgn(std::string event, std::string site, int round, int gameIdx, bool richMode)
 {
     std::ostringstream stringStream;
     
@@ -447,12 +464,21 @@ std::string Game::toPgn(std::string event, std::string site, int round, int game
     if (!str.empty()) {
         stringStream << "[Termination \t\"" << str << "\"]" << std::endl;
     }
-    
+
     if (!board.fromOriginPosition()) {
         stringStream << "[FEN \t\"" << board.getStartingFen() << "\"]" << std::endl;
         stringStream << "[SetUp \t\"1\"]" << std::endl;
     }
-    
+
+    auto ecoVec = board.commentEcoString();
+
+    if (ecoVec.size() > 1) {
+        stringStream << "[ECO \t\"" << ecoVec.front() << "\"]" << std::endl;
+        stringStream << "[Opening \t\"" << ecoVec.at(1) << "\"]" << std::endl;
+        if (ecoVec.size() > 2) {
+            stringStream << "[Variant \t\"" << ecoVec.at(2) << "\"]" << std::endl;
+        }
+    }
     // Move text
     stringStream << board.toMoveListString(MoveNotation::san, 8, true, richMode);
     

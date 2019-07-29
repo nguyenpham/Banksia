@@ -4,44 +4,60 @@
         "concurrency" : 2,
         "event" : "Computer event",
         "games per pair" : 2,
-        "guide" : "type: roundrobin, knockout; event, site for PGN header; shuffle: random players for roundrobin",
+        "guide" : "type: roundrobin, knockout, swiss; event, site for PGN tags; shuffle: random players for roundrobin or swiss",
         "ponder" : false,
         "resumable" : true,
         "shuffle players" : false,
         "site" : "Somewhere on Earth",
-        "type" : "roundrobin"
+        "swiss rounds" : 6,
+        "type" : "swiss"
     },
-    "time control" :
+    "engine configurations" :
     {
-        "guide" : "unit's second; mode: standard, infinite, depth, movetime; margin: an extra delay time before checking if time's over",
-        "increment" : 0.5,
-        "margin" : 0.8,
-        "mode" : "standard",
-        "moves" : 40,
-        "time" : 6.0
+        "path" : "",
+        "update" : false
     },
-    
-    "engine configurations" : {
-        "update" : false,
-        "path" : "c:\\match\\engines.json"
+    "inclusive players" :
+    {
+        "guide" : "matches are counted with players in this list only; side: white, black, any",
+        "mode" : false,
+        "players" : [ ],
+        "side" : "black"
     },
-    
-    "players": [ "stockfish", "sf", "fruit", "gaviota-1.0", "crafty" ],
-
-    "inclusive players" : {
-        "guide":"matches are counted with players in this list only; side: white, black, any",
-        "mode" : true,
-        "players" : [],
-        "side" : "both"
+    "logs" :
+    {
+        "engine" :
+        {
+            "game title surfix" : true,
+            "guide" : "one file: if false, games are stored in multi files using game indexes as surfix; game title surfix: use players names, results for file name surfix, affective only when 'one file' is false; separate by sides: each side has different logs",
+            "mode" : true,
+            "one file" : false,
+            "path" : "c:\\tour\\logengine.txt",
+            "separate by sides" : false,
+            "show time" : true
+        },
+        "pgn" :
+        {
+            "game title surfix" : true,
+            "guide" : "one file: if false, games are stored in multi files using game indexes as surfix; game title surfix: use players names, results for file name surfix, affective only when 'one file' is false; rich info: log more info such as scores, depths, elapses",
+            "mode" : true,
+            "one file" : true,
+            "path" : "c:\\tour\\games.pgn",
+            "rich info" : false
+        },
+        "result" :
+        {
+            "mode" : true,
+            "path" : "c:\\tour\\logresult.txt"
+        }
     },
-
-    "opening books" :
+    "openings" :
     {
         "base" :
         {
             "allone fen" : "",
             "allone san moves" : "",
-            "guide" : "seed for random; select types: samepair: same opening for a pair, allnew: all games use different openings, allone: all games use one opening, given by 'allone fen' or 'allone san moves' or randomly from books",
+            "guide" : "seed for random, -1 completely random; select types: samepair: same opening for a pair, allnew: all games use different openings, allone: all games use one opening, from 'allone fen' or 'allone san moves' or books",
             "seed" : -1,
             "select type" : "allnew"
         },
@@ -67,22 +83,28 @@
             }
         ]
     },
+    "endgames" : {
+        "guide" : "syzygypath used for both 'override options' and 'game adjudication'",
+        "syzygypath" : ""
+    },
+    "game adjudication" :
+    {
+        "mode" : true,
+        "guide" : "finish and adjudicate result; set game length zero to turn it off; tablebase path is from endgames",
+        "draw if game length over" : 500,
+        "tablebase" : true
+    },
     "override options" :
     {
         "base" :
         {
-            "guide" : "options will relplace engines' options which are same names and types, 'value' is the most important, others ignored; to avoid some options from specific engines being overridden, add and set field 'overridable' to false for them",
-            "mode" : true
+            "guide" : "threads (cores), memory (hash), syzygypath (from endgames) will overwrite for any relative options (both UCI and Winboard), memory in MB, set zero/empty to disable them; options will relplace engines' options which are same names and types, 'value' is the most important, others ignored; to avoid some options from specific engines being overridden, add and set field 'overridable' to false for them",
+            "mode" : true,
+            "threads" : 1,
+            "memory" : 64
         },
-
         "options" :
         [
-            {
-                "default" : "",
-                "name" : "SyzygyPath",
-                "type" : "string",
-                "value" : ""
-            },
             {
                 "default" : 2,
                 "max" : 100,
@@ -104,53 +126,24 @@
                 "name" : "SyzygyProbeLimit",
                 "type" : "spin",
                 "value" : 7
-            },
-            {
-                "default" : 2,
-                "guide" : "set cores for Winboard engines",
-                "max" : 128,
-                "min" : 1,
-                "name" : "cores",
-                "type" : "spin",
-                "value" : 1
-            },
-            {
-                "default" : 64,
-                "guide" : "unit: MB; set memory for Winboard engines",
-                "max" : 4096,
-                "min" : 1,
-                "name" : "memory",
-                "type" : "spin",
-                "value" : 128
             }
         ]
     },
-    "logs" :
+    "players" :
+    [
+        "stockfish",
+        "fruit",
+        "crafty",
+        "gaviota-1.0"
+    ],    
+    "time control" :
     {
-        "engine" :
-        {
-            "mode" : true,
-            "game title surfix" : true,
-            "one file" : false,
-            "separate by sides" : false,
-            "path" : "c:\\match\\logengine.txt",
-            "show time" : true
-        },
-        "pgn" :
-        {
-            "guide" : "one file: if false, log will store in multi files with game idx as surfix; game title surfix: use players names and results for file name surfix, affect when 'one file' is false; rich info: log more info such as scores, depths, elapses",
-            "mode" : true,
-            "rich info" : true,
-            "one file" : false,
-            "game title surfix" : true,
-            "path" : "c:\\match\\games.pgn"
-        },
-        "result" :
-        {
-            "mode" : true,
-            "path" : "c:\\match\\logresult.txt"
-        }
+        "guide" : "unit's second; time: could be a real number (e.g. 6.5 for 6.5s) or a string (e.g. '2:10:30' for 2h 20m 30s); mode: standard, infinite, depth, movetime; margin: an extra delay time before checking if time's over",
+        "increment" : 0.5,
+        "margin" : 0.8,
+        "mode" : "standard",
+        "moves" : 40,
+        "time" : 6.5
     }
 }
-
 

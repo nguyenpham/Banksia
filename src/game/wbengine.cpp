@@ -269,17 +269,21 @@ bool WbEngine::sendPong(const std::string& str)
 
 void WbEngine::tickWork()
 {
-    Engine::tickWork();
+    EngineProfile::tickWork();
 
-    if (getState() == PlayerState::starting &&
-        tick_delay_2_ready > 0) {
-        tick_delay_2_ready--;
-        if (tick_delay_2_ready == 0) {
-            write("force");
-            if (feature_ping) {
-                sendPing();
+    if (getState() == PlayerState::starting) {
+        if (tick_delay_2_ready > 0) {
+            tick_delay_2_ready--;
+            if (tick_delay_2_ready == 0) {
+                write("force");
+                if (feature_ping) {
+                    sendPing();
+                }
+                setState(PlayerState::ready);
             }
-            setState(PlayerState::ready);
+        } else if (tick_state > 10 * 2 && correctCmdCnt < 2) {
+            // crashed
+            setState(PlayerState::stopped);
         }
     }
 }

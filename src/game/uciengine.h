@@ -29,10 +29,11 @@
 #include <stdio.h>
 
 #include "engine.h"
+#include "engineprofile.h"
 
 namespace banksia {
     
-    class UciEngine : public Engine
+    class UciEngine : public EngineProfile
     {
     private:
         enum class UciEngineCmd {
@@ -40,8 +41,8 @@ namespace banksia {
         };
         
     public:
-        UciEngine() : Engine() {}
-        UciEngine(const Config& config) : Engine(config) {}
+        UciEngine() : EngineProfile() {}
+        UciEngine(const Config& config) : EngineProfile(config) {}
         virtual ~UciEngine() {}
         
         virtual const char* className() const override { return "UciEngine"; }

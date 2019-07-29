@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		B1019E4722D61C7A002FA111 /* jsonmaker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B1019E4522D61C7A002FA111 /* jsonmaker.cpp */; };
 		B1019E4A22D6A6F0002FA111 /* jsonengine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B1019E4822D6A6F0002FA111 /* jsonengine.cpp */; };
-		B10E66CE22E6B62800AEC1F6 /* tbprobe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B10E66CC22E6B62800AEC1F6 /* tbprobe.cpp */; };
+		B1180B9222ED7F3400E81CDE /* tbprobe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B1180B8F22ED7F3400E81CDE /* tbprobe.cpp */; };
 		B1A7050322C62DE100013B1C /* chess.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B1A704D922C62DE100013B1C /* chess.cpp */; };
 		B1A7050422C62DE100013B1C /* base.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B1A704DC22C62DE100013B1C /* base.cpp */; };
 		B1A7050522C62DE100013B1C /* comm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B1A704DD22C62DE100013B1C /* comm.cpp */; };
@@ -26,6 +26,7 @@
 		B1A7051C22C84E4900013B1C /* process_unix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B1A7051822C84E4900013B1C /* process_unix.cpp */; };
 		B1A7051D22C84E4900013B1C /* process.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B1A7051922C84E4900013B1C /* process.cpp */; };
 		B1A7053D22C9ADA400013B1C /* book.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B1A7053B22C9ADA400013B1C /* book.cpp */; };
+		B1B5FA9E22E369D700767119 /* engineprofile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B1B5FA9D22E369D700767119 /* engineprofile.cpp */; };
 		B1F9B07722CBB26E005E1A3E /* wbengine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B1F9B07522CBB26E005E1A3E /* wbengine.cpp */; };
 /* End PBXBuildFile section */
 
@@ -46,8 +47,12 @@
 		B1019E4622D61C7A002FA111 /* jsonmaker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = jsonmaker.h; sourceTree = "<group>"; };
 		B1019E4822D6A6F0002FA111 /* jsonengine.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = jsonengine.cpp; sourceTree = "<group>"; };
 		B1019E4922D6A6F0002FA111 /* jsonengine.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = jsonengine.h; sourceTree = "<group>"; };
-		B10E66CC22E6B62800AEC1F6 /* tbprobe.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tbprobe.cpp; sourceTree = "<group>"; };
-		B10E66CD22E6B62800AEC1F6 /* tbprobe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tbprobe.h; sourceTree = "<group>"; };
+		B10BFED322E92B4000116CEF /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
+		B1180B8D22ED7F3400E81CDE /* tbconfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tbconfig.h; sourceTree = "<group>"; };
+		B1180B8E22ED7F3400E81CDE /* stdendian.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stdendian.h; sourceTree = "<group>"; };
+		B1180B8F22ED7F3400E81CDE /* tbprobe.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tbprobe.cpp; sourceTree = "<group>"; };
+		B1180B9022ED7F3400E81CDE /* tbchess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tbchess.h; sourceTree = "<group>"; };
+		B1180B9122ED7F3400E81CDE /* tbprobe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tbprobe.h; sourceTree = "<group>"; };
 		B1A704D822C62DE100013B1C /* chess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = chess.h; sourceTree = "<group>"; };
 		B1A704D922C62DE100013B1C /* chess.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = chess.cpp; sourceTree = "<group>"; };
 		B1A704DB22C62DE100013B1C /* comm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = comm.h; sourceTree = "<group>"; };
@@ -83,6 +88,8 @@
 		B1A7053A22C96C4000013B1C /* tour.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = tour.json; path = ../tour.json; sourceTree = "<group>"; };
 		B1A7053B22C9ADA400013B1C /* book.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = book.cpp; sourceTree = "<group>"; };
 		B1A7053C22C9ADA400013B1C /* book.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = book.h; sourceTree = "<group>"; };
+		B1B5FA9C22E369D700767119 /* engineprofile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = engineprofile.h; sourceTree = "<group>"; };
+		B1B5FA9D22E369D700767119 /* engineprofile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = engineprofile.cpp; sourceTree = "<group>"; };
 		B1E0A98922BFC8B20023122C /* Banksia */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Banksia; sourceTree = BUILT_PRODUCTS_DIR; };
 		B1F9B07522CBB26E005E1A3E /* wbengine.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = wbengine.cpp; sourceTree = "<group>"; };
 		B1F9B07622CBB26E005E1A3E /* wbengine.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = wbengine.h; sourceTree = "<group>"; };
@@ -99,13 +106,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		B10E66CB22E6B62800AEC1F6 /* syzygy */ = {
+		B1180B8C22ED7F3400E81CDE /* fathom */ = {
 			isa = PBXGroup;
 			children = (
-				B10E66CC22E6B62800AEC1F6 /* tbprobe.cpp */,
-				B10E66CD22E6B62800AEC1F6 /* tbprobe.h */,
+				B1180B8D22ED7F3400E81CDE /* tbconfig.h */,
+				B1180B8E22ED7F3400E81CDE /* stdendian.h */,
+				B1180B8F22ED7F3400E81CDE /* tbprobe.cpp */,
+				B1180B9022ED7F3400E81CDE /* tbchess.h */,
+				B1180B9122ED7F3400E81CDE /* tbprobe.h */,
 			);
-			path = syzygy;
+			path = fathom;
 			sourceTree = "<group>";
 		};
 		B1A704D622C62DE100013B1C /* src */ = {
@@ -124,7 +134,6 @@
 		B1A704D722C62DE100013B1C /* chess */ = {
 			isa = PBXGroup;
 			children = (
-				B10E66CB22E6B62800AEC1F6 /* syzygy */,
 				B1A704D822C62DE100013B1C /* chess.h */,
 				B1A704D922C62DE100013B1C /* chess.cpp */,
 			);
@@ -145,6 +154,9 @@
 		B1A704DF22C62DE100013B1C /* game */ = {
 			isa = PBXGroup;
 			children = (
+				B10BFED322E92B4000116CEF /* CMakeLists.txt */,
+				B1B5FA9D22E369D700767119 /* engineprofile.cpp */,
+				B1B5FA9C22E369D700767119 /* engineprofile.h */,
 				B1A704E022C62DE100013B1C /* time.h */,
 				B1A704F122C62DE100013B1C /* time.cpp */,
 				B1A704E422C62DE100013B1C /* configmng.h */,
@@ -176,6 +188,7 @@
 		B1A704F222C62DE100013B1C /* 3rdparty */ = {
 			isa = PBXGroup;
 			children = (
+				B1180B8C22ED7F3400E81CDE /* fathom */,
 				B1A7051722C84E4900013B1C /* process */,
 				B1A704F722C62DE100013B1C /* json */,
 				B1A704FB22C62DE100013B1C /* cpptime */,
@@ -286,9 +299,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B1180B9222ED7F3400E81CDE /* tbprobe.cpp in Sources */,
 				B1019E4722D61C7A002FA111 /* jsonmaker.cpp in Sources */,
 				B1A7050622C62DE100013B1C /* tourmng.cpp in Sources */,
-				B10E66CE22E6B62800AEC1F6 /* tbprobe.cpp in Sources */,
 				B1A7051C22C84E4900013B1C /* process_unix.cpp in Sources */,
 				B1A7050C22C62DE100013B1C /* engine.cpp in Sources */,
 				B1A7050722C62DE100013B1C /* player.cpp in Sources */,
@@ -297,6 +310,7 @@
 				B1A7050422C62DE100013B1C /* base.cpp in Sources */,
 				B1A7050D22C62DE100013B1C /* game.cpp in Sources */,
 				B1A7050822C62DE100013B1C /* uciengine.cpp in Sources */,
+				B1B5FA9E22E369D700767119 /* engineprofile.cpp in Sources */,
 				B1A7050A22C62DE100013B1C /* playermng.cpp in Sources */,
 				B1A7050E22C62DE100013B1C /* time.cpp in Sources */,
 				B1A7050322C62DE100013B1C /* chess.cpp in Sources */,

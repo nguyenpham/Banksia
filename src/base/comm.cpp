@@ -54,13 +54,14 @@
 
 namespace banksia {
     bool banksiaVerbose = true;
-    
+    bool profileMode = false;
+
     extern const char* pieceTypeName;
-    extern const char* reasonStrings[11];
+    extern const char* reasonStrings[12];
     
     const char* pieceTypeName = ".kqrbnp";
     const char* reasonStrings[] = {
-        "*", "mate", "stalemate", "repetition", "resign", "fifty moves", "insufficient material", "illegal move", "timeout", "crash", nullptr
+        "*", "mate", "stalemate", "repetition", "resign", "fifty moves", "insufficient material", "illegal move", "timeout", "adjudication", "crash", nullptr
     };
     
     // noresult, win, draw, loss
@@ -210,6 +211,14 @@ namespace banksia {
         return ltrim(rtrim(s));
     }
     
+    std::string replaceString(std::string subject, const std::string& search, const std::string& replace) {
+        size_t pos = 0;
+        while((pos = subject.find(search, pos)) != std::string::npos) {
+            subject.replace(pos, search.length(), replace);
+            pos += replace.length();
+        }
+        return subject;
+    }
     std::vector<std::string> splitString(const std::string& string, const std::string& regexString)
     {
         std::regex re(regexString);
@@ -457,6 +466,46 @@ void Obj::printOut(const char* msg) const
         std::cout << msg << std::endl;
     }
     std::cout << toString() << std::endl;
+}
+
+void Jsonable::printOut(const Json::Value& obj, std::string prefix)
+{
+    if (obj.isString()) {
+        std::cout << "\"" << obj.asString() << "\"";
+    } else if (obj.isInt()) {
+        std::cout << obj.asInt();
+    } else if (obj.isDouble()) {
+        std::cout << obj.asDouble();
+    } else if (obj.isBool()) {
+        std::cout << (obj.asBool() ? "true" : "false");
+    } else if (obj.isArray()) {
+        std::cout << "[\n";
+        for (Json::Value::const_iterator it = obj.begin(); it != obj.end(); ++it) {
+            printOut(*it, prefix + "  ");
+            std::cout << ",\n";
+        }
+        std::cout << prefix << "\n],\n";
+    } else {
+        std::cout << prefix << "{\n";
+        auto names = obj.getMemberNames();
+        for(auto && name : names) {
+            std::cout << prefix << "\"" << name << "\" : ";
+            auto v = obj[name];
+            printOut(v, prefix + "  ");
+            std::cout << ",\n";
+        }
+        std::cout << prefix << "},\n";
+    }
+}
+
+void Jsonable::merge(Json::Value& main, const Json::Value& from, JsonMerge merge)
+{
+    auto names = from.getMemberNames();
+    for(auto && name : names) {
+        if (merge == JsonMerge::overwrite || !main.isMember(name)) {
+            main[name] = from[name];
+        }
+    }
 }
 
 bool JsonSavable::loadFromJsonFile(const std::string& jsonPath, bool verbose)

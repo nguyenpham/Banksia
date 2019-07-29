@@ -40,13 +40,6 @@ namespace banksia {
         toEngine, fromEngine, system
     };
 
-//    class EngineStats {
-//    public:
-//        i64 nodes = 0, depths = 0, elapse = 0;
-//        void add(const EngineStats& o) {
-//            nodes += o.nodes; depths += o.depths; elapse += o.elapse;
-//        }
-//    };
     class Engine : public Player
     {
     protected:
@@ -109,7 +102,6 @@ namespace banksia {
         virtual void finished() {}
         virtual void tickPing();
         
-
     public:
         EngineComputingState computingState = EngineComputingState::idle;
         Config config;
@@ -121,11 +113,11 @@ namespace banksia {
         std::function<void(const std::string&, const std::string&, LogType)> messageLogger = nullptr;
 
         int correctCmdCnt = 0;
-        
+        TinyProcessLib::Process::id_type processId = 0;
+
     private:
         const int process_buffer_size = 16 * 1024;
         std::string lastIncompletedStdout;
-        TinyProcessLib::Process::id_type processId = 0;
         TinyProcessLib::Process* process = nullptr;
         std::thread* pThread = nullptr;
     };

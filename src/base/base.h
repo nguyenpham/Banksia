@@ -115,6 +115,10 @@ namespace banksia {
             return std::string(1, ch);
         }
         
+        bool operator == (const Piece & o) const {
+            return type == o.type && side == o.side;
+        }
+        
         std::string toString() const {
             return toString(type, side);
         }

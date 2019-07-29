@@ -393,6 +393,7 @@ bool BookMng::isValid() const
 std::string BookMng::toString() const
 {
     std::ostringstream stringStream;
+    stringStream << "Opening book items: " << size() << ", selection: " << bookSelectType2String(bookSelectType) << "; ";
     return stringStream.str();
 }
 
@@ -438,9 +439,9 @@ bool BookMng::load(const Json::Value& obj)
         }
     }
     
-    std::cout << "opening books loaded, total items: " << size()
-    << ", selection type: " << bookSelectType2String(bookSelectType)
-    << std::endl;
+//    std::cout << "opening books loaded, total items: " << size()
+//    << ", selection type: " << bookSelectType2String(bookSelectType)
+//    << std::endl;
     return r;
 }
 

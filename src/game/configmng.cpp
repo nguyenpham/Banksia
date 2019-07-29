@@ -812,6 +812,8 @@ bool ConfigMng::loadOverrideOptions(const Json::Value& oo)
     if (oo.isMember("base")) {
         auto v = oo["base"];
         overrideOptionMode = v.isMember("mode") && v["mode"].asBool();
+        overrideOptionThreads = v.isMember("threads") ? v["threads"].asInt() : 0;
+        overrideOptionMemory = v.isMember("memory") ? v["memory"].asInt() : 0;
     }
     
     if (!overrideOptionMode || !oo.isMember("options")) {
@@ -834,10 +836,35 @@ bool ConfigMng::loadOverrideOptions(const Json::Value& oo)
 
 Option ConfigMng::checkOverrideOption(const Option& option)
 {
-    if (option.isOverridable()) {
+    if (overrideOptionMode && option.isOverridable()) {
         auto p = overrideOptions.find(option.name);
         if (p != overrideOptions.end() && p->second.type == option.type) {
             return p->second;
+        }
+        
+        if (option.type == OptionType::spin) {
+            if (overrideOptionThreads > 0 || overrideOptionMemory > 0) {
+                auto name = option.name;
+                toLower(name);
+                if (overrideOptionThreads > 0 && (name == "threads" || name == "cores")) {
+                    Option option2 = option;
+                    option2.value = overrideOptionThreads;
+                    return option2;
+                }
+                if (overrideOptionMemory > 0 && (name == "hash" || name == "memory")) {
+                    Option option2 = option;
+                    option2.value = overrideOptionMemory;
+                    return option2;
+                }
+            }
+        } else if (option.type == OptionType::string && !syzygyPath.empty()) {
+            auto name = option.name;
+            toLower(name);
+            if (name.find("syzygy") != std::string::npos && name.find("path") != std::string::npos) {
+                Option option2 = option;
+                option2.string = syzygyPath;
+                return option2;
+            }
         }
     }
     return option;

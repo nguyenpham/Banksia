@@ -31,6 +31,158 @@
 
 using namespace banksia;
 
+static const std::string jsonTourString =
+"{\n"
+"    \"base\" :\n"
+"    {\n"
+"        \"concurrency\" : 2,\n"
+"        \"event\" : \"Computer event\",\n"
+"        \"games per pair\" : 2,\n"
+"        \"guide\" : \"type: roundrobin, knockout, swiss; event, site for PGN tags; shuffle: random players for roundrobin or swiss\",\n"
+"        \"ponder\" : false,\n"
+"        \"resumable\" : true,\n"
+"        \"shuffle players\" : false,\n"
+"        \"site\" : \"Somewhere on Earth\",\n"
+"        \"swiss rounds\" : 6,\n"
+"        \"type\" : \"roundrobin\"\n"
+"    },\n"
+"    \"engine configurations\" :\n"
+"    {\n"
+"        \"path\" : \"\",\n"
+"        \"update\" : false\n"
+"    },\n"
+"    \"inclusive players\" :\n"
+"    {\n"
+"        \"guide\" : \"matches are counted with players in this list only; side: white, black, any\",\n"
+"        \"mode\" : false,\n"
+"        \"players\" : [ ],\n"
+"        \"side\" : \"black\"\n"
+"    },\n"
+"    \"logs\" :\n"
+"    {\n"
+"        \"engine\" :\n"
+"        {\n"
+"            \"game title surfix\" : true,\n"
+"            \"guide\" : \"one file: if false, games are stored in multi files using game indexes as surfix; game title surfix: use players names, results for file name surfix, affective only when 'one file' is false; separate by sides: each side has different logs\",\n"
+"            \"mode\" : true,\n"
+"            \"one file\" : false,\n"
+"            \"path\" : \"$path$\\\\logengine.txt\",\n"
+"            \"separate by sides\" : false,\n"
+"            \"show time\" : true\n"
+"        },\n"
+"        \"pgn\" :\n"
+"        {\n"
+"            \"game title surfix\" : true,\n"
+"            \"guide\" : \"one file: if false, games are stored in multi files using game indexes as surfix; game title surfix: use players names, results for file name surfix, affective only when 'one file' is false; rich info: log more info such as scores, depths, elapses\",\n"
+"            \"mode\" : true,\n"
+"            \"one file\" : true,\n"
+"            \"path\" : \"$path$\\\\games.pgn\",\n"
+"            \"rich info\" : false\n"
+"        },\n"
+"        \"result\" :\n"
+"        {\n"
+"            \"mode\" : true,\n"
+"            \"path\" : \"$path$\\\\logresult.txt\"\n"
+"        }\n"
+"    },\n"
+"    \"openings\" :\n"
+"    {\n"
+"        \"base\" :\n"
+"        {\n"
+"            \"allone fen\" : \"\",\n"
+"            \"allone san moves\" : \"\",\n"
+"            \"guide\" : \"seed for random, -1 completely random; select types: samepair: same opening for a pair, allnew: all games use different openings, allone: all games use one opening, from 'allone fen' or 'allone san moves' or books\",\n"
+"            \"seed\" : -1,\n"
+"            \"select type\" : \"allnew\"\n"
+"        },\n"
+"        \"books\" :\n"
+"        [\n"
+"            {\n"
+"                \"mode\" : false,\n"
+"                \"path\" : \"\",\n"
+"                \"type\" : \"epd\"\n"
+"            },\n"
+"            {\n"
+"                \"mode\" : false,\n"
+"                \"path\" : \"\",\n"
+"                \"type\" : \"pgn\"\n"
+"            },\n"
+"            {\n"
+"                \"guide\" : \"maxply: ply to play; top100: percents of top moves (for a given position) to select ranndomly an opening move, 0 is always the best\",\n"
+"                \"maxply\" : 12,\n"
+"                \"mode\" : false,\n"
+"                \"path\" : \"\",\n"
+"                \"top100\" : 20,\n"
+"                \"type\" : \"polyglot\"\n"
+"            }\n"
+"        ]\n"
+"    },\n"
+"    \"endgames\" : {\n"
+"        \"guide\" : \"syzygypath used for both 'override options' and 'game adjudication'\",\n"
+"        \"syzygypath\" : \"\"\n"
+"    },\n"
+"    \"game adjudication\" :\n"
+"    {\n"
+"        \"mode\" : true,\n"
+"        \"guide\" : \"finish and adjudicate result; set game length zero to turn it off; tablebase path is from endgames\",\n"
+"        \"draw if game length over\" : 500,\n"
+"        \"tablebase\" : true\n"
+"    },\n"
+"    \"override options\" :\n"
+"    {\n"
+"        \"base\" :\n"
+"        {\n"
+"            \"guide\" : \"threads (cores), memory (hash), syzygypath (from endgames) will overwrite for any relative options (both UCI and Winboard), memory in MB, set zero/empty to disable them; options will relplace engines' options which are same names and types, 'value' is the most important, others ignored; to avoid some options from specific engines being overridden, add and set field 'overridable' to false for them\",\n"
+"            \"mode\" : true,\n"
+"            \"threads\" : 1,\n"
+"            \"memory\" : 64\n"
+"        },\n"
+"        \"options\" :\n"
+"        [\n"
+"            {\n"
+"                \"default\" : 2,\n"
+"                \"max\" : 100,\n"
+"                \"min\" : 1,\n"
+"                \"name\" : \"SyzygyProbeDepth\",\n"
+"                \"type\" : \"spin\",\n"
+"                \"value\" : 1\n"
+"            },\n"
+"            {\n"
+"                \"default\" : false,\n"
+"                \"name\" : \"Syzygy50MoveRule\",\n"
+"                \"type\" : \"check\",\n"
+"                \"value\" : true\n"
+"            },\n"
+"            {\n"
+"                \"default\" : 6,\n"
+"                \"max\" : 7,\n"
+"                \"min\" : 0,\n"
+"                \"name\" : \"SyzygyProbeLimit\",\n"
+"                \"type\" : \"spin\",\n"
+"                \"value\" : 7\n"
+"            }\n"
+"        ]\n"
+"    },\n"
+"    \"players\" :\n"
+"    [\n"
+"        \"stockfish\",\n"
+"        \"fruit\",\n"
+"        \"crafty\",\n"
+"        \"gaviota-1.0\"\n"
+"    ],    \n"
+"    \"time control\" :\n"
+"    {\n"
+"        \"guide\" : \"unit's second; time: could be a real number (e.g. 6.5 for 6.5s) or a string (e.g. '2:10:30' for 2h 20m 30s); mode: standard, infinite, depth, movetime; margin: an extra delay time before checking if time's over\",\n"
+"        \"increment\" : 0.5,\n"
+"        \"margin\" : 0.8,\n"
+"        \"mode\" : \"standard\",\n"
+"        \"moves\" : 40,\n"
+"        \"time\" : 6.5\n"
+"    }\n"
+"}";
+
+
+
 JsonMaker::JsonMaker()
 {
 }
@@ -139,8 +291,14 @@ void JsonMaker::completed()
     {
         Json::Value jsonData;
         JsonSavable::loadFromJsonFile(jsonTourMngPath, jsonData, false);
-        TourMng::fixJson(jsonData, currentWorkingFolder());
         
+        //TourMng::fixJson(jsonData, currentWorkingFolder());
+        Json::Value sample;
+        auto jsonString = replaceString(jsonTourString, "$path$", currentWorkingFolder());
+        JsonSavable::loadFromJsonString(jsonTourString, sample, true);
+        
+        Jsonable::merge(jsonData, sample, JsonMerge::fillmissing);
+
         auto s = "engine configurations";
         Json::Value v;
         if (jsonData.isMember(s)) {
@@ -153,9 +311,9 @@ void JsonMaker::completed()
         jsonData[s] = v;
         
         s = "players";
-        if (!jsonData.isMember(s)) {
+        //if (!jsonData.isMember(s))
+        {
             Json::Value v;
-            
             for(auto && c : goodConfigVec) {
                 v.append(c.name);
             }
@@ -167,6 +325,7 @@ void JsonMaker::completed()
     
     
     auto elapsed_secs = static_cast<int>(time(nullptr) - startTime);
+    std::cout << "Before playing, please add/edit or check Opening book paths, syzygy path and other information\n";
     std::cout << "All done!!! Elapsed: " << formatPeriod(elapsed_secs) << std::endl;
     
     std::cout << "\nTo play, enter:\n"

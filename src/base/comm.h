@@ -40,7 +40,7 @@
 
 namespace banksia {
     
-    const int BANKSIA_VERSION = (2 << 8) + 7;
+    const int BANKSIA_VERSION = (3 << 8) + 0;
     
 #ifdef _WIN32
     const std::string folderSlash = "\\";
@@ -66,10 +66,15 @@ namespace banksia {
         virtual void printOut(const char* msg = nullptr) const;
     };
     
+    enum class JsonMerge {
+        overwrite, fillmissing, none
+    };
     class Jsonable : public Obj {
     public:
         virtual bool load(const Json::Value& obj) = 0;
         virtual Json::Value saveToJson() const = 0;
+        static void printOut(const Json::Value&, std::string prefix = "");
+        static void merge(Json::Value& main, const Json::Value& from, JsonMerge);
     };
     
     class JsonSavable {
@@ -131,6 +136,7 @@ namespace banksia {
         insufficientmaterial,
         illegalmove,
         timeout,
+        adjudication,
         crash
     };
     
@@ -138,22 +144,23 @@ namespace banksia {
         san, coordinate
     };
     
-    enum Squares {
-        A8, B8, C8, D8, E8, F8, G8, H8,
-        A7, B7, C7, D7, E7, F7, G7, H7,
-        A6, B6, C6, D6, E6, F6, G6, H6,
-        A5, B5, C5, D5, E5, F5, G5, H5,
-        A4, B4, C4, D4, E4, F4, G4, H4,
-        A3, B3, C3, D3, E3, F3, G3, H3,
-        A2, B2, C2, D2, E2, F2, G2, H2,
-        A1, B1, C1, D1, E1, F1, G1, H1,
-        NoSquare
-    };
+//    enum Squares {
+//        A8, B8, C8, D8, E8, F8, G8, H8,
+//        A7, B7, C7, D7, E7, F7, G7, H7,
+//        A6, B6, C6, D6, E6, F6, G6, H6,
+//        A5, B5, C5, D5, E5, F5, G5, H5,
+//        A4, B4, C4, D4, E4, F4, G4, H4,
+//        A3, B3, C3, D3, E3, F3, G3, H3,
+//        A2, B2, C2, D2, E2, F2, G2, H2,
+//        A1, B1, C1, D1, E1, F1, G1, H1,
+//        NoSquare
+//    };
 
     // Some useful / library functions
     extern bool banksiaVerbose;
+    extern bool profileMode;
     extern const char* pieceTypeName;
-    extern const char* reasonStrings[11];
+    extern const char* reasonStrings[12];
     
     std::string getVersion();
     std::string getAppName();
@@ -170,6 +177,7 @@ namespace banksia {
     void toLower(std::string& str);
     void toLower(char* str);
     std::string& trim(std::string& s);
+    std::string replaceString(std::string subject, const std::string& search, const std::string& replace);
     
     std::string getFileName(const std::string& path);
     std::string getFolder(const std::string& path);

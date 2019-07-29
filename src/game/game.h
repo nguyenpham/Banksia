@@ -38,15 +38,26 @@ namespace banksia {
         ending, ended // last work to remove
     };
     
+    class GameConfig
+    {
+    public:
+        bool ponderMode = false;
+        
+        // adjudication
+        bool adjudicationMode = true;
+        bool adjudicationEgtbMode = true;
+        int adjudicationMaxGameLength = 0;
+    };
+    
     class Game : public Obj, public Tickable
     {
     public:
         
         Game();
-        Game(Player*, Player*, const TimeController&, bool);
+        Game(Player*, Player*, const TimeController&, const GameConfig&);
         ~Game();
         
-        void set(Player*, Player*, const TimeController&, bool);
+        void set(Player*, Player*, const TimeController&);
         void attachPlayer(Player* player, Side side);
         Player* deattachPlayer(Side side);
         void setMessageLogger(std::function<void(const std::string&, const std::string&, LogType)> logger);
@@ -80,7 +91,7 @@ namespace banksia {
         int getIdx() const;
         int getStateTick() const { return stateTick; }
         
-        std::string toPgn(std::string event = "", std::string site = "", int round = -1, int gameIdx = -1, bool richMode = false) const;
+        std::string toPgn(std::string event = "", std::string site = "", int round = -1, int gameIdx = -1, bool richMode = false);
         
         std::string getGameTitleString(bool includeResult = false) const;
         
@@ -93,10 +104,10 @@ namespace banksia {
     private:
         int idx, stateTick = 0;
         GameState state;
+        GameConfig gameConfig;
         
         Player* players[2];
         GameTimeController timeController;
-        bool ponderMode = false;
         
         std::function<void(const std::string&, const std::string&, LogType)> messageLogger = nullptr;
         

@@ -72,6 +72,9 @@
     <ClInclude Include="..\src\game\jsonmaker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\game\engineprofile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\3rdparty\json\jsoncpp.cpp">
@@ -129,6 +132,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\game\jsonengine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\game\engineprofile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

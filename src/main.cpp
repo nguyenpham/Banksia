@@ -27,10 +27,11 @@
 #include "game/jsonmaker.h"
 #include "game/tourmng.h"
 
-#include "chess/syzygy/tbprobe.h"
+#include "3rdparty/fathom/tbprobe.h"
 
 void show_usage(std::string name);
 void show_help();
+
 
 
 int main(int argc, const char * argv[])
@@ -43,11 +44,6 @@ int main(int argc, const char * argv[])
     // SIGPIPE 13      write on a pipe with no one to read it
 #define SIGPIPE     13
     signal(SIGPIPE, SIG_IGN);
-    
-    {
-        Tablebases::init("/Users/nguyenpham/workspace/BanksiaMatch/syzygy345");
-        std::cout << "Done" << std::endl;
-    }
     
     std::cout << "Banksia, Chess Tournament Manager, by Nguyen Pham - version " << banksia::getVersion() << std::endl;
     
@@ -91,7 +87,15 @@ int main(int argc, const char * argv[])
     if (argmap.find("-v") != argmap.end()) {
         banksia::banksiaVerbose = argmap["-v"] == "on";
     }
-
+    if (argmap.find("-profile") != argmap.end()) {
+#ifdef _WIN32
+        banksia::profileMode = true;
+        std::cout << "Warning: profile mode is on." << std::endl;
+#else
+        std::cout << "Sorry: profile has just been implemented for Windows only." << std::endl;
+#endif
+    }
+    
     banksia::JsonMaker maker;
     banksia::TourMng tourMng;
     
@@ -106,24 +110,21 @@ int main(int argc, const char * argv[])
             concurrency = std::atoi(argmap["-c"].c_str());
         }
         
-        // The app will be terminated when all jobs done
+        // The app will be auto terminated when all jobs done
         maker.build(mainJsonPath, mainEnginesPath, concurrency);
     } else {
-        if (!tourMng.loadFromJsonFile(mainJsonPath)) {
+        
+        if (mainJsonPath.empty()) {
+            std::cerr << "Error: jsonpath is empty." << std::endl;
             return -1;
         }
         
-        
         auto noReply = argmap.find("-no") != argmap.end();
         auto yesReply = argmap.find("-yes") != argmap.end();
-
-        if (noReply || !tourMng.loadMatchRecords(yesReply)) {
-            if (!tourMng.createMatchList()) {
-                return -1;
-            }
-            
-            // The app will be terminated when all matches completed
-            tourMng.startTournament();
+        
+        // The app will be auto terminated when all matches completed
+        if (!tourMng.start(mainJsonPath, yesReply, noReply)) {
+            return -1;
         }
     }
     
@@ -186,6 +187,11 @@ void show_usage(std::string name)
     << "  -c               concurrency (for updating only)\n"
     << "  -d PATH          main engines' folder, may have subfolder (for updating only)\n"
     << "  -v on|off        turn on/off verbose (default on)\n"
+    
+#ifdef _WIN32
+    << "  -profile         profile engines (cpu, mem, threads)\n"
+#endif
+    
     << "\n"
     << "Examples:\n"
     << "  " << name << " -jsonpath c:\\tour.json\n"
@@ -206,5 +212,6 @@ void show_help()
     << "  quit                    quit\n"
     << std::endl;
 }
+
 
 

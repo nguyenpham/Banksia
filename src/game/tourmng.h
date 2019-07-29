@@ -35,9 +35,8 @@
 #include "../3rdparty/cpptime/cpptime.h"
 
 namespace banksia {
-    // TODO: swiss
     enum class TourType {
-        roundrobin, knockout, none
+        roundrobin, knockout, swiss, none
     };
     
     class EngineStats {
@@ -93,13 +92,14 @@ namespace banksia {
     {
     public:
         std::string name;
-        int gameCnt = 0, winCnt = 0, drawCnt = 0, lossCnt = 0, abnormalCnt = 0, elo = 0;
-        int whiteCnt = 0; // for knockdown
+        int gameCnt = 0, winCnt = 0, drawCnt = 0, lossCnt = 0, abnormalCnt = 0, elo = 0, flag = 0;
+        int byeCnt = 0, whiteCnt = 0; // for swiss and knockdown
         virtual const char* className() const override { return "TourPlayer"; }
         
         virtual bool isValid() const override;
         virtual std::string toString() const override;
         
+        double getScore() const;
         bool smaller(const TourPlayer& other) const;
     };
     
@@ -141,7 +141,7 @@ namespace banksia {
         void createMatch(MatchRecord&);
         bool createMatch(int gameIdx, const std::string& whiteName, const std::string& blackName, const std::string& startFen, const std::vector<Move>& startMoves);
         
-        void startTournament();
+        bool start(const std::string& mainJsonPath, bool yesReply, bool noReply);
         
         void playMatches();
         void setupTimeController(TimeControlMode mode, int val = 0, double t0 = 0, double t1 = 0, double t2 = 0);
@@ -155,11 +155,14 @@ namespace banksia {
         void shutdown();
 
 		static void append2TextFile(const std::string& path, const std::string& str);
-        static void fixJson(Json::Value& d, const std::string& path);
+//        static void fixJson(Json::Value& d, const std::string& path);
         
         bool loadMatchRecords(bool autoYesReply);
 
     protected:
+        void startTournament();
+        std::vector<TourPlayer> collectStats() const;
+        
         void reset();
         
         virtual bool parseJsonAfterLoading(Json::Value&) override;
@@ -172,15 +175,23 @@ namespace banksia {
         void engineLog(const Game* game, const std::string& name, const std::string& line, LogType logType, Side bySide = Side::none);
         
         bool createNextRoundMatches();
-        
         int getLastRound() const;
         void checkToExtendMatches(int gIdx);
+        
+
+        // for all
+        bool pairingMatchList(const std::vector<std::string>& nameList);
+        bool pairingMatchList(std::vector<TourPlayer> playerVec, int round);
+        bool pairingMatchListRecusive(std::vector<TourPlayer>& playerVec, int round, const std::set<std::string>& pairedSet);
+
+        // Knockout
         std::vector<TourPlayer> getKnockoutWinnerList();
-        bool createKnockoutMatchList(const std::vector<std::string>& nameList);
-        bool createKnockoutMatchList(std::vector<TourPlayer> playerVec, int round);
-        
         bool createNextKnockoutMatchList();
-        
+
+        // Swiss
+        bool createNextSwisstMatchList();
+
+        //
         void matchCompleted(Game* game);
         bool addGame(Game* game);
         
@@ -199,7 +210,7 @@ namespace banksia {
         TourState state = TourState::none;
         
         TimeController timeController;
-        bool ponderMode = false, shufflePlayers = false;
+        bool shufflePlayers = false;
 
         std::vector<std::string> participantList;
         std::vector<MatchRecord> matchRecordList;
@@ -210,16 +221,27 @@ namespace banksia {
         void saveMatchRecords();
         void removeMatchRecordFile();
         
-    protected:
-        int gameConcurrency = 1, gameperpair = 1;
+        void showTournamentInfo();
+        int calcMatchNumber() const;
+        
+        static std::string createLogPath(std::string opath, bool onefile, bool usesurfix, bool includeGameResult, const Game* game, Side forSide = Side::none);
+        
+    private:
+        int gameConcurrency = 1, gameperpair = 1, swissRounds = 6;
         bool resumable = true;
 
         static void showPathInfo(const std::string& name, const std::string& path, bool mode);
         
-    private:
-        static std::string createLogPath(std::string opath, bool onefile, bool usesurfix, bool includeGameResult, const Game* game, Side forSide = Side::none);
-        
+        std::map<std::string, Profile> profileMap;
         std::map<std::string, EngineStats> engineStatsMap;
+
+    private:
+        
+        // endgame
+        std::string syzygyPath;
+        
+        GameConfig gameConfig;
+
         // inclusive players
         bool inclusivePlayerMode = false;
         std::set<std::string> inclusivePlayers;

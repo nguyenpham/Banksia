@@ -65,7 +65,7 @@
       <CommandLineArguments>
          <CommandLineArgument
             argument = "-u -c 16"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-v off"
@@ -73,7 +73,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-d /Users/nguyenpham/workspace/BanksiaMatch/engines"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-d ./engines"
@@ -85,7 +85,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-no -jsonpath /Users/nguyenpham/workspace/BanksiaMatch/tour.json"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-yes"

@@ -2,6 +2,7 @@ add_library(game OBJECT
   book.cpp book.h
   configmng.cpp configmng.h
   engine.cpp engine.h
+  engineprofile.cpp engineprofile.h
   game.cpp game.h
   player.cpp player.h
   playermng.cpp playermng.h

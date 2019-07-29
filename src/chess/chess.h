@@ -59,11 +59,6 @@ namespace banksia {
         virtual void setFen(const std::string& fen) override;
         virtual std::string getFen(int halfCount = 0, int fullMoveCount = 1) const override;
         
-        void checkEnpassant();
-        
-        virtual void clearCastleRights(int rookPos, Side rookSide);
-        int findKing(Side side) const;
-        
         bool isLegalMove(int from, int dest, PieceType promotion = PieceType::empty);
         
         virtual void gen(std::vector<MoveFull>& moveList, Side attackerSide) const;
@@ -88,7 +83,16 @@ namespace banksia {
         bool fromSanMoveList(const std::string&);
         
         PieceType charToPieceType(char ch) const;
+
+        std::vector<std::string> commentEcoString();
+        Result probeSyzygy() const;
         
+    private:
+        void checkEnpassant();
+        
+        virtual void clearCastleRights(int rookPos, Side rookSide);
+        int findKing(Side side) const;
+
         u64 perft(int depth);
         
         virtual u64 initHashKey() const override;
@@ -96,9 +100,7 @@ namespace banksia {
         u64 hashKeyEnpassant(int enpassant) const;
         
         int toPieceCount(int* pieceCnt) const;
-        u64 materialKey() const;
-        static u64 materialKey(const int* pieceCnt);
-
+        
     private:
         bool createStringForLastMove(const std::vector<MoveFull>& moveList);
         

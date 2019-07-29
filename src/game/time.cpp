@@ -118,6 +118,24 @@ bool TimeController::isValid() const
 }
 
 
+bool TimeController::parseTime(const Json::Value& obj)
+{
+    if (!obj.isMember("time")) return false;
+    if (obj["time"].isString()) {
+        auto s = obj["time"].asString();
+        auto vec = splitString(s, ':');
+        time = 0;
+        for (auto && v : vec) {
+            if (v.empty()) break;
+            time *= 60;
+            time += std::atof(v.c_str());
+        }
+    } else {
+        time = obj["time"].asDouble();
+    }
+    return time > 0;
+}
+
 bool TimeController::load(const Json::Value& obj)
 {
     if (!obj.isMember("mode")
@@ -137,9 +155,22 @@ bool TimeController::load(const Json::Value& obj)
             return depth > 0;
             
         case TimeControlMode::movetime:
-            if (!obj.isMember("time")) return false;
-            time = obj["time"].asDouble();
-            return time > 0;
+            return parseTime(obj);
+//            if (!obj.isMember("time")) return false;
+//            if (obj["time"].isString()) {
+//                auto s = obj["time"].asString();
+//                auto vec = splitString(s, ':');
+//                time = 0;
+//                for (auto && v : vec) {
+//                    if (v.empty()) break;
+//                    time *= 60;
+//                    time += std::atoi(v.c_str());
+//                }
+//                std::cout << "" << << std::endl;
+//            } else {
+//                time = obj["time"].asDouble();
+//            }
+//            return time > 0;
             
         case TimeControlMode::standard:
             if (!obj.isMember("time")
@@ -147,11 +178,14 @@ bool TimeController::load(const Json::Value& obj)
                 ||!obj.isMember("increment")
                 )
                 return false;
+//            time = obj["time"].asDouble();
+            if (!parseTime(obj)) {
+                return false;
+            }
             moves = obj["moves"].asInt();
-            time = obj["time"].asDouble();
             increment = obj["increment"].asDouble();
             margin = obj.isMember("margin") ? obj["margin"].asDouble() : 0;
-            return time > 0 && increment >= 0 && margin >= 0 && moves >= 0;
+            return increment >= 0 && margin >= 0 && moves >= 0;
             
         default:
             return false;

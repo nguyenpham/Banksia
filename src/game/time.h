@@ -65,6 +65,7 @@ namespace banksia {
         double time, increment, margin;
 
     private:
+        bool parseTime(const Json::Value& obj);
     };
     
     class GameTimeController : public TimeController

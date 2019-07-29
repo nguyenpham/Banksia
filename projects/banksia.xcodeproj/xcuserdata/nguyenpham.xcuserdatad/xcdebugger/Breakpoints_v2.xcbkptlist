@@ -6,718 +6,16 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/game/uciengineplayer.cpp"
-            timestampString = "583081633.947504"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "228"
-            endingLineNumber = "228"
-            landmarkName = "UciEnginePlayer::parseInfo(const std::string&amp; line)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/game/uciengineplayer.cpp"
-            timestampString = "583081633.947589"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "229"
-            endingLineNumber = "229"
-            landmarkName = "UciEnginePlayer::parseInfo(const std::string&amp; line)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/tour/tourmng.cpp"
-            timestampString = "583412948.175536"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "120"
-            endingLineNumber = "120"
-            landmarkName = "TourMng::parseJsonAfterLoading(Json::Value&amp; d)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/tour/tourmng.cpp"
-            timestampString = "583412948.1757489"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "124"
-            endingLineNumber = "124"
-            landmarkName = "TourMng::parseJsonAfterLoading(Json::Value&amp; d)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/game/lib.cpp"
-            timestampString = "583516376.069163"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "70"
-            endingLineNumber = "70">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/tour/tourmng.cpp"
-            timestampString = "583412948.1760499"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "144"
-            endingLineNumber = "144"
-            landmarkName = "TourMng::parseJsonAfterLoading(Json::Value&amp; d)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/game/playermng.cpp"
-            timestampString = "585303695.216538"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "142"
-            endingLineNumber = "142"
-            landmarkName = "PlayerMng::createEngine(const std::string&amp; name)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/game/playermng.cpp"
-            timestampString = "585303695.21659"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "153"
-            endingLineNumber = "153"
-            landmarkName = "PlayerMng::createEngine(const Config&amp; config)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/game/configmng.h"
-            timestampString = "585289246.194873"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "94"
-            endingLineNumber = "94"
-            landmarkName = "class Option"
-            landmarkType = "3">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/3rdparty/json/jsoncpp.cpp"
-            timestampString = "584528429.86633"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "5241"
-            endingLineNumber = "5241"
-            landmarkName = "unknown"
-            landmarkType = "0">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/base/comm.h"
-            timestampString = "585625904.916877"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "98"
-            endingLineNumber = "98"
-            landmarkName = "tick()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/game/wbengine.cpp"
-            timestampString = "585457981.973033"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "406"
-            endingLineNumber = "406"
-            landmarkName = "WbEngine::parseFeature(const std::string&amp; name, const std::string&amp; content, bool quote)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/game/wbengine.cpp"
-            timestampString = "585457981.973069"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "433"
-            endingLineNumber = "433"
-            landmarkName = "WbEngine::parseFeatures(const std::string&amp; line)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/game/wbengine.cpp"
-            timestampString = "585457981.9730999"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "444"
-            endingLineNumber = "444"
-            landmarkName = "WbEngine::parseFeatures(const std::string&amp; line)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/game/wbengine.cpp"
-            timestampString = "585457981.973129"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "457"
-            endingLineNumber = "457"
-            landmarkName = "WbEngine::parseFeatures(const std::string&amp; line)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/game/wbengine.cpp"
-            timestampString = "585457981.97316"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "407"
-            endingLineNumber = "407"
-            landmarkName = "WbEngine::parseFeature(const std::string&amp; name, const std::string&amp; content, bool quote)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/chess/chess.cpp"
-            timestampString = "585625904.916989"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1214"
-            endingLineNumber = "1214"
-            landmarkName = "ChessBoard::toMoveListString(MoveNotation notation, int itemPerLine, bool moveCounter, bool computingInfo)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/chess/chess.cpp"
-            timestampString = "585625904.917318"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1113"
-            endingLineNumber = "1113"
-            landmarkName = "ChessBoard::checkMake(int from, int dest, PieceType promotion)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/chess/chess.cpp"
-            timestampString = "585625904.917537"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1114"
-            endingLineNumber = "1114"
-            landmarkName = "ChessBoard::checkMake(int from, int dest, PieceType promotion)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/game/wbengine.cpp"
-            timestampString = "585457981.973303"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "412"
-            endingLineNumber = "412"
-            landmarkName = "WbEngine::parseFeature(const std::string&amp; name, const std::string&amp; content, bool quote)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/game/book.cpp"
-            timestampString = "585303695.2172199"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "515"
-            endingLineNumber = "515"
-            landmarkName = "BookMng::getRandomBook(int pairId, std::string&amp; fenString, std::vector&lt;Move&gt;&amp; moves)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/game/book.cpp"
-            timestampString = "585303695.217473"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "404"
-            endingLineNumber = "404"
-            landmarkName = "BookMng::load(const Json::Value&amp; obj)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/chess/chess.cpp"
-            timestampString = "585625904.917783"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1348"
-            endingLineNumber = "1348"
-            landmarkName = "ChessBoard::fromSanString(const std::string&amp; str)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/chess/chess.cpp"
-            timestampString = "585625904.918014"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1367"
-            endingLineNumber = "1367"
-            landmarkName = "ChessBoard::fromSanString(const std::string&amp; str)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/main.cpp"
-            timestampString = "585625904.918233"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "55"
-            endingLineNumber = "55"
-            landmarkName = "main(int argc, const char * argv[])"
-            landmarkType = "9">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/game/tourmng.h"
-            timestampString = "585457981.9737051"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "116"
-            endingLineNumber = "116"
-            landmarkName = "Elo(int wins, int draws, int losses)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/game/book.cpp"
-            timestampString = "585303695.218208"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "460"
-            endingLineNumber = "460"
-            landmarkName = "BookMng::loadSingle(const Json::Value&amp; obj)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/game/book.cpp"
-            timestampString = "585303695.2183861"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "107"
-            endingLineNumber = "107"
-            landmarkName = "BookPgn::addPgnMoves(const std::string&amp; str)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/game/book.cpp"
-            timestampString = "585303695.2185611"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "106"
-            endingLineNumber = "106"
-            landmarkName = "BookPgn::addPgnMoves(const std::string&amp; str)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/game/book.cpp"
-            timestampString = "585303695.218735"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "93"
-            endingLineNumber = "93"
-            landmarkName = "BookPgn::moveString2Moves(const std::string&amp; str)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/chess/chess.cpp"
-            timestampString = "585625904.918514"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1414"
-            endingLineNumber = "1414"
-            landmarkName = "ChessBoard::fromSanMoveList(const std::string&amp; str)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/game/book.cpp"
-            timestampString = "585303695.218941"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "290"
-            endingLineNumber = "290"
-            landmarkName = "BookPolyglot::getRandomBook(std::string&amp; fenString, std::vector&lt;Move&gt;&amp; moveList)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/game/book.cpp"
-            timestampString = "585303695.219116"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "291"
-            endingLineNumber = "291"
-            landmarkName = "BookPolyglot::getRandomBook(std::string&amp; fenString, std::vector&lt;Move&gt;&amp; moveList)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/game/book.cpp"
-            timestampString = "585303695.219378"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "510"
-            endingLineNumber = "510"
-            landmarkName = "BookMng::getRandomBook(int pairId, std::string&amp; fenString, std::vector&lt;Move&gt;&amp; moves)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/game/book.cpp"
-            timestampString = "585303695.219614"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "537"
-            endingLineNumber = "537"
-            landmarkName = "BookMng::getRandomBook(int pairId, std::string&amp; fenString, std::vector&lt;Move&gt;&amp; moves)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/game/book.cpp"
-            timestampString = "585303695.219802"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "288"
-            endingLineNumber = "288"
-            landmarkName = "BookPolyglot::getRandomBook(std::string&amp; fenString, std::vector&lt;Move&gt;&amp; moveList)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/game/book.cpp"
-            timestampString = "585303695.219985"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "508"
-            endingLineNumber = "508"
-            landmarkName = "BookMng::getRandomBook(int pairId, std::string&amp; fenString, std::vector&lt;Move&gt;&amp; moves)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/game/uciengine.cpp"
-            timestampString = "585457981.973986"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "445"
-            endingLineNumber = "445"
-            landmarkName = "UciEngine::parseInfo(const std::string&amp; line)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/game/uciengine.cpp"
-            timestampString = "585457981.974021"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "446"
-            endingLineNumber = "446"
-            landmarkName = "UciEngine::parseInfo(const std::string&amp; line)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/game/uciengine.cpp"
-            timestampString = "585457981.974051"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "468"
-            endingLineNumber = "468"
-            landmarkName = "UciEngine::parseInfo(const std::string&amp; line)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/game/uciengine.cpp"
-            timestampString = "585457981.974079"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "461"
-            endingLineNumber = "461"
-            landmarkName = "UciEngine::parseInfo(const std::string&amp; line)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/game/tourmng.cpp"
-            timestampString = "585457981.974108"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "471"
-            endingLineNumber = "471"
-            landmarkName = "TourMng::parseJsonAfterLoading(Json::Value&amp; d)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/game/uciengine.cpp"
-            timestampString = "585457981.9741499"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "62"
-            endingLineNumber = "62"
-            landmarkName = "UciEngine::sendOptions()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/game/uciengine.cpp"
-            timestampString = "585457981.974178"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "57"
-            endingLineNumber = "57"
-            landmarkName = "UciEngine::sendOptions()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "../src/main.cpp"
-            timestampString = "585625904.918842"
+            filePath = "../src/chess/syzygy/tbprobe.cpp"
+            timestampString = "585990019.863848"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "49"
-            endingLineNumber = "49"
-            landmarkName = "main(int argc, const char * argv[])"
+            startingLineNumber = "805"
+            endingLineNumber = "805"
+            landmarkName = "do_probe_table(const banksia::ChessBoard&amp; pos, T* entry, WDLScore wdl, ProbeState* result)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -728,43 +26,107 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../src/chess/syzygy/tbprobe.cpp"
-            timestampString = "585625904.919053"
+            timestampString = "585990019.864193"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1428"
-            endingLineNumber = "1428"
-            landmarkName = "Tablebases::init(const std::string&amp; paths)"
-            landmarkType = "7">
+            startingLineNumber = "1364"
+            endingLineNumber = "1364"
+            landmarkName = "search(banksia::ChessBoard&amp; pos, ProbeState* result)"
+            landmarkType = "9">
             <Locations>
                <Location
                   shouldBeEnabled = "No"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "Tablebases::init(std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt; &gt; const&amp;)"
+                  symbolName = "Tablebases::WDLScore (anonymous namespace)::search&lt;false&gt;(banksia::ChessBoard&amp;, Tablebases::ProbeState*)"
                   moduleName = "Banksia"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/nguyenpham/workspace/Banksia/src/chess/syzygy/tbprobe.cpp"
-                  timestampString = "585625658.589491"
+                  timestampString = "585932455.184576"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "1445"
-                  endingLineNumber = "1445"
-                  offsetFromSymbolStart = "731">
+                  startingLineNumber = "1364"
+                  endingLineNumber = "1364"
+                  offsetFromSymbolStart = "261">
                </Location>
                <Location
                   shouldBeEnabled = "No"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "Tablebases::init(std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt; &gt; const&amp;)"
+                  symbolName = "Tablebases::WDLScore (anonymous namespace)::search&lt;true&gt;(banksia::ChessBoard&amp;, Tablebases::ProbeState*)"
                   moduleName = "Banksia"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/nguyenpham/workspace/Banksia/src/chess/syzygy/tbprobe.cpp"
-                  timestampString = "585625658.591217"
+                  timestampString = "585932455.186799"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "1445"
-                  endingLineNumber = "1445"
-                  offsetFromSymbolStart = "815">
+                  startingLineNumber = "1364"
+                  endingLineNumber = "1364"
+                  offsetFromSymbolStart = "275">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../src/game/wbengine.cpp"
+            timestampString = "586059250.549789"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "289"
+            endingLineNumber = "289"
+            landmarkName = "WbEngine::tickWork()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../src/chess/syzygy/tbprobe.cpp"
+            timestampString = "585990019.864924"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "1351"
+            endingLineNumber = "1351"
+            landmarkName = "search(banksia::ChessBoard&amp; pos, ProbeState* result)"
+            landmarkType = "9">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Tablebases::WDLScore (anonymous namespace)::search&lt;false&gt;(banksia::ChessBoard&amp;, Tablebases::ProbeState*)"
+                  moduleName = "Banksia"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nguyenpham/workspace/Banksia/src/chess/syzygy/tbprobe.cpp"
+                  timestampString = "585925715.740948"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "1358"
+                  endingLineNumber = "1358"
+                  offsetFromSymbolStart = "19">
+               </Location>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Tablebases::WDLScore (anonymous namespace)::search&lt;true&gt;(banksia::ChessBoard&amp;, Tablebases::ProbeState*)"
+                  moduleName = "Banksia"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nguyenpham/workspace/Banksia/src/chess/syzygy/tbprobe.cpp"
+                  timestampString = "585925715.7426879"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "1358"
+                  endingLineNumber = "1358"
+                  offsetFromSymbolStart = "19">
                </Location>
             </Locations>
          </BreakpointContent>
@@ -776,13 +138,75 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../src/chess/syzygy/tbprobe.cpp"
-            timestampString = "585625904.919528"
+            timestampString = "585990019.865163"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1435"
-            endingLineNumber = "1435"
-            landmarkName = "Tablebases::init(const std::string&amp; paths)"
-            landmarkType = "7">
+            startingLineNumber = "1358"
+            endingLineNumber = "1358"
+            landmarkName = "search(banksia::ChessBoard&amp; pos, ProbeState* result)"
+            landmarkType = "9">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Tablebases::WDLScore (anonymous namespace)::search&lt;false&gt;(banksia::ChessBoard&amp;, Tablebases::ProbeState*)"
+                  moduleName = "Banksia"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nguyenpham/workspace/Banksia/src/chess/syzygy/tbprobe.cpp"
+                  timestampString = "585925779.171448"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "1365"
+                  endingLineNumber = "1365"
+                  offsetFromSymbolStart = "114">
+               </Location>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Tablebases::WDLScore (anonymous namespace)::search&lt;false&gt;(banksia::ChessBoard&amp;, Tablebases::ProbeState*)"
+                  moduleName = "Banksia"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nguyenpham/workspace/Banksia/src/chess/syzygy/tbprobe.cpp"
+                  timestampString = "585925779.172888"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "1365"
+                  endingLineNumber = "1365"
+                  offsetFromSymbolStart = "178">
+               </Location>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Tablebases::WDLScore (anonymous namespace)::search&lt;true&gt;(banksia::ChessBoard&amp;, Tablebases::ProbeState*)"
+                  moduleName = "Banksia"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nguyenpham/workspace/Banksia/src/chess/syzygy/tbprobe.cpp"
+                  timestampString = "585925779.174469"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "1365"
+                  endingLineNumber = "1365"
+                  offsetFromSymbolStart = "114">
+               </Location>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Tablebases::WDLScore (anonymous namespace)::search&lt;true&gt;(banksia::ChessBoard&amp;, Tablebases::ProbeState*)"
+                  moduleName = "Banksia"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nguyenpham/workspace/Banksia/src/chess/syzygy/tbprobe.cpp"
+                  timestampString = "585925779.175877"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "1365"
+                  endingLineNumber = "1365"
+                  offsetFromSymbolStart = "178">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -792,13 +216,445 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../src/chess/syzygy/tbprobe.cpp"
-            timestampString = "585625904.919912"
+            timestampString = "585990019.865399"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1429"
-            endingLineNumber = "1429"
-            landmarkName = "Tablebases::init(const std::string&amp; paths)"
+            startingLineNumber = "1391"
+            endingLineNumber = "1391"
+            landmarkName = "search(banksia::ChessBoard&amp; pos, ProbeState* result)"
+            landmarkType = "9">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Tablebases::WDLScore (anonymous namespace)::search&lt;false&gt;(banksia::ChessBoard&amp;, Tablebases::ProbeState*)"
+                  moduleName = "Banksia"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nguyenpham/workspace/Banksia/src/chess/syzygy/tbprobe.cpp"
+                  timestampString = "585986641.521216"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "1391"
+                  endingLineNumber = "1391"
+                  offsetFromSymbolStart = "502">
+               </Location>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Tablebases::WDLScore (anonymous namespace)::search&lt;true&gt;(banksia::ChessBoard&amp;, Tablebases::ProbeState*)"
+                  moduleName = "Banksia"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nguyenpham/workspace/Banksia/src/chess/syzygy/tbprobe.cpp"
+                  timestampString = "585986641.522567"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "1391"
+                  endingLineNumber = "1391"
+                  offsetFromSymbolStart = "516">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../src/chess/syzygy/tbprobe.cpp"
+            timestampString = "585990019.865628"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "1397"
+            endingLineNumber = "1397"
+            landmarkName = "search(banksia::ChessBoard&amp; pos, ProbeState* result)"
+            landmarkType = "9">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Tablebases::WDLScore (anonymous namespace)::search&lt;false&gt;(banksia::ChessBoard&amp;, Tablebases::ProbeState*)"
+                  moduleName = "Banksia"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nguyenpham/workspace/Banksia/src/chess/syzygy/tbprobe.cpp"
+                  timestampString = "585990020.187603"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "1397"
+                  endingLineNumber = "1397"
+                  offsetFromSymbolStart = "568">
+               </Location>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Tablebases::WDLScore (anonymous namespace)::search&lt;true&gt;(banksia::ChessBoard&amp;, Tablebases::ProbeState*)"
+                  moduleName = "Banksia"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nguyenpham/workspace/Banksia/src/chess/syzygy/tbprobe.cpp"
+                  timestampString = "585990020.189538"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "1397"
+                  endingLineNumber = "1397"
+                  offsetFromSymbolStart = "582">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../src/chess/syzygy/tbprobe.cpp"
+            timestampString = "585990019.865851"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "778"
+            endingLineNumber = "778"
+            landmarkName = "do_probe_table(const banksia::ChessBoard&amp; pos, T* entry, WDLScore wdl, ProbeState* result)"
+            landmarkType = "9">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Tablebases::WDLScore (anonymous namespace)::do_probe_table&lt;(anonymous namespace)::TBTable&lt;((anonymous namespace)::TBType)1&gt;, Tablebases::WDLScore&gt;(banksia::ChessBoard const&amp;, (anonymous namespace)::TBTable&lt;((anonymous namespace)::TBType)1&gt;*, Tablebases::WDLScore, Tablebases::ProbeState*)"
+                  moduleName = "Banksia"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nguyenpham/workspace/Banksia/src/chess/syzygy/tbprobe.cpp"
+                  timestampString = "585934017.247954"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "779"
+                  endingLineNumber = "779"
+                  offsetFromSymbolStart = "53">
+               </Location>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "int (anonymous namespace)::do_probe_table&lt;(anonymous namespace)::TBTable&lt;((anonymous namespace)::TBType)2&gt;, int&gt;(banksia::ChessBoard const&amp;, (anonymous namespace)::TBTable&lt;((anonymous namespace)::TBType)2&gt;*, Tablebases::WDLScore, Tablebases::ProbeState*)"
+                  moduleName = "Banksia"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nguyenpham/workspace/Banksia/src/chess/syzygy/tbprobe.cpp"
+                  timestampString = "585934017.2498699"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "779"
+                  endingLineNumber = "779"
+                  offsetFromSymbolStart = "53">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../src/chess/syzygy/tbprobe.cpp"
+            timestampString = "585990019.866075"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "1322"
+            endingLineNumber = "1322"
+            landmarkName = "probe_table(const banksia::ChessBoard&amp; pos, ProbeState* result, WDLScore wdl = WDLDraw)"
+            landmarkType = "9">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "int (anonymous namespace)::probe_table&lt;((anonymous namespace)::TBType)2, int&gt;(banksia::ChessBoard const&amp;, Tablebases::ProbeState*, Tablebases::WDLScore)"
+                  moduleName = "Banksia"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nguyenpham/workspace/Banksia/src/chess/syzygy/tbprobe.cpp"
+                  timestampString = "585932633.040852"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "1323"
+                  endingLineNumber = "1323"
+                  offsetFromSymbolStart = "37">
+               </Location>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Tablebases::WDLScore (anonymous namespace)::probe_table&lt;((anonymous namespace)::TBType)1, Tablebases::WDLScore&gt;(banksia::ChessBoard const&amp;, Tablebases::ProbeState*, Tablebases::WDLScore)"
+                  moduleName = "Banksia"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nguyenpham/workspace/Banksia/src/chess/syzygy/tbprobe.cpp"
+                  timestampString = "585932633.04284"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "1323"
+                  endingLineNumber = "1323"
+                  offsetFromSymbolStart = "37">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../src/chess/syzygy/tbprobe.cpp"
+            timestampString = "585990019.866339"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "1323"
+            endingLineNumber = "1323"
+            landmarkName = "probe_table(const banksia::ChessBoard&amp; pos, ProbeState* result, WDLScore wdl = WDLDraw)"
+            landmarkType = "9">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "int (anonymous namespace)::probe_table&lt;((anonymous namespace)::TBType)2, int&gt;(banksia::ChessBoard const&amp;, Tablebases::ProbeState*, Tablebases::WDLScore)"
+                  moduleName = "Banksia"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nguyenpham/workspace/Banksia/src/chess/syzygy/tbprobe.cpp"
+                  timestampString = "585932734.837276"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "1323"
+                  endingLineNumber = "1323"
+                  offsetFromSymbolStart = "37">
+               </Location>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Tablebases::WDLScore (anonymous namespace)::probe_table&lt;((anonymous namespace)::TBType)1, Tablebases::WDLScore&gt;(banksia::ChessBoard const&amp;, Tablebases::ProbeState*, Tablebases::WDLScore)"
+                  moduleName = "Banksia"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nguyenpham/workspace/Banksia/src/chess/syzygy/tbprobe.cpp"
+                  timestampString = "585932734.839772"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "1323"
+                  endingLineNumber = "1323"
+                  offsetFromSymbolStart = "37">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../src/chess/syzygy/tbprobe.cpp"
+            timestampString = "585990019.866557"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "471"
+            endingLineNumber = "471"
+            landmarkName = "TBTable()"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../src/chess/syzygy/tbprobe.cpp"
+            timestampString = "585990019.866766"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "1620"
+            endingLineNumber = "1620"
+            landmarkName = "Tablebases::probe_wdl(banksia::ChessBoard&amp; pos, ProbeState* result)"
             landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../src/chess/syzygy/tbprobe.cpp"
+            timestampString = "585990019.8669749"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "876"
+            endingLineNumber = "876"
+            landmarkName = "do_probe_table(const banksia::ChessBoard&amp; pos, T* entry, WDLScore wdl, ProbeState* result)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../src/chess/syzygy/tbprobe.cpp"
+            timestampString = "585990019.867182"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "897"
+            endingLineNumber = "897"
+            landmarkName = "do_probe_table(const banksia::ChessBoard&amp; pos, T* entry, WDLScore wdl, ProbeState* result)"
+            landmarkType = "9">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Tablebases::WDLScore (anonymous namespace)::do_probe_table&lt;(anonymous namespace)::TBTable&lt;((anonymous namespace)::TBType)1&gt;, Tablebases::WDLScore&gt;(banksia::ChessBoard const&amp;, (anonymous namespace)::TBTable&lt;((anonymous namespace)::TBType)1&gt;*, Tablebases::WDLScore, Tablebases::ProbeState*)"
+                  moduleName = "Banksia"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nguyenpham/workspace/Banksia/src/chess/syzygy/tbprobe.cpp"
+                  timestampString = "585987057.970063"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "897"
+                  endingLineNumber = "897"
+                  offsetFromSymbolStart = "1495">
+               </Location>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "int (anonymous namespace)::do_probe_table&lt;(anonymous namespace)::TBTable&lt;((anonymous namespace)::TBType)2&gt;, int&gt;(banksia::ChessBoard const&amp;, (anonymous namespace)::TBTable&lt;((anonymous namespace)::TBType)2&gt;*, Tablebases::WDLScore, Tablebases::ProbeState*)"
+                  moduleName = "Banksia"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nguyenpham/workspace/Banksia/src/chess/syzygy/tbprobe.cpp"
+                  timestampString = "585987057.971621"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "897"
+                  endingLineNumber = "897"
+                  offsetFromSymbolStart = "1495">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../src/chess/syzygy/tbprobe.cpp"
+            timestampString = "585990019.86739"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "916"
+            endingLineNumber = "916"
+            landmarkName = "do_probe_table(const banksia::ChessBoard&amp; pos, T* entry, WDLScore wdl, ProbeState* result)"
+            landmarkType = "9">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Tablebases::WDLScore (anonymous namespace)::do_probe_table&lt;(anonymous namespace)::TBTable&lt;((anonymous namespace)::TBType)1&gt;, Tablebases::WDLScore&gt;(banksia::ChessBoard const&amp;, (anonymous namespace)::TBTable&lt;((anonymous namespace)::TBType)1&gt;*, Tablebases::WDLScore, Tablebases::ProbeState*)"
+                  moduleName = "Banksia"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nguyenpham/workspace/Banksia/src/chess/syzygy/tbprobe.cpp"
+                  timestampString = "585987068.54529"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "916"
+                  endingLineNumber = "916"
+                  offsetFromSymbolStart = "1794">
+               </Location>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "int (anonymous namespace)::do_probe_table&lt;(anonymous namespace)::TBTable&lt;((anonymous namespace)::TBType)2&gt;, int&gt;(banksia::ChessBoard const&amp;, (anonymous namespace)::TBTable&lt;((anonymous namespace)::TBType)2&gt;*, Tablebases::WDLScore, Tablebases::ProbeState*)"
+                  moduleName = "Banksia"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nguyenpham/workspace/Banksia/src/chess/syzygy/tbprobe.cpp"
+                  timestampString = "585987068.54728"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "916"
+                  endingLineNumber = "916"
+                  offsetFromSymbolStart = "1794">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../src/chess/syzygy/tbprobe.cpp"
+            timestampString = "585990019.8675981"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "955"
+            endingLineNumber = "955"
+            landmarkName = "do_probe_table(const banksia::ChessBoard&amp; pos, T* entry, WDLScore wdl, ProbeState* result)"
+            landmarkType = "9">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Tablebases::WDLScore (anonymous namespace)::do_probe_table&lt;(anonymous namespace)::TBTable&lt;((anonymous namespace)::TBType)1&gt;, Tablebases::WDLScore&gt;(banksia::ChessBoard const&amp;, (anonymous namespace)::TBTable&lt;((anonymous namespace)::TBType)1&gt;*, Tablebases::WDLScore, Tablebases::ProbeState*)"
+                  moduleName = "Banksia"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nguyenpham/workspace/Banksia/src/chess/syzygy/tbprobe.cpp"
+                  timestampString = "585987079.3117861"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "955"
+                  endingLineNumber = "955"
+                  offsetFromSymbolStart = "2008">
+               </Location>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "int (anonymous namespace)::do_probe_table&lt;(anonymous namespace)::TBTable&lt;((anonymous namespace)::TBType)2&gt;, int&gt;(banksia::ChessBoard const&amp;, (anonymous namespace)::TBTable&lt;((anonymous namespace)::TBType)2&gt;*, Tablebases::WDLScore, Tablebases::ProbeState*)"
+                  moduleName = "Banksia"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nguyenpham/workspace/Banksia/src/chess/syzygy/tbprobe.cpp"
+                  timestampString = "585987079.3130929"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "955"
+                  endingLineNumber = "955"
+                  offsetFromSymbolStart = "2008">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../src/chess/syzygy/tbprobe.cpp"
+            timestampString = "585990019.867801"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "963"
+            endingLineNumber = "963"
+            landmarkName = "do_probe_table(const banksia::ChessBoard&amp; pos, T* entry, WDLScore wdl, ProbeState* result)"
+            landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>
