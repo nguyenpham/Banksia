@@ -20,6 +20,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\3rdparty\cpptime\cpptime.h" />
+    <ClInclude Include="..\src\3rdparty\fathom\stdendian.h" />
+    <ClInclude Include="..\src\3rdparty\fathom\tbchess.h" />
+    <ClInclude Include="..\src\3rdparty\fathom\tbconfig.h" />
+    <ClInclude Include="..\src\3rdparty\fathom\tbprobe.h" />
     <ClInclude Include="..\src\3rdparty\json\json-forwards.h" />
     <ClInclude Include="..\src\3rdparty\json\json.h" />
     <ClInclude Include="..\src\3rdparty\process\process.hpp" />
@@ -41,6 +45,7 @@
     <ClInclude Include="..\src\game\wbengine.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\3rdparty\fathom\tbprobe.cpp" />
     <ClCompile Include="..\src\3rdparty\json\jsoncpp.cpp" />
     <ClCompile Include="..\src\3rdparty\process\process.cpp" />
     <ClCompile Include="..\src\3rdparty\process\process_win.cpp" />
@@ -136,6 +141,8 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
+      <UndefinePreprocessorDefinitions>
+      </UndefinePreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -152,6 +159,8 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
+      <UndefinePreprocessorDefinitions>
+      </UndefinePreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

@@ -66,7 +66,7 @@ static const std::string jsonTourString =
 "            \"guide\" : \"one file: if false, games are stored in multi files using game indexes as surfix; game title surfix: use players names, results for file name surfix, affective only when 'one file' is false; separate by sides: each side has different logs\",\n"
 "            \"mode\" : true,\n"
 "            \"one file\" : false,\n"
-"            \"path\" : \"$path$\\\\logengine.txt\",\n"
+"            \"path\" : \"logengine.txt\",\n"
 "            \"separate by sides\" : false,\n"
 "            \"show time\" : true\n"
 "        },\n"
@@ -76,13 +76,13 @@ static const std::string jsonTourString =
 "            \"guide\" : \"one file: if false, games are stored in multi files using game indexes as surfix; game title surfix: use players names, results for file name surfix, affective only when 'one file' is false; rich info: log more info such as scores, depths, elapses\",\n"
 "            \"mode\" : true,\n"
 "            \"one file\" : true,\n"
-"            \"path\" : \"$path$\\\\games.pgn\",\n"
+"            \"path\" : \"games.pgn\",\n"
 "            \"rich info\" : false\n"
 "        },\n"
 "        \"result\" :\n"
 "        {\n"
 "            \"mode\" : true,\n"
-"            \"path\" : \"$path$\\\\logresult.txt\"\n"
+"            \"path\" : \"logresult.txt\"\n"
 "        }\n"
 "    },\n"
 "    \"openings\" :\n"
@@ -126,6 +126,7 @@ static const std::string jsonTourString =
 "        \"mode\" : true,\n"
 "        \"guide\" : \"finish and adjudicate result; set game length zero to turn it off; tablebase path is from endgames\",\n"
 "        \"draw if game length over\" : 500,\n"
+"        \"tablebase max pieces\" : 7,\n"
 "        \"tablebase\" : true\n"
 "    },\n"
 "    \"override options\" :\n"
@@ -292,11 +293,16 @@ void JsonMaker::completed()
         Json::Value jsonData;
         JsonSavable::loadFromJsonFile(jsonTourMngPath, jsonData, false);
         
-        //TourMng::fixJson(jsonData, currentWorkingFolder());
         Json::Value sample;
-        auto jsonString = replaceString(jsonTourString, "$path$", currentWorkingFolder());
         JsonSavable::loadFromJsonString(jsonTourString, sample, true);
-        
+
+		auto curPath = currentWorkingFolder() + folderSlash;
+		auto logs = sample["logs"];
+		logs["engine"]["path"] = curPath + logs["engine"]["path"].asString();
+		logs["pgn"]["path"] = curPath + logs["pgn"]["path"].asString();
+		logs["result"]["path"] = curPath + logs["result"]["path"].asString();
+		sample["logs"] = logs;
+
         Jsonable::merge(jsonData, sample, JsonMerge::fillmissing);
 
         auto s = "engine configurations";
@@ -314,8 +320,11 @@ void JsonMaker::completed()
         //if (!jsonData.isMember(s))
         {
             Json::Value v;
+			std::string preName;
             for(auto && c : goodConfigVec) {
+				if (preName == c.name) continue;
                 v.append(c.name);
+				preName = c.name;
             }
             jsonData[s] = v;
         }
@@ -323,9 +332,8 @@ void JsonMaker::completed()
         JsonSavable::saveToJsonFile(jsonTourMngPath, jsonData);
     }
     
-    
     auto elapsed_secs = static_cast<int>(time(nullptr) - startTime);
-    std::cout << "Before playing, please add/edit or check Opening book paths, syzygy path and other information\n";
+    std::cout << "Before playing, please add/edit Opening book paths, syzygy path and other information\n";
     std::cout << "All done!!! Elapsed: " << formatPeriod(elapsed_secs) << std::endl;
     
     std::cout << "\nTo play, enter:\n"

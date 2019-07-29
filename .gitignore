@@ -35,6 +35,8 @@
 */.vs*
 */Debug*
 *.DS_Store
+*.user
+*.filters
 
 # CMake build files
 build/

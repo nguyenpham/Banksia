@@ -4,9 +4,9 @@
 Overview
 -----------
 
-Banksia (the name after an Australian native wildflowers) is an open source tournament manager for chess engines, written in C++11. It can be compiled and run on some popular platforms such as Windows, MacOS, Linux.
+Banksia (the name after an Australian native wildflowers) is an open source tournament manager for chess engines, written in C++11. It can be compiled and run on some popular platforms such as Windows, macOS, Linux.
 
-The project is an attempt to fulfil my dream about a chess tournament manager: small, fast, portable, easy to use, easy to integrate to other systems, resumable, able to automatically generate all configurations, files which are needed for tournaments.
+The project is an attempt to fulfil my dream about creating a chess tournament manager: small, fast, portable, easy to use, easy to integrate to other systems, resumable, able to automatically generate all configurations, files which are needed for tournaments.
 
 Basically from nothing, a user can configure automatically within few minutes then he can start running a total new tournament.
 
@@ -24,11 +24,13 @@ Some features
 - Support UCI and Winboard protocols
 - Support opening book formats: edp, pgn, bin (Polyglot)
 - Tournament: round robin, knockout, swiss, concurrency, ponderable, resumable
+- Profile engines for some important info such as cpu, memory consumed, numbers of threads.
 - Controlled mainly by 2 JSON files (one for configurations of engines, one for tournament management). That is very flexible, easy way to setup and change
 - Can auto generate all necessary JSON files
+- Central control: modify threads (cores), hash (memory), syzygy path... in one place and affect all engines
 - Controllable by keyboard when games playing (type anything from keyboard to display the help)
 - Written in standard C++11
-- Open source, MIT license
+- Open source
 
 
 Compile
@@ -89,6 +91,10 @@ When working, the app may display some information into screen as well as saving
 Bellow is the screen of a tournament between 3 chess engines:
 
 ![Demo](demo.png)
+
+If Banksia runs with profile mode (for Windows only), it could provide some useful information about engines such as memory and cpu usages, number of threads.
+
+![Demo](demo2.png)
 
 
 Resume
@@ -156,7 +162,7 @@ Working
 
 History
 --------
-- 30 July 2019: v3.0, Swiss, opening ECO, profile, adjudication, improve JSon updating
+- 30 July 2019: v3.0, Swiss tournament, opening ECO, engine profile, game adjudication, improve JSon updating
 - 22 July 2019: v2.7, inclusive players (for playing in all matches, given sides), more info for tournament stats
 - 20 July 2019: v2.6, more info and more ways to control logs, improve engine managements
 - 16 July 2019: v2.5, multiple ways to select openings: new for each match, same for a pair, one for all matches; override options for central controlling; match statistics LOS & error margin

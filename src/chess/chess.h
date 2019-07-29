@@ -85,7 +85,7 @@ namespace banksia {
         PieceType charToPieceType(char ch) const;
 
         std::vector<std::string> commentEcoString();
-        Result probeSyzygy() const;
+        Result probeSyzygy(int maxPieces = 7) const;
         
     private:
         void checkEnpassant();

@@ -2,7 +2,7 @@
  Copyright (c) 2015 basil00
  Modifications Copyright (c) 2016-2019 by Jon Dart
  Modified by Nguyen Pham
-
+ 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
@@ -104,7 +104,6 @@
 #define TB_RESULT_CHECKMATE         TB_SET_WDL(0, TB_WIN)
 #define TB_RESULT_STALEMATE         TB_SET_WDL(0, TB_DRAW)
 //#define TB_RESULT_FAILED            0xFFFFFFFF
-
 
 
 
@@ -222,8 +221,8 @@ static unsigned lsb(uint64_t b) {
 #endif
 #endif
 
-#define max(a,b) a > b ? a : b
-#define min(a,b) a < b ? a : b
+//#define max(a,b) a > b ? a : b
+//#define min(a,b) a < b ? a : b
 
 #include "stdendian.h"
 
@@ -323,37 +322,32 @@ static LOCK_T tbMutex;
 using namespace Tablebase;
 
 static int initialized = 0;
-static int numPaths = 0;
-static char *pathString = NULL;
-static char **paths = NULL;
+static std::string pathString;
+static std::vector<std::string> paths;
 static int missingCnt = 0;
 
 std::vector<std::string> missingVec;
 
-static FD open_tb(const char *str, const char *suffix)
+static FD open_tb(const std::string& str, const std::string& suffix)
 {
-    int i;
     FD fd;
-    char *file;
+    std::string file;
     
-    for (i = 0; i < numPaths; i++) {
-        file = (char*)malloc(strlen(paths[i]) + strlen(str) +
-                             strlen(suffix) + 2);
-        strcpy(file, paths[i]);
+    for (auto && path : paths) {
+        file = path;
+        
 #ifdef _WIN32
-        strcat(file,"\\");
+        file += "\\";
 #else
-        strcat(file,"/");
+        file += "/";
 #endif
-        strcat(file, str);
-        strcat(file, suffix);
+        file += str + suffix;
 #ifndef _WIN32
-        fd = open(file, O_RDONLY);
+        fd = open(file.c_str(), O_RDONLY);
 #else
-        fd = CreateFile(file, GENERIC_READ, FILE_SHARE_READ, NULL,
+        fd = CreateFile(file.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL,
                         OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 #endif
-        free(file);
         if (fd != FD_ERR) {
             return fd;
         }
@@ -428,7 +422,7 @@ static void unmap_file(void *data, map_t mapping)
 #define poplsb(x)               ((x) & ((x) - 1))
 
 int TB_MaxCardinality = 0, TB_MaxCardinalityDTM = 0;
-unsigned SyzygyTablebase::TB_LARGEST = 0;
+int SyzygyTablebase::TB_LARGEST = 0;
 //extern int TB_CardinalityDTM;
 
 static const char *tbSuffix[] = { ".rtbw", ".rtbm", ".rtbz" };
@@ -521,16 +515,16 @@ static int root_probe_dtz(const Pos *pos, bool hasRepeated, bool useRule50, stru
 static uint16_t probe_root(Pos *pos, int *score, unsigned *results);
 
 unsigned SyzygyTablebase::tb_probe_wdl_impl(
-                           uint64_t white,
-                           uint64_t black,
-                           uint64_t kings,
-                           uint64_t queens,
-                           uint64_t rooks,
-                           uint64_t bishops,
-                           uint64_t knights,
-                           uint64_t pawns,
-                           unsigned ep,
-                           bool turn)
+                                            uint64_t white,
+                                            uint64_t black,
+                                            uint64_t kings,
+                                            uint64_t queens,
+                                            uint64_t rooks,
+                                            uint64_t bishops,
+                                            uint64_t knights,
+                                            uint64_t pawns,
+                                            unsigned ep,
+                                            bool turn)
 {
     Pos pos =
     {
@@ -564,18 +558,18 @@ static unsigned dtz_to_wdl(int cnt50, int dtz)
 }
 
 unsigned SyzygyTablebase::tb_probe_root_impl(
-                            uint64_t white,
-                            uint64_t black,
-                            uint64_t kings,
-                            uint64_t queens,
-                            uint64_t rooks,
-                            uint64_t bishops,
-                            uint64_t knights,
-                            uint64_t pawns,
-                            unsigned rule50,
-                            unsigned ep,
-                            bool turn,
-                            unsigned *results)
+                                             uint64_t white,
+                                             uint64_t black,
+                                             uint64_t kings,
+                                             uint64_t queens,
+                                             uint64_t rooks,
+                                             uint64_t bishops,
+                                             uint64_t knights,
+                                             uint64_t pawns,
+                                             unsigned rule50,
+                                             unsigned ep,
+                                             bool turn,
+                                             unsigned *results)
 {
     Pos pos =
     {
@@ -612,21 +606,21 @@ unsigned SyzygyTablebase::tb_probe_root_impl(
 }
 
 int SyzygyTablebase::tb_probe_root_dtz(
-                      uint64_t white,
-                      uint64_t black,
-                      uint64_t kings,
-                      uint64_t queens,
-                      uint64_t rooks,
-                      uint64_t bishops,
-                      uint64_t knights,
-                      uint64_t pawns,
-                      unsigned rule50,
-                      unsigned castling,
-                      unsigned ep,
-                      bool     turn,
-                      bool     hasRepeated,
-                      bool     useRule50,
-                      struct TbRootMoves *results) {
+                                       uint64_t white,
+                                       uint64_t black,
+                                       uint64_t kings,
+                                       uint64_t queens,
+                                       uint64_t rooks,
+                                       uint64_t bishops,
+                                       uint64_t knights,
+                                       uint64_t pawns,
+                                       unsigned rule50,
+                                       unsigned castling,
+                                       unsigned ep,
+                                       bool     turn,
+                                       bool     hasRepeated,
+                                       bool     useRule50,
+                                       struct TbRootMoves *results) {
     Pos pos =
     {
         white,
@@ -646,20 +640,20 @@ int SyzygyTablebase::tb_probe_root_dtz(
 }
 
 int SyzygyTablebase::tb_probe_root_wdl(
-                      uint64_t white,
-                      uint64_t black,
-                      uint64_t kings,
-                      uint64_t queens,
-                      uint64_t rooks,
-                      uint64_t bishops,
-                      uint64_t knights,
-                      uint64_t pawns,
-                      unsigned rule50,
-                      unsigned castling,
-                      unsigned ep,
-                      bool     turn,
-                      bool     useRule50,
-                      struct TbRootMoves *results) {
+                                       uint64_t white,
+                                       uint64_t black,
+                                       uint64_t kings,
+                                       uint64_t queens,
+                                       uint64_t rooks,
+                                       uint64_t bishops,
+                                       uint64_t knights,
+                                       uint64_t pawns,
+                                       unsigned rule50,
+                                       unsigned castling,
+                                       unsigned ep,
+                                       bool     turn,
+                                       bool     useRule50,
+                                       struct TbRootMoves *results) {
     Pos pos =
     {
         white,
@@ -696,15 +690,14 @@ static void prt_str(const Pos *pos, char *str, bool flip)
     *str++ = 0;
 }
 
-static bool test_tb(const char *str, const char *suffix)
+static bool test_tb(const std::string& str, const std::string& suffix)
 {
     FD fd = open_tb(str, suffix);
     if (fd != FD_ERR) {
         size_t size = file_size(fd);
         close_tb(fd);
         if ((size & 63) != 16) {
-            fprintf(stderr, "Incomplete tablebase file %s.%s\n", str, suffix);
-            printf("info string Incomplete tablebase file %s.%s\n", str, suffix);
+            std::cerr << "Incomplete tablebase file " << str << "." << suffix << std::endl;
             fd = FD_ERR;
         }
     }
@@ -743,7 +736,7 @@ static void add_to_hash(struct BaseEntry *ptr, uint64_t key)
 #define pchr(i) piece_to_char[QUEEN - (i)]
 #define Swap(a,b) {int tmp=a;a=b;b=tmp;}
 
-void SyzygyTablebase::init_tb(char *str)
+void SyzygyTablebase::init_tb(const std::string& str)
 {
     if (!test_tb(str, tbSuffix[WDL])) {
         missingVec.push_back(str);
@@ -754,11 +747,11 @@ void SyzygyTablebase::init_tb(char *str)
     for (int i = 0; i < 16; i++)
         pcs[i] = 0;
     int color = 0;
-    for (char *s = str; *s; s++)
-        if (*s == 'v')
+    for (auto ch : str)
+        if (ch == 'v')
             color = 8;
         else {
-            int piece_type = char_to_piece_type(*s);
+            int piece_type = char_to_piece_type(ch);
             if (piece_type) {
                 assert((piece_type | color) < 16);
                 pcs[piece_type | color]++;
@@ -842,6 +835,19 @@ static void free_tb_entry(struct BaseEntry *be)
     }
 }
 
+std::vector<std::string> splitString(const std::string &s, char delim)
+{
+    std::vector<std::string> elems;
+    std::stringstream ss;
+    ss.str(s);
+    std::string item;
+    while (std::getline(ss, item, delim)) {
+        if (!item.empty())
+            elems.push_back(item);
+    }
+    return elems;
+}
+
 bool SyzygyTablebase::tb_init(const std::string& path)
 {
     if (!initialized) {
@@ -855,9 +861,7 @@ bool SyzygyTablebase::tb_init(const std::string& path)
     }
     
     // if pathString is set, we need to clean up first.
-    if (pathString) {
-        free(pathString);
-        free(paths);
+    if (!pathString.empty()) {
         
         for (int i = 0; i < tbNumPiece; i++)
             free_tb_entry((struct BaseEntry *)&pieceEntry[i]);
@@ -866,31 +870,16 @@ bool SyzygyTablebase::tb_init(const std::string& path)
         
         LOCK_DESTROY(tbMutex);
         
-        pathString = NULL;
+        pathString.clear();
         numWdl = numDtm = numDtz = 0;
     }
     
     // if path is an empty string or equals "<empty>", we are done.
-//    const char *p = path;
+    //    const char *p = path;
     if (path.empty() || path == "<empty>") return true;
     
-    pathString = (char*)malloc(path.length() + 1);
-    strcpy(pathString, path.c_str());
-    numPaths = 0;
-    for (int i = 0;; i++) {
-        if (pathString[i] != SEP_CHAR)
-            numPaths++;
-        while (pathString[i] && pathString[i] != SEP_CHAR)
-            i++;
-        if (!pathString[i]) break;
-        pathString[i] = 0;
-    }
-    paths = (char**)malloc(numPaths * sizeof(*paths));
-    for (int i = 0, j = 0; i < numPaths; i++) {
-        while (!pathString[j]) j++;
-        paths[i] = &pathString[j];
-        while (pathString[j]) j++;
-    }
+    pathString = path;
+    paths = splitString(pathString, SEP_CHAR);
     
     LOCK_INIT(tbMutex);
     
@@ -912,99 +901,94 @@ bool SyzygyTablebase::tb_init(const std::string& path)
         tbHash[i].ptr = NULL;
     }
     
-    char str[16];
-    int i, j, k, l, m;
-    
-    for (i = 0; i < 5; i++) {
-        sprintf(str, "K%cvK", pchr(i));
+    for (int i = 0; i < 5; i++) {
+        //        sprintf(str, "K%cvK", pchr(i));
+        auto str = std::string("K") + pchr(i) + "vK";
         init_tb(str);
     }
     
-    for (i = 0; i < 5; i++)
-        for (j = i; j < 5; j++) {
-            sprintf(str, "K%cvK%c", pchr(i), pchr(j));
+    for (int i = 0; i < 5; i++)
+        for (int j = i; j < 5; j++) {
+            auto str = std::string("K") + pchr(i) + "vK" + pchr(j);
             init_tb(str);
         }
     
-    for (i = 0; i < 5; i++)
-        for (j = i; j < 5; j++) {
-            sprintf(str, "K%c%cvK", pchr(i), pchr(j));
+    for (int i = 0; i < 5; i++)
+        for (int j = i; j < 5; j++) {
+            auto str = std::string("K") + pchr(i) + pchr(j) + "vK";
             init_tb(str);
         }
     
-    for (i = 0; i < 5; i++)
-        for (j = i; j < 5; j++)
-            for (k = 0; k < 5; k++) {
-                sprintf(str, "K%c%cvK%c", pchr(i), pchr(j), pchr(k));
+    for (int i = 0; i < 5; i++)
+        for (int j = i; j < 5; j++)
+            for (int k = 0; k < 5; k++) {
+                auto str = std::string("K") + pchr(i) + pchr(j) + "vK" + pchr(k);
                 init_tb(str);
             }
     
-    for (i = 0; i < 5; i++)
-        for (j = i; j < 5; j++)
-            for (k = j; k < 5; k++) {
-                sprintf(str, "K%c%c%cvK", pchr(i), pchr(j), pchr(k));
+    for (int i = 0; i < 5; i++)
+        for (int j = i; j < 5; j++)
+            for (int k = j; k < 5; k++) {
+                auto str = std::string("K") + pchr(i) + pchr(j) + pchr(k) + "vK";
                 init_tb(str);
             }
     
     // 6- and 7-piece TBs make sense only with a 64-bit address space
-    if (sizeof(size_t) < 8 || TB_PIECES < 6)
-        goto finished;
+    //    if (sizeof(size_t) < 8 || TB_PIECES < 6)
+    //        goto finished;
     
-    for (i = 0; i < 5; i++)
-        for (j = i; j < 5; j++)
-            for (k = i; k < 5; k++)
-                for (l = (i == k) ? j : k; l < 5; l++) {
-                    sprintf(str, "K%c%cvK%c%c", pchr(i), pchr(j), pchr(k), pchr(l));
+    // 6 men
+    for (int i = 0; i < 5; i++)
+        for (int j = i; j < 5; j++)
+            for (int k = i; k < 5; k++)
+                for (int l = (i == k) ? j : k; l < 5; l++) {
+                    auto str = std::string("K") + pchr(i) + pchr(j) + "vK" + pchr(k) + pchr(l);
                     init_tb(str);
                 }
     
-    for (i = 0; i < 5; i++)
-        for (j = i; j < 5; j++)
-            for (k = j; k < 5; k++)
-                for (l = 0; l < 5; l++) {
-                    sprintf(str, "K%c%c%cvK%c", pchr(i), pchr(j), pchr(k), pchr(l));
+    for (int i = 0; i < 5; i++)
+        for (int j = i; j < 5; j++)
+            for (int k = j; k < 5; k++)
+                for (int l = 0; l < 5; l++) {
+                    auto str = std::string("K") + pchr(i) + pchr(j) + pchr(k) + "vK" + pchr(l);
                     init_tb(str);
                 }
     
-    for (i = 0; i < 5; i++)
-        for (j = i; j < 5; j++)
-            for (k = j; k < 5; k++)
-                for (l = k; l < 5; l++) {
-                    sprintf(str, "K%c%c%c%cvK", pchr(i), pchr(j), pchr(k), pchr(l));
+    for (int i = 0; i < 5; i++)
+        for (int j = i; j < 5; j++)
+            for (int k = j; k < 5; k++)
+                for (int l = k; l < 5; l++) {
+                    auto str = std::string("K") + pchr(i) + pchr(j) + "vK" + pchr(k) + pchr(l);
                     init_tb(str);
                 }
     
-    if (TB_PIECES < 7)
-        goto finished;
-    
-    for (i = 0; i < 5; i++)
-        for (j = i; j < 5; j++)
-            for (k = j; k < 5; k++)
-                for (l = k; l < 5; l++)
-                    for (m = l; m < 5; m++) {
-                        sprintf(str, "K%c%c%c%c%cvK", pchr(i), pchr(j), pchr(k), pchr(l), pchr(m));
+    for (int i = 0; i < 5; i++)
+        for (int j = i; j < 5; j++)
+            for (int k = j; k < 5; k++)
+                for (int l = k; l < 5; l++)
+                    for (int m = l; m < 5; m++) {
+                        auto str = std::string("K") + pchr(i) + pchr(j) + pchr(k) + pchr(l) + pchr(m) + "vK";
                         init_tb(str);
                     }
     
-    for (i = 0; i < 5; i++)
-        for (j = i; j < 5; j++)
-            for (k = j; k < 5; k++)
-                for (l = k; l < 5; l++)
-                    for (m = 0; m < 5; m++) {
-                        sprintf(str, "K%c%c%c%cvK%c", pchr(i), pchr(j), pchr(k), pchr(l), pchr(m));
+    for (int i = 0; i < 5; i++)
+        for (int j = i; j < 5; j++)
+            for (int k = j; k < 5; k++)
+                for (int l = k; l < 5; l++)
+                    for (int m = 0; m < 5; m++) {
+                        auto str = std::string("K") + pchr(i) + pchr(j) + pchr(k) + pchr(l) + "vK" + pchr(m);
                         init_tb(str);
                     }
     
-    for (i = 0; i < 5; i++)
-        for (j = i; j < 5; j++)
-            for (k = j; k < 5; k++)
-                for (l = 0; l < 5; l++)
-                    for (m = l; m < 5; m++) {
-                        sprintf(str, "K%c%c%cvK%c%c", pchr(i), pchr(j), pchr(k), pchr(l), pchr(m));
+    for (int i = 0; i < 5; i++)
+        for (int j = i; j < 5; j++)
+            for (int k = j; k < 5; k++)
+                for (int l = 0; l < 5; l++)
+                    for (int m = l; m < 5; m++) {
+                        auto str = std::string("K") + pchr(i) + pchr(j) + pchr(k) + "vK" + pchr(l) + pchr(m);
                         init_tb(str);
                     }
     
-finished:
     /* TBD - assumes UCI
      printf("info string Found %d WDL, %d DTM and %d DTZ tablebase files.\n",
      numWdl, numDtm, numDtz);
@@ -1021,19 +1005,16 @@ finished:
         for(auto && s : missingVec) {
             if (s.length() - 1 <= TB_LARGEST) {
                 missingCnt++;
-                std::cout << "missing " << s << std::endl;
             }
         }
     }
-    
-//    std::cout << "Syzygy tablebase found: " << numWdl << ", missing: " << missingCnt << std::endl;
     return true;
 }
 
 std::string SyzygyTablebase::toString()
 {
     std::ostringstream stringStream;
-    stringStream << "Syzygy endgames: " << numWdl << ", missing: " << missingCnt << "; ";
+    stringStream << "Syzygy endgames: " << numWdl << ", pieces: " << TB_LARGEST << ", missing: " << missingCnt << "; ";
     return stringStream.str();
 }
 
@@ -2051,14 +2032,14 @@ static Value probe_dtm_dc(const Pos *pos, int won, int *success)
             v = -probe_dtm_dc(&pos1, 0, success) - 1;
         else
             v = -TB_VALUE_INFINITE;
-        bestCap = max(bestCap,v);
+        bestCap = std::max(bestCap,v);
         if (*success == 0) return 0;
     }
     
     int dtm = probe_dtm_table(pos, won, success);
     v = won ? TB_VALUE_MATE - 2 * dtm + 1 : -TB_VALUE_MATE + 2 * dtm;
     
-    return max(bestCap,v);
+    return std::max(bestCap,v);
 }
 #endif
 
@@ -2173,9 +2154,9 @@ Value TB_probe_dtm2(const Pos *pos, int wdl, int *success)
         else
             v = -TB_VALUE_MATE;
         if (is_en_passant(&pos1, move))
-            bestEp = max(bestEp,v);
+            bestEp = std::max(bestEp,v);
         else
-            bestCap = max(bestCap,v);
+            bestCap = std::max(bestCap,v);
         if (*success == 0)
             return 0;
     }
@@ -2194,10 +2175,10 @@ Value TB_probe_dtm2(const Pos *pos, int wdl, int *success)
             return bestEp;
     }
     
-    bestCap = max(bestCap,v);
+    bestCap = std::max(bestCap,v);
     int dtm = probe_dtm_table(pos, wdl > 0, success);
     v = wdl > 0 ? TB_VALUE_MATE - 2 * dtm + 1 : -TB_VALUE_MATE + 2 * dtm;
-    return max(bestCap,v);
+    return std::max(bestCap,v);
 }
 #endif
 
@@ -2372,9 +2353,9 @@ static int root_probe_dtz(const Pos *pos, bool hasRepeated, bool useRule50, stru
         // 1 cp to cursed wins and let it grow to 49 cp as the position gets
         // closer to a real win.
         m->tbScore =  r >= bound ? TB_VALUE_MATE - TB_MAX_MATE_PLY - 1
-        : r >  0     ? max( 3, r - 800) * TB_VALUE_PAWN / 200
+        : r >  0     ? std::max( 3, r - 800) * TB_VALUE_PAWN / 200
         : r == 0     ? TB_VALUE_DRAW
-        : r > -bound ? min(-3, r + 800) * TB_VALUE_PAWN / 200
+        : r > -bound ? std::min(-3, r + 800) * TB_VALUE_PAWN / 200
         :             -TB_VALUE_MATE + TB_MAX_MATE_PLY + 1;
     }
     return 1;
@@ -2686,4 +2667,5 @@ uint64_t tb_pawn_attacks(unsigned sq, bool color)
 }
 
 #endif      /* TB_NO_HELPER_API */
+
 

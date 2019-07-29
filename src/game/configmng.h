@@ -180,7 +180,7 @@ namespace banksia {
         Option checkOverrideOption(const Option& option);
         Option getOverrideOption(const std::string& name);
         
-        void setSyzygyPath(const std::string& path) { syzygyPath = path; }
+		void setSyzygyPath(const std::string& path);
         std::string getSyzygyPath() const { return syzygyPath; }
 
     protected:
@@ -196,8 +196,9 @@ namespace banksia {
         
         int overrideOptionThreads = 0;
         int overrideOptionMemory = 0;
+		std::string syzygyPath;
 
-        std::string syzygyPath;
+		Option threadOption, memoryOption, syzygyOption;
     };
     
     extern ConfigMng configMng;

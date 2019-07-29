@@ -1453,7 +1453,7 @@ struct SyzygyPos
     uint16_t move;
 };
 
-Result ChessBoard::probeSyzygy() const
+Result ChessBoard::probeSyzygy(int maxPieces) const
 {
     Result result;
     if (!Tablebase::SyzygyTablebase::TB_LARGEST) {
@@ -1461,7 +1461,7 @@ Result ChessBoard::probeSyzygy() const
     }
     
     auto total = toPieceCount(nullptr);
-    if (total > Tablebase::SyzygyTablebase::TB_LARGEST) {
+    if (total > maxPieces || total > Tablebase::SyzygyTablebase::TB_LARGEST) {
         return result;
     }
     

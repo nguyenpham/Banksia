@@ -814,6 +814,21 @@ bool ConfigMng::loadOverrideOptions(const Json::Value& oo)
         overrideOptionMode = v.isMember("mode") && v["mode"].asBool();
         overrideOptionThreads = v.isMember("threads") ? v["threads"].asInt() : 0;
         overrideOptionMemory = v.isMember("memory") ? v["memory"].asInt() : 0;
+
+		if (overrideOptionThreads > 0) {
+			threadOption.name = "threads";
+			threadOption.type = OptionType::spin;
+			threadOption.setOverrideType(true);
+			threadOption.setDefaultValue(overrideOptionThreads, 1, overrideOptionThreads * 2);
+			assert(threadOption.isValid());
+		}
+		if (overrideOptionMemory > 0) {
+			memoryOption.name = "memory";
+			memoryOption.type = OptionType::spin;
+			memoryOption.setOverrideType(true);
+			memoryOption.setDefaultValue(overrideOptionMemory, 1, overrideOptionMemory * 2);
+			assert(memoryOption.isValid());
+		}
     }
     
     if (!overrideOptionMode || !oo.isMember("options")) {
@@ -834,37 +849,29 @@ bool ConfigMng::loadOverrideOptions(const Json::Value& oo)
     return true;
 }
 
+void ConfigMng::setSyzygyPath(const std::string& path)
+{
+	syzygyPath = path;
+
+	if (syzygyPath.empty()) return;
+
+	syzygyOption.name = "syzygyPath";
+	syzygyOption.setDefaultValue(syzygyPath);
+	syzygyOption.type = OptionType::string;
+	syzygyOption.setOverrideType(true);
+	assert(syzygyOption.isValid());
+}
+
 Option ConfigMng::checkOverrideOption(const Option& option)
 {
     if (overrideOptionMode && option.isOverridable()) {
+		auto o = getOverrideOption(option.name);
+		if (o.isValid()) {
+			return o;
+		}
         auto p = overrideOptions.find(option.name);
         if (p != overrideOptions.end() && p->second.type == option.type) {
             return p->second;
-        }
-        
-        if (option.type == OptionType::spin) {
-            if (overrideOptionThreads > 0 || overrideOptionMemory > 0) {
-                auto name = option.name;
-                toLower(name);
-                if (overrideOptionThreads > 0 && (name == "threads" || name == "cores")) {
-                    Option option2 = option;
-                    option2.value = overrideOptionThreads;
-                    return option2;
-                }
-                if (overrideOptionMemory > 0 && (name == "hash" || name == "memory")) {
-                    Option option2 = option;
-                    option2.value = overrideOptionMemory;
-                    return option2;
-                }
-            }
-        } else if (option.type == OptionType::string && !syzygyPath.empty()) {
-            auto name = option.name;
-            toLower(name);
-            if (name.find("syzygy") != std::string::npos && name.find("path") != std::string::npos) {
-                Option option2 = option;
-                option2.string = syzygyPath;
-                return option2;
-            }
         }
     }
     return option;
@@ -872,6 +879,21 @@ Option ConfigMng::checkOverrideOption(const Option& option)
 
 Option ConfigMng::getOverrideOption(const std::string& name)
 {
-    auto p = overrideOptions.find(name);
-    return p == overrideOptions.end() ? Option() : p->second;
+	Option option;
+
+	if (overrideOptionMode) {
+		auto str = name;
+		toLower(str);
+		if (overrideOptionThreads > 0 && (str == "threads" || str == "cores")) {
+			option = threadOption;
+			option.name = name;
+		} else if (overrideOptionMemory > 0 && (str == "hash" || str == "memory")) {
+			option = memoryOption;
+			option.name = name;
+		} else if (!syzygyPath.empty() && str.find("syzygy") != std::string::npos && str.find("path") != std::string::npos) {
+			option = syzygyOption;
+			option.name = name;
+		}
+	}
+	return option;
 }

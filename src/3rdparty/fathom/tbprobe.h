@@ -26,7 +26,7 @@
 #define TBPROBE_H
 
 namespace Tablebase {
-
+    
 #ifndef TB_NO_STDINT
 #include <stdint.h>
 #else
@@ -46,21 +46,21 @@ namespace Tablebase {
 #define TB_CASTLING_Q               0x2     /* White queen-side. */
 #define TB_CASTLING_k               0x4     /* Black king-side. */
 #define TB_CASTLING_q               0x8     /* Black queen-side. */
-
+    
 #define TB_RESULT_WDL_MASK          0x0000000F
 #define TB_RESULT_WDL_SHIFT         0
-
+    
 #define TB_GET_WDL(_res)                        \
 (((_res) & TB_RESULT_WDL_MASK) >> TB_RESULT_WDL_SHIFT)
 #define TB_RESULT_FAILED            0xFFFFFFFF
-
+    
     class SyzygyTablebase
     {
     public:
-        static unsigned TB_LARGEST;
+        static int TB_LARGEST;
         
         static std::string toString();
-
+        
         /*
          * Initialize the tablebase.
          *
@@ -202,7 +202,7 @@ namespace Tablebase {
                               bool useRule50,
                               struct TbRootMoves *_results);
         
-        static void init_tb(char *str);
+        static void init_tb(const std::string& str);
         
         static unsigned tb_probe_wdl_impl(
                                           uint64_t _white,
@@ -280,13 +280,6 @@ namespace Tablebase {
     
     typedef uint16_t TbMove;
     
-//#define TB_MOVE_FROM(move)                                                 \
-//(((move) >> 6) & 0x3F)
-//#define TB_MOVE_TO(move)                                                   \
-//((move) & 0x3F)
-//#define TB_MOVE_PROMOTES(move)                                             \
-//(((move) >> 12) & 0x7)
-    
     struct TbRootMove {
         TbMove move;
         TbMove pv[TB_MAX_PLY];
@@ -302,5 +295,6 @@ namespace Tablebase {
 } // namespace Tablebase
 
 #endif
+
 
 

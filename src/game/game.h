@@ -47,6 +47,7 @@ namespace banksia {
         bool adjudicationMode = true;
         bool adjudicationEgtbMode = true;
         int adjudicationMaxGameLength = 0;
+        int adjudicationMaxPieces = 10;
     };
     
     class Game : public Obj, public Tickable

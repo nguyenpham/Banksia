@@ -235,7 +235,7 @@ bool Game::make(const Move& move, const std::string& moveString)
             }
             
             if (gameConfig.adjudicationEgtbMode) {
-                auto result = board.probeSyzygy();
+                auto result = board.probeSyzygy(gameConfig.adjudicationMaxPieces);
                 if (result.result != ResultType::noresult) {
                     gameOver(result);
                     return false;

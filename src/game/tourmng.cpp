@@ -336,6 +336,7 @@ bool TourMng::parseJsonAfterLoading(Json::Value& d)
         gameConfig.adjudicationMode = obj.isMember("mode") && obj["mode"].asBool();
         gameConfig.adjudicationEgtbMode = obj.isMember("tablebase") && obj["tablebase"].asBool();
         gameConfig.adjudicationMaxGameLength = obj.isMember("draw if game length over") ? obj["draw if game length over"].asInt() : 0;
+        gameConfig.adjudicationMaxPieces = obj.isMember("tablebase max pieces") ? obj["tablebase max pieces"].asInt() : 10;
     }
     
     s = "logs";
@@ -472,7 +473,7 @@ int TourMng::calcMatchNumber() const
         }
         case TourType::knockout:
         {
-            auto n = participantList.size();
+            auto n = (int)participantList.size();
             while(n >= 2) {
                 n >>= 1;
                 matchCnt += n;
