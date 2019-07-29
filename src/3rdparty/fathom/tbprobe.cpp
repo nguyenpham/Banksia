@@ -33,6 +33,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <algorithm>
+
+#include <locale>
+#include <codecvt>
 
 #include "tbprobe.h"
 
@@ -118,6 +122,7 @@
 #define FD_ERR -1
 typedef size_t map_t;
 #else
+#define NOMINMAX
 #include <windows.h>
 #define SEP_CHAR ';'
 #define FD HANDLE
@@ -342,10 +347,19 @@ static FD open_tb(const std::string& str, const std::string& suffix)
         file += "/";
 #endif
         file += str + suffix;
+
 #ifndef _WIN32
         fd = open(file.c_str(), O_RDONLY);
 #else
-        fd = CreateFile(file.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL,
+
+#if (defined UNICODE)
+		std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+		auto wfile = converter.from_bytes(file);
+#else
+		auto wfile = file;
+#endif
+
+        fd = CreateFile(wfile.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL,
                         OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 #endif
         if (fd != FD_ERR) {
@@ -680,12 +694,12 @@ static void prt_str(const Pos *pos, char *str, bool flip)
     int color = flip ? BLACK : WHITE;
     
     for (int pt = KING; pt >= PAWN; pt--)
-        for (int i = popcount(pieces_by_type(pos, (Color)color, (PieceType)pt)); i > 0; i--)
+        for (int i = (int)popcount(pieces_by_type(pos, (Color)color, (PieceType)pt)); i > 0; i--)
             *str++ = piece_to_char[pt];
     *str++ = 'v';
     color ^= 1;
     for (int pt = KING; pt >= PAWN; pt--)
-        for (int i = popcount(pieces_by_type(pos, (Color)color, (PieceType)pt)); i > 0; i--)
+        for (int i = (int)popcount(pieces_by_type(pos, (Color)color, (PieceType)pt)); i > 0; i--)
             *str++ = piece_to_char[pt];
     *str++ = 0;
 }
@@ -995,8 +1009,8 @@ bool SyzygyTablebase::tb_init(const std::string& path)
      fflush(stdout);
      */
     // Set TB_LARGEST, for backward compatibility with pre-7-man Fathom
-    TB_LARGEST = (unsigned)TB_MaxCardinality;
-    if ((unsigned)TB_MaxCardinalityDTM > TB_LARGEST) {
+    TB_LARGEST = TB_MaxCardinality;
+    if (TB_MaxCardinalityDTM > TB_LARGEST) {
         TB_LARGEST = TB_MaxCardinalityDTM;
     }
     
@@ -2621,9 +2635,9 @@ static uint16_t probe_root(Pos *pos, int *score, unsigned *results)
 
 #ifndef TB_NO_HELPER_API
 
-unsigned tb_pop_count(uint64_t bb)
+int tb_pop_count(uint64_t bb)
 {
-    return popcount(bb);
+    return (int)popcount(bb);
 }
 
 unsigned tb_lsb(uint64_t bb)
