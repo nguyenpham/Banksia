@@ -176,7 +176,8 @@ History
 
 
 GUI
-——-
+----
+
 I started working on a graphic user interface app based on Banksia.
 
 
@@ -190,7 +191,6 @@ Credits
 --------
 
 Banksia was written by Nguyen Hong Pham (axchess at yahoo dot com).
-
 
 
 
