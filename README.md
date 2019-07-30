@@ -151,6 +151,7 @@ If you download and use Banksia you already help me. All bug reports, suggestion
 
 Below are some features/functions we need someone helps too:
 - Elo and error margin: to show when a tournament completed
+- Profile for Linux and macOS: for Linux, I don’t know how to get memory/cpu usages without calling some external programs which are too slow to sample chess engines; for macOS, the security requires some complicated code/steps and not easy to implement
 - All parameters in command line (not using JSON files): I am not a fan of having long command lines. However if you think it may be useful and willing to help us to make it work, please go ahead
 
 
@@ -172,6 +173,11 @@ History
 - 8 July 2019: v1.0, Winboard protocol
 - 3 July 2019: v0.03, PGN opening
 - 1 July 2019: version 0.01, first release
+
+
+GUI
+——-
+I started working on a graphic user interface app based on Banksia.
 
 
 Terms of use
