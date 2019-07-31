@@ -110,20 +110,7 @@ namespace banksia {
     
     class Elo {
     public:
-        // https://www.chessprogramming.org/Match_Statistics
-        Elo(int wins, int draws, int losses) {
-            elo_difference = los = 0.0;
-            double games = wins + losses + draws;
-            if (games == 0 || wins + draws == 0) {
-                return;
-            }
-            double winning_fraction = (wins + 0.5 * draws) / games;
-            if (winning_fraction == 1) {
-                return;
-            }
-            elo_difference = -std::log(1.0 / winning_fraction - 1.0) * 400.0 / std::log(10.0);
-            los = .5 + .5 * std::erf((wins - losses) / std::sqrt(2.0 * (wins + losses)));
-        }
+        Elo(int wins, int draws, int losses);
         double elo_difference, los;
     };
     
@@ -132,7 +119,7 @@ namespace banksia {
     public:
         
         TourMng();
-        ~TourMng();
+        virtual ~TourMng();
         
         virtual const char* className() const override { return "TourMng"; }
         
@@ -165,7 +152,7 @@ namespace banksia {
         
         void reset();
         
-        virtual bool parseJsonAfterLoading(Json::Value&) override;
+        bool parseJsonAfterLoading(Json::Value&) override;
         
         void addMatchRecord(MatchRecord& record);
         void addMatchRecord_simple(MatchRecord& record);
@@ -195,7 +182,7 @@ namespace banksia {
         void matchCompleted(Game* game);
         bool addGame(Game* game);
         
-        virtual void tickWork() override;
+        void tickWork() override;
         
         void matchLog(const std::string& line, bool verbose);
         int uncompletedMatches();

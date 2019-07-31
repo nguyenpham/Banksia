@@ -29,6 +29,7 @@
 #include <algorithm>
 #include <random>
 #include <ctime>
+#include <cmath>
 
 #include "tourmng.h"
 
@@ -113,6 +114,21 @@ Json::Value MatchRecord::saveToJson() const
     obj["round"] = round;
     obj["pairId"] = pairId;
     return obj;
+}
+
+// https://www.chessprogramming.org/Match_Statistics
+Elo::Elo(int wins, int draws, int losses) {
+    elo_difference = los = 0.0;
+    double games = wins + losses + draws;
+    if (games == 0 || wins + draws == 0) {
+        return;
+    }
+    double winning_fraction = (wins + 0.5 * draws) / games;
+    if (winning_fraction == 1) {
+        return;
+    }
+    elo_difference = -log(1.0 / winning_fraction - 1.0) * 400.0 / log(10.0);
+    los = .5 + .5 * erf((wins - losses) / sqrt(2.0 * (wins + losses)));
 }
 
 //////////////////////////////

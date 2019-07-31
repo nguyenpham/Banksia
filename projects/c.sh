@@ -14,7 +14,7 @@ g++ -std=c++11 -c ../src/chess/*.cpp -O3 -DNDEBUG
 g++ -std=c++11 -c ../src/game/*.cpp -O3 -DNDEBUG
 g++ -std=c++11 -c ../src/*.cpp -O3 -DNDEBUG
 
-g++ -o banksia *.o
+g++ -pthread -o banksia *.o
 rm *.o
 ./banksia
 

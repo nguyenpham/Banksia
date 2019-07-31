@@ -53,6 +53,8 @@
 #include "comm.h"
 
 namespace banksia {
+    
+    const char* BANKSIA_VERSION = "3.1";
     bool banksiaVerbose = true;
     bool profileMode = false;
 

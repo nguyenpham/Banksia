@@ -664,11 +664,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../src/game/tourmng.cpp"
-            timestampString = "586228825.348811"
+            timestampString = "586234029.041043"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "706"
-            endingLineNumber = "706"
+            startingLineNumber = "723"
+            endingLineNumber = "723"
             landmarkName = "TourMng::createMatchList(std::vector&lt;std::string&gt; nameList, TourType tourType)"
             landmarkType = "7">
          </BreakpointContent>
