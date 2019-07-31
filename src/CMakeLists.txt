@@ -6,5 +6,5 @@ add_subdirectory(game)
 add_executable(banksia
   main.cpp)
 target_link_libraries(banksia
-  cpptime json process
+  cpptime json process fathom
   game chess base)

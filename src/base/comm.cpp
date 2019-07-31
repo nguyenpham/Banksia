@@ -180,9 +180,7 @@ namespace banksia {
     }
 
     std::string getVersion() {
-        char buf[10];
-        snprintf(buf, sizeof(buf), "%d.%d", BANKSIA_VERSION >> 8, BANKSIA_VERSION & 0xff);
-        return buf;
+        return BANKSIA_VERSION;
     }
     
     std::string getAppName() {

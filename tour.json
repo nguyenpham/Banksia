@@ -4,6 +4,7 @@
         "concurrency" : 2,
         "event" : "Computer event",
         "games per pair" : 2,
+        "swap pair sides" : true,
         "guide" : "type: roundrobin, knockout, swiss; event, site for PGN tags; shuffle: random players for roundrobin or swiss",
         "ponder" : false,
         "resumable" : true,

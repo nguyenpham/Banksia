@@ -1,4 +1,3 @@
-add_library(json OBJECT
+add_library(fathom OBJECT
   stdendian.h tbchess.h tbconfig.h tbprobe.h tbprobe.cpp)
-#target_include_directories(fathom
-#  INTERFACE .)
+#target_include_directories(fathom .)

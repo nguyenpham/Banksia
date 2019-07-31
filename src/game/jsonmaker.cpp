@@ -38,6 +38,7 @@ static const std::string jsonTourString =
 "        \"concurrency\" : 2,\n"
 "        \"event\" : \"Computer event\",\n"
 "        \"games per pair\" : 2,\n"
+"        \"swap pair sides\" : true,\n"
 "        \"guide\" : \"type: roundrobin, knockout, swiss; event, site for PGN tags; shuffle: random players for roundrobin or swiss\",\n"
 "        \"ponder\" : false,\n"
 "        \"resumable\" : true,\n"

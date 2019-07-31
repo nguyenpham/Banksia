@@ -200,7 +200,10 @@ bool TourMng::parseJsonAfterLoading(Json::Value& d)
         if (v.isMember(s)) {
             gameperpair = std::max(1, v[s].asInt());
         }
-        
+
+        s = "swap pair sides";
+        swapPairSides = !v.isMember(s) || v[s].asBool();
+
         s = "shuffle players";
         shufflePlayers = v.isMember(s) && v[s].asBool();
         
@@ -581,7 +584,9 @@ void TourMng::addMatchRecord(MatchRecord& record)
     record.pairId = std::rand();
     for(int i = 0; i < gameperpair; i++) {
         addMatchRecord_simple(record);
-        record.swapPlayers();
+        if (swapPairSides) {
+            record.swapPlayers();
+        }
     }
 }
 
@@ -700,6 +705,7 @@ bool TourMng::createMatchList(std::vector<std::string> nameList, TourType tourTy
     
     if (shufflePlayers) {
         auto rng = std::default_random_engine {};
+        rng.seed((unsigned int)std::chrono::system_clock::now().time_since_epoch().count());
         std::shuffle(std::begin(nameList), std::end(nameList), rng);
     }
     
@@ -722,7 +728,7 @@ bool TourMng::createMatchList(std::vector<std::string> nameList, TourType tourTy
                     }
                     
                     // random swap to avoid name0 player plays all white side
-                    MatchRecord record(name0, name1, rand() & 1);
+                    MatchRecord record(name0, name1, swapPairSides && (rand() & 1));
                     record.round = 1;
                     addMatchRecord(record);
                 }
@@ -915,7 +921,7 @@ bool TourMng::pairingMatchListRecusive(std::vector<TourPlayer>& playerVec, int r
             if (type == TourType::swiss) {
                 swap = player0.whiteCnt > player1.whiteCnt;
             }
-            MatchRecord record(name0, name1, swap);
+            MatchRecord record(name0, name1, swapPairSides && swap);
             record.round = round;
             addMatchRecord(record);
             return true;

@@ -228,7 +228,7 @@ namespace banksia {
         
     private:
         int gameConcurrency = 1, gameperpair = 1, swissRounds = 6;
-        bool resumable = true;
+        bool resumable = true, swapPairSides = true;
 
         static void showPathInfo(const std::string& name, const std::string& path, bool mode);
         
