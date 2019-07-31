@@ -25,6 +25,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <ctime>
 
 #include "game.h"
 #include "engine.h"

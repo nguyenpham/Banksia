@@ -28,6 +28,7 @@
 #include <cmath>
 #include <algorithm>
 #include <random>
+#include <ctime>
 
 #include "tourmng.h"
 
@@ -1516,8 +1517,8 @@ std::string TourMng::createTournamentStats()
         auto r = resultList.at(i);
         auto stats = engineStatsMap[r.name];
         
-        auto games = std::max(1LL, stats.games);
-        auto moves = std::max(1LL, stats.moves);
+        auto games = std::max<i64>(1, stats.games);
+        auto moves = std::max<i64>(1, stats.moves);
         auto nodeStr = std::to_string(int(stats.nodes / (moves * 1024))) + "K";
         
         stringStream
@@ -1525,7 +1526,7 @@ std::string TourMng::createTournamentStats()
         << std::left << std::setw(maxNameLen + 2) << r.name
         << std::right << std::setw(w) << nodeStr
         << std::right << std::setw(w) << double(stats.depths) / moves
-        << std::right << std::setw(w) << stats.elapsed / double(std::max(1LL, stats.moves))
+        << std::right << std::setw(w) << stats.elapsed / double(std::max<i64>(1, stats.moves))
         
         << std::right << std::setw(w) << double(stats.moves) / games
         << std::right << std::setw(w) << stats.elapsed / games
@@ -1548,8 +1549,8 @@ std::string TourMng::createTournamentStats()
         stringStream << std::endl;
     }
     
-    auto games = std::max(1LL, allStats.games);
-    auto moves = std::max(1LL, allStats.moves);
+    auto games = std::max<i64>(1, allStats.games);
+    auto moves = std::max<i64>(1, allStats.moves);
     auto nodeStr = std::to_string(int(allStats.nodes / (moves * 1024))) + "K";
     
     stringStream
@@ -1559,7 +1560,7 @@ std::string TourMng::createTournamentStats()
     << std::right << std::setw(w) << double(allStats.depths) / moves
     << std::right << std::setw(w) << double(allStats.moves) / games
     << std::right << std::setw(w) << allStats.elapsed / games
-    << std::right << std::setw(w) << allStats.elapsed / double(std::max(1LL, allStats.moves));
+    << std::right << std::setw(w) << allStats.elapsed / double(std::max<i64>(1, allStats.moves));
     
     if (abnormalCnt) {
         stringStream << std::right << std::setw(w) << abnormalCnt;

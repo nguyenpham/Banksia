@@ -22,8 +22,10 @@
  SOFTWARE.
  */
 
-#include <locale>
-#include <codecvt>
+#if (defined _WIN32) && (defined UNICODE)
+    #include <locale>
+    #include <codecvt>
+#endif
 
 #include "engine.h"
 #include "tourmng.h"

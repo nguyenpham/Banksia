@@ -35,8 +35,10 @@
 #include <string.h>
 #include <algorithm>
 
+#if (defined _WIN32) && (defined UNICODE)
 #include <locale>
 #include <codecvt>
+#endif
 
 #include "tbprobe.h"
 
@@ -1654,7 +1656,7 @@ static uint8_t *decompress_pairs(struct PairsData *d, size_t idx)
         return d->constValue;
     
     uint32_t mainIdx = (uint32_t)(idx >> d->idxBits);
-    int litIdx = (idx & (((size_t)1 << d->idxBits) - 1)) - ((size_t)1 << (d->idxBits - 1));
+    int litIdx = int(idx & (((size_t)1 << d->idxBits) - 1)) - ((size_t)1 << (d->idxBits - 1));
     uint32_t block;
     memcpy(&block, d->indexTable + 6 * mainIdx, sizeof(block));
     block = from_le_u32(block);

@@ -45,11 +45,11 @@ using namespace banksia;
 
 std::string Profile::toString(bool lastReport) const
 {
-	auto cpu = double(cpuTotal) * 100.0 / std::max(1ULL, cpuTime);
-	auto thinking = double(cpuThinkingTotal) * 100.0 / std::max(1ULL, cpuThinkingTime);
-	auto mem = int(memTotal / (std::max(1ULL, memCall) * 1024 * 1024));
+	auto cpu = double(cpuTotal) * 100.0 / std::max<u64>(1, cpuTime);
+	auto thinking = double(cpuThinkingTotal) * 100.0 / std::max<u64>(1, cpuThinkingTime);
+	auto mem = int(memTotal / (std::max<u64>(1, memCall) * 1024 * 1024));
 	auto maxmem = int(memMax / (1024 * 1024));
-	auto threads = int(threadTotal / std::max(1ULL, threadCall));
+	auto threads = int(threadTotal / std::max<u64>(1, threadCall));
 	std::ostringstream stringStream;
 	stringStream.precision(1);
 	stringStream << std::fixed;
