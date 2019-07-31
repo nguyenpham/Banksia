@@ -56,7 +56,7 @@ namespace banksia {
         
         Game();
         Game(Player*, Player*, const TimeController&, const GameConfig&);
-        ~Game();
+        virtual ~Game();
         
         void set(Player*, Player*, const TimeController&);
         void attachPlayer(Player* player, Side side);
