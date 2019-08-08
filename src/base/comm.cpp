@@ -467,9 +467,9 @@ namespace banksia {
     
     int getNumberOfCores() {
 #ifdef WIN32
-        SYSTEM_INFO sysinfo;
-        GetSystemInfo(&sysinfo);
-        return sysinfo.dwNumberOfProcessors;
+		SYSTEM_INFO sysinfo;
+		GetSystemInfo(&sysinfo);
+		return sysinfo.dwNumberOfProcessors;
 #elif MACOS
         int nm[2];
         size_t len = 4;
