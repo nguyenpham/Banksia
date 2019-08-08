@@ -84,8 +84,8 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "-no -jsonpath /Users/nguyenpham/workspace/BanksiaMatch/tour.json"
-            isEnabled = "YES">
+            argument = "-no -t /Users/nguyenpham/workspace/BanksiaMatch/tour.json"
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-yes"

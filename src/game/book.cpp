@@ -40,7 +40,7 @@ std::string BookEdp::getRandomFEN() const
 {
     if (!stringVec.empty()) {
         for(int atemp = 0; atemp < 5; atemp++) {
-            auto k = std::rand() % stringVec.size();
+            size_t k = size_t(std::rand()) % stringVec.size();
             auto str = stringVec.at(k);
             if (!str.empty()) {
                 ChessBoard board;
@@ -67,7 +67,7 @@ size_t BookEdp::size() const
     return stringVec.size();
 }
 
-bool BookEdp::getRandomBook(std::string& fenString, std::vector<Move>& moveList) const
+bool BookEdp::getRandomBook(std::string& fenString, std::vector<Move>&) const
 {
     fenString = getRandomFEN();
     return !fenString.empty();
@@ -135,12 +135,12 @@ void BookPgn::load(const std::string& _path, int _maxPly, int _top100)
 }
 
 
-bool BookPgn::getRandomBook(std::string& fenString, std::vector<Move>& moveList) const
+bool BookPgn::getRandomBook(std::string&, std::vector<Move>& moveList) const
 {
     if (moves.empty()) {
         return false;
     }
-    auto k = std::rand() % moves.size();
+    size_t k = size_t(std::rand()) % moves.size();
     moveList = moves.at(k);
     return !moveList.empty();
 }
@@ -198,7 +198,7 @@ bool BookPolyglot::isEmpty() const
 
 size_t BookPolyglot::size() const
 {
-    return itemCnt;
+    return size_t(itemCnt);
 }
 
 void BookPolyglot::load(const std::string& _path, int _maxPly, int _top100)
@@ -209,22 +209,22 @@ void BookPolyglot::load(const std::string& _path, int _maxPly, int _top100)
     
     i64 length = 0;
     if (ifs.is_open()) {
-        length = std::max((i64)0, (i64)ifs.tellg());
+        length = std::max<i64>(0, static_cast<i64>(ifs.tellg()));
     }
     
     assert(sizeof(BookPolyglotItem) == 16);
-    itemCnt = length / sizeof(BookPolyglotItem);
+    itemCnt = length / static_cast<i64>(sizeof(BookPolyglotItem));
     
     if (itemCnt == 0) {
         std::cerr << "Error: cannot load book " << path << std::endl;
         return;
     }
     
-    items = (BookPolyglotItem *) malloc(itemCnt * sizeof(BookPolyglotItem) + 64);
+    items = (BookPolyglotItem *) malloc(itemCnt * static_cast<i64>(sizeof(BookPolyglotItem)) + 64);
     ifs.seekg(0, std::ios::beg);
     ifs.read((char*)items, length);
     
-    for(int i = 0; i < itemCnt; i++) {
+    for(i64 i = 0; i < itemCnt; i++) {
         items[i].convertToLittleEndian();
     }
 }
@@ -236,7 +236,7 @@ bool BookPolyglot::isValid() const
     }
     
     u64 preKey = 0;
-    for(int i = 0; i < itemCnt; i++) {
+    for(i64 i = 0; i < itemCnt; i++) {
         if (preKey > items[i].key) {
             return false;
         }
@@ -282,20 +282,20 @@ std::vector<BookPolyglotItem> BookPolyglot::search(u64 key) const
     return vec;
 }
 
-bool BookPolyglot::getRandomBook(std::string& fenString, std::vector<Move>& moveList) const
+bool BookPolyglot::getRandomBook(std::string&, std::vector<Move>& moveList) const
 {
     ChessBoard board;
     board.newGame();
     
-    while (moveList.size() < maxPly) {
+    while (int(moveList.size()) < maxPly) {
         auto vec = search(board.key());
         if (vec.empty()) break;
         
         auto k = int(vec.size()) * top100 / 100;
-        assert(k >= 0 && k <= vec.size());
+        assert(k >= 0 && k <= int(vec.size()));
         auto idx = k == 0 ? 0 : (std::rand() % k);
         
-        auto move = vec[idx].getMove();
+        auto move = vec[size_t(idx)].getMove();
         if (!board.checkMake(move.from, move.dest, move.promotion)) break;
         moveList.push_back(move);
     }
@@ -534,7 +534,7 @@ bool BookMng::getRandomBook(int pairId, std::string& fenString, std::vector<Move
         ) {
         theFenString = "";
         theMoves.clear();
-        auto k = rand() % bookList.size();
+        auto k = size_t(rand()) % bookList.size();
         bookList.at(k)->getRandomBook(theFenString, theMoves);
     }
     

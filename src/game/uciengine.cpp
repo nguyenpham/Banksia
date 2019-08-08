@@ -195,12 +195,14 @@ std::string UciEngine::timeControlString() const
             std::string str = "wtime " + std::to_string(wtime) + " btime " + std::to_string(btime)
             + " winc " + std::to_string(inc) + " binc " + std::to_string(inc);
             
+            auto movestogo = 0;
             auto n = timeController->moves;
-            auto halfCnt = int(board->histList.size());
-            int fullCnt = halfCnt / 2;
-            int curMoveCnt = fullCnt % n;
-            
-            int movestogo = n - curMoveCnt;
+            if (n > 0) { // n == 0 => Fischer's clock
+                auto halfCnt = int(board->histList.size());
+                int fullCnt = halfCnt / 2;
+                int curMoveCnt = fullCnt % n;
+                movestogo = n - curMoveCnt;
+            }
             if (movestogo > 0) {
                 str += " movestogo " + std::to_string(movestogo);
             }
@@ -294,7 +296,7 @@ void UciEngine::parseLine(int cmdInt, const std::string& cmdString, const std::s
             }
             
             std::string str;
-            for(int i = 2; i < vec.size(); i++) {
+            for(size_t i = 2; i < vec.size(); i++) {
                 if (!str.empty()) str += " ";
                 str += vec.at(i);
             }

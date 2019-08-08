@@ -115,7 +115,7 @@ namespace banksia {
     {
     public:
         BookPolyglot() : Book(BookType::polygot) {}
-        virtual ~BookPolyglot();
+        virtual ~BookPolyglot() override;
         
         virtual const char* className() const override { return "BookPolyglot"; }
         virtual bool isValid() const override;
@@ -130,7 +130,7 @@ namespace banksia {
     private:
         i64 binarySearch(u64 key) const;
         
-        u64 itemCnt = 0;
+        i64 itemCnt = 0;
         BookPolyglotItem* items = nullptr;
     };
     

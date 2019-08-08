@@ -338,7 +338,7 @@ void JsonMaker::completed()
     std::cout << "All done!!! Elapsed: " << formatPeriod(elapsed_secs) << std::endl;
     
     std::cout << "\nTo play, enter:\n"
-    << getAppName() << " -jsonpath " << jsonTourMngPath << std::endl;
+    << getAppName() << " -t " << jsonTourMngPath << std::endl;
     
     // WARNING: exit the app here after completed the maker
     exit(0);

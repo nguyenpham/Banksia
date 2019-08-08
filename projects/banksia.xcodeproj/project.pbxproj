@@ -84,8 +84,6 @@
 		B1A7051822C84E4900013B1C /* process_unix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = process_unix.cpp; sourceTree = "<group>"; };
 		B1A7051922C84E4900013B1C /* process.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = process.cpp; sourceTree = "<group>"; };
 		B1A7051B22C84E4900013B1C /* process.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = process.hpp; sourceTree = "<group>"; };
-		B1A7053922C96C4000013B1C /* engines.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = engines.json; path = ../engines.json; sourceTree = "<group>"; };
-		B1A7053A22C96C4000013B1C /* tour.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = tour.json; path = ../tour.json; sourceTree = "<group>"; };
 		B1A7053B22C9ADA400013B1C /* book.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = book.cpp; sourceTree = "<group>"; };
 		B1A7053C22C9ADA400013B1C /* book.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = book.h; sourceTree = "<group>"; };
 		B1B5FA9C22E369D700767119 /* engineprofile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = engineprofile.h; sourceTree = "<group>"; };
@@ -227,8 +225,6 @@
 		B1E0A98022BFC8B20023122C = {
 			isa = PBXGroup;
 			children = (
-				B1A7053922C96C4000013B1C /* engines.json */,
-				B1A7053A22C96C4000013B1C /* tour.json */,
 				B1A7051422C7506400013B1C /* README.md */,
 				B1A704D622C62DE100013B1C /* src */,
 				B1E0A98A22BFC8B20023122C /* Products */,
@@ -283,6 +279,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				Base,
 			);
 			mainGroup = B1E0A98022BFC8B20023122C;
 			productRefGroup = B1E0A98A22BFC8B20023122C /* Products */;
@@ -440,8 +437,13 @@
 		B1E0A99122BFC8B20023122C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_WARN_ATOMIC_IMPLICIT_SEQ_CST = YES;
+				CLANG_WARN_CXX0X_EXTENSIONS = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 3FHDXJ5CB2;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -449,8 +451,13 @@
 		B1E0A99222BFC8B20023122C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_WARN_ATOMIC_IMPLICIT_SEQ_CST = YES;
+				CLANG_WARN_CXX0X_EXTENSIONS = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 3FHDXJ5CB2;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

@@ -43,7 +43,7 @@ namespace banksia {
     {
     public:
         TimeController();
-        ~TimeController();
+        virtual ~TimeController();
         
         void setup(TimeControlMode mode, int val = 0, double t0 = 0, double t1 = 0, double t2 = 0);
         
@@ -72,7 +72,7 @@ namespace banksia {
     {
     public:
         GameTimeController();
-        ~GameTimeController();
+        virtual ~GameTimeController();
         
         virtual const char* className() const override { return "GameTimeController"; }
         

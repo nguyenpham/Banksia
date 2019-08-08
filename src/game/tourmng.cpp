@@ -401,12 +401,29 @@ bool TourMng::parseJsonAfterLoading(Json::Value& d)
         }
     }
     
+    // Info about books & tablebases
     std::cout << bookMng.toString();
     if (gameConfig.adjudicationMode) {
         std::cout << Tablebase::SyzygyTablebase::toString();
     }
     std::cout << std::endl;
     
+    // Check cores and memory
+    {
+        // engine concurrency
+        auto n = gameConcurrency * 2;
+        
+        auto threads = n * std::max(1, configMng.getEngineThreads());
+        auto memory = n * configMng.getEngineMemory();
+        auto cores = getNumberOfCores();
+        if (threads >= cores) {
+            std::cout << "Warning: concurrent engines (" << n << ") may use from " << threads << " threads, more than the number of computer cores (" << cores << ")" << std::endl;
+        }
+        auto sysMem = getMemorySize() / (1024 * 1024);
+        if (memory >= sysMem * 3 / 4) {
+            std::cout << "Warning: concurrent engines (" << n << ") may use from " << memory << " MB memory" << std::endl;
+        }
+    }
     return true;
 }
 
@@ -1259,17 +1276,16 @@ bool TourMng::loadMatchRecords(bool autoYesReply)
         }
     }
     
-    assert(timeController.isValid());
-    
     auto s = "timeControl";
     if (d.isMember(s)) {
         auto obj = d[s];
         auto oldTimeControl = timeController.saveToJson();
         if (!timeController.load(obj) || !timeController.isValid()) {
             timeController.load(oldTimeControl);
+            std::cerr << "Error: TimeControl is incorrect. Reload default one." << std::endl;
         }
     }
-    
+
     assert(timeController.isValid());
     previousElapsed += d["elapsed"].asInt();
     

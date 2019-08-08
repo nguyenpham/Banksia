@@ -84,7 +84,7 @@ bool Player::isAttached() const
     return board != nullptr && timeController != nullptr && moveReceiver != nullptr;
 }
 
-bool Player::goPonder(const Move& pondermove)
+bool Player::goPonder(const Move&)
 {
     return go();
 }

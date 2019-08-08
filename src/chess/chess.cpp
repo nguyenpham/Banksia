@@ -197,7 +197,7 @@ void ChessBoard::setFen(const std::string& fen) {
     auto vec = splitString(str, ' ');
     auto thefen = vec.front();
     
-    for (int i = 0, pos = 0; i < thefen.length(); i++) {
+    for (size_t i = 0, pos = 0; i < thefen.length(); i++) {
         char ch = thefen.at(i);
         
         if (ch=='/') {
@@ -220,7 +220,7 @@ void ChessBoard::setFen(const std::string& fen) {
         auto pieceType = charToPieceType(ch);
         
         if (pieceType != PieceType::empty) {
-            setPiece(pos, Piece(pieceType, side));
+            setPiece(int(pos), Piece(pieceType, side));
         }
         pos++;
     }
@@ -388,7 +388,7 @@ void ChessBoard::clearCastleRights(int rookPos, Side rookSide) {
 
 int ChessBoard::findKing(Side side) const
 {
-    for (int pos = 0; pos < pieces.size(); ++pos) {
+    for (int pos = 0; pos < int(pieces.size()); ++pos) {
         if (isPiece(pos, PieceType::king, side)) {
             return pos;
         }
@@ -1017,7 +1017,7 @@ Result ChessBoard::rule()
     memset(bishopColor, 0, sizeof(bishopColor));
     
     auto draw = true;
-    for(int i = 0; i < pieces.size(); i++) {
+    for(int i = 0; i < int(pieces.size()); i++) {
         auto p = pieces[i];
         if (p.isEmpty()) continue;
         if (p.type != PieceType::bishop && p.type != PieceType::knight) {
@@ -1201,7 +1201,7 @@ std::string ChessBoard::toMoveListString(MoveNotation notation, int itemPerLine,
     std::ostringstream stringStream;
     
     auto c = 0;
-    for(int i = 0, k = 0; i < histList.size(); i++, k++) {
+    for(size_t i = 0, k = 0; i < histList.size(); i++, k++) {
         auto hist = histList.at(i);
         if (i == 0 && hist.move.piece.side == Side::black) k++; // counter should be from event number
         
@@ -1453,8 +1453,9 @@ struct SyzygyPos
     uint16_t move;
 };
 
-Result ChessBoard::probeSyzygy(int maxPieces) const
+Result ChessBoard::probeSyzygy(int maxPieces, bool& tberror) const
 {
+    tberror = false;
     Result result;
     if (!Tablebase::SyzygyTablebase::TB_LARGEST) {
         return result;
@@ -1534,8 +1535,9 @@ Result ChessBoard::probeSyzygy(int maxPieces) const
                                             pos.rule50, pos.castling, pos.ep, pos.turn, results);
     if (res == TB_RESULT_FAILED)
     {
-        fprintf(stderr, "error: unable to probe tablebase; position "
-                "invalid, illegal or not in tablebase\n");
+//        printOut();
+//        std::cerr << "Error: unable to probe tablebase; position invalid, illegal or not in tablebase" << std::endl;
+        tberror = true;
         return result;
     }
     

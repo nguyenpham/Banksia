@@ -236,8 +236,14 @@ bool Game::make(const Move& move, const std::string& moveString)
             }
             
             if (gameConfig.adjudicationEgtbMode) {
-                auto result = board.probeSyzygy(gameConfig.adjudicationMaxPieces);
-                if (result.result != ResultType::noresult) {
+                bool tberror;
+                auto result = board.probeSyzygy(gameConfig.adjudicationMaxPieces, tberror);
+                if (result.result == ResultType::noresult) {
+                    if (tberror && !board.histList.back().cap.isEmpty()) { // make message only for capture moves to avoid too many
+                        auto msg = "Error: unable to probe tablebase, position invalid, illegal or not in tablebase";
+                        (messageLogger)(getAppName(), msg, LogType::system);
+                    }
+                } else {
                     gameOver(result);
                     return false;
                 }
@@ -480,8 +486,9 @@ std::string Game::toPgn(std::string event, std::string site, int round, int game
             stringStream << "[Variant \t\"" << ecoVec.at(2) << "\"]" << std::endl;
         }
     }
+
     // Move text
-    stringStream << board.toMoveListString(MoveNotation::san, 8, true, richMode);
+    stringStream << "\n" << board.toMoveListString(MoveNotation::san, richMode ? 4 : 8, true, richMode);
     
     if (board.result.result != ResultType::noresult) {
         if (board.histList.size() % 8 != 0) stringStream << " ";

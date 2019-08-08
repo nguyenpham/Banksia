@@ -953,29 +953,44 @@ bool SyzygyTablebase::tb_init(const std::string& path)
     
     // 6 men
     for (int i = 0; i < 5; i++)
-        for (int j = i; j < 5; j++)
+        for (int j = i; j < 5; j++) {
             for (int k = i; k < 5; k++)
                 for (int l = (i == k) ? j : k; l < 5; l++) {
                     auto str = std::string("K") + pchr(i) + pchr(j) + "vK" + pchr(k) + pchr(l);
                     init_tb(str);
                 }
-    
-    for (int i = 0; i < 5; i++)
-        for (int j = i; j < 5; j++)
-            for (int k = j; k < 5; k++)
+            
+            for (int k = j; k < 5; k++) {
                 for (int l = 0; l < 5; l++) {
                     auto str = std::string("K") + pchr(i) + pchr(j) + pchr(k) + "vK" + pchr(l);
                     init_tb(str);
                 }
-    
-    for (int i = 0; i < 5; i++)
-        for (int j = i; j < 5; j++)
-            for (int k = j; k < 5; k++)
+                
                 for (int l = k; l < 5; l++) {
-                    auto str = std::string("K") + pchr(i) + pchr(j) + "vK" + pchr(k) + pchr(l);
+                    auto str = std::string("K") + pchr(i) + pchr(j) + pchr(k) + pchr(l) + "vK";
                     init_tb(str);
                 }
+            }
+        }
     
+    
+//    for (int i = 0; i < 5; i++)
+//        for (int j = i; j < 5; j++)
+//            for (int k = j; k < 5; k++)
+//                for (int l = 0; l < 5; l++) {
+//                    auto str = std::string("K") + pchr(i) + pchr(j) + pchr(k) + "vK" + pchr(l);
+//                    init_tb(str);
+//                }
+//
+//    for (int i = 0; i < 5; i++)
+//        for (int j = i; j < 5; j++)
+//            for (int k = j; k < 5; k++)
+//                for (int l = k; l < 5; l++) {
+//                    auto str = std::string("K") + pchr(i) + pchr(j) + pchr(k) + pchr(l) + "vK";
+//                    init_tb(str);
+//                }
+    
+    // 7 men
     for (int i = 0; i < 5; i++)
         for (int j = i; j < 5; j++)
             for (int k = j; k < 5; k++)
@@ -1017,7 +1032,7 @@ bool SyzygyTablebase::tb_init(const std::string& path)
     missingCnt = 0;
     if (!missingVec.empty()) {
         for(auto && s : missingVec) {
-            if (s.length() - 1 <= TB_LARGEST) {
+            if (int(s.length()) - 1 <= TB_LARGEST) {
                 missingCnt++;
             }
         }

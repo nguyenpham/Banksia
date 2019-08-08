@@ -48,6 +48,7 @@ namespace banksia {
         
         const char* className() const override { return "JsonEngine"; }
 
+        using Engine::kickStart;
         void kickStart(std::function<void(Config* config)> taskComplete);
         void tickWork() override;
 

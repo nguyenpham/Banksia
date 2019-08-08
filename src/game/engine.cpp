@@ -36,13 +36,13 @@ using namespace banksia;
 Engine::~Engine()
 {
     if (processId && isRunning(processId)) {
-        std::cout << "Warning 1: a chess engine/program refuses to stop, it may be still running, " << name << std::endl;
+        std::cout << "Warning: a chess engine/program (" << name << ", PID: " << processId << ") refused to stop. Try to kill!" << std::endl;
         TinyProcessLib::Process::kill(processId, true);
-    }
-    
-    if (pThread && pThread->joinable()) {
-        std::cout << "Warning 2: a chess engine/program refuses to stop, it may be still running, " << name << std::endl;
-        pThread->join();
+    } else if (pThread && pThread->joinable()) {
+        std::cout << "Warning: a chess engine/program (" << name << ", PID: " << processId << ") refused to stop, it may be still running" << std::endl;
+        if (pThread && pThread->joinable()) {
+            pThread->join();
+        }
     }
 }
 
@@ -139,8 +139,8 @@ void Engine::read_stdout(const char *bytes, size_t n)
     }
     
     std::vector<std::string> vec;
-    auto k = 0;
-    for (int i = 0; i < n; i++) {
+    size_t k = 0;
+    for (size_t i = 0; i < n; i++) {
         if (bytes[i] == '\n') {
             std::string str;
             if (vec.empty()) {

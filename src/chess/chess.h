@@ -47,7 +47,7 @@ namespace banksia {
         
     public:
         ChessBoard();
-        ~ChessBoard();
+        virtual ~ChessBoard();
         
         virtual std::string toString() const override;
         virtual bool isValid() const override;
@@ -85,7 +85,7 @@ namespace banksia {
         PieceType charToPieceType(char ch) const;
 
         std::vector<std::string> commentEcoString();
-        Result probeSyzygy(int maxPieces = 7) const;
+        Result probeSyzygy(int maxPieces, bool& tberror) const;
         
     private:
         void checkEnpassant();

@@ -233,6 +233,8 @@ namespace banksia {
         Result result;
 
     public:
+        virtual ~BoardCore() {}
+
         void reset() {
             for (auto && p : pieces) {
                 p.setEmpty();
@@ -240,37 +242,41 @@ namespace banksia {
         }
         
         virtual bool isPositionValid(int pos) const {
-            return pos >= 0 && pos < pieces.size();
+            return pos >= 0 && pos < int(pieces.size());
         }
         
         virtual int columnCount() const = 0;
         virtual int getColumn(int pos) const = 0;
         virtual int getRow(int pos) const = 0;
         
+        int size() const {
+            return int(pieces.size());
+        }
+
         void setPiece(int pos, Piece piece) {
             assert(isPositionValid(pos));
-            pieces[pos] = piece;
+            pieces[size_t(pos)] = piece;
         }
         
         Piece getPiece(int pos) const {
             assert(isPositionValid(pos));
-            return pieces.at(pos);
+            return pieces.at(size_t(pos));
         }
         
         bool isEmpty(int pos) const {
             assert(isPositionValid(pos));
-            return pieces[pos].type == PieceType::empty;
+            return pieces[size_t(pos)].type == PieceType::empty;
         }
         
         bool isPiece(int pos, PieceType type, Side side) const {
             assert(isPositionValid(pos));
-            auto p = pieces[pos];
+            auto p = pieces[size_t(pos)];
             return p.type == type && p.side == side;
         }
         
         void setEmpty(int pos) {
             assert(isPositionValid(pos));
-            pieces[pos].setEmpty();
+            pieces[size_t(pos)].setEmpty();
         }
         
         static Side getXSide(Side side) {

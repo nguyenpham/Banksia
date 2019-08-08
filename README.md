@@ -23,6 +23,7 @@ Some features
 - Simple and short (in terms of design and implementation)
 - Support UCI and Winboard protocols
 - Support opening book formats: edp, pgn, bin (Polyglot)
+- Support adjudication by Syzygy 7 pieces
 - Tournament: round robin, knockout, swiss, concurrency, ponderable, resumable
 - Profile engines for some important info such as cpu, memory consumed, numbers of threads.
 - Controlled mainly by 2 JSON files (one for configurations of engines, one for tournament management). That is very flexible, easy way to setup and change
@@ -163,7 +164,7 @@ Working
 
 History
 --------
-- 30 July 2019: v3.0, Swiss tournament, opening ECO, engine profile, game adjudication, improve JSon updating
+- 30 July 2019: v3.0, Swiss tournament, opening ECO, engine profile, game adjudication (Syzygy 7 pieces), improve JSon updating
 - 22 July 2019: v2.7, inclusive players (for playing in all matches, given sides), more info for tournament stats
 - 20 July 2019: v2.6, more info and more ways to control logs, improve engine managements
 - 16 July 2019: v2.5, multiple ways to select openings: new for each match, same for a pair, one for all matches; override options for central controlling; match statistics LOS & error margin

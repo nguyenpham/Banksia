@@ -239,8 +239,12 @@ std::string WbEngine::timeControlString() const
             auto n = timeController->moves;
             auto halfCnt = int(board->histList.size());
             int fullCnt = halfCnt / 2;
-            int curMoveCnt = fullCnt % n;
-            int movestogo = n - curMoveCnt;
+            
+            auto movestogo = 0;
+            if (n > 0) { // n == 0 => Fischer's clock
+                int curMoveCnt = fullCnt % n;
+                movestogo = n - curMoveCnt;
+            }
             
             // level 40 0:30 0
             std::string str = "level " + std::to_string(movestogo)
@@ -430,7 +434,7 @@ void WbEngine::parseFeatures(const std::string& line)
 {
     // "feature " length = 8
     std::string featureName;
-    for(int i = 8, k = -1, quote = 0; i < line.size(); i++) {
+    for(size_t i = 8, k = -1, quote = 0; i < line.size(); i++) {
         auto ch = line[i];
         if (ch == '=') {
             if (k < 0 || i <= k) break; // somethings wrong
@@ -483,8 +487,6 @@ std::string WbEngine::move2String(const Move& move, const std::string& sanMoveSt
     }
     return str;
 }
-
-
 
 bool WbEngine::oppositeMadeMove(const Move& move, const std::string& sanMoveString)
 {

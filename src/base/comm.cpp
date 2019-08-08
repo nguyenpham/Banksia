@@ -47,6 +47,15 @@
 #include <sys/types.h>
 #include <signal.h>
 
+#ifdef MACOS
+#include <sys/param.h>
+#include <sys/sysctl.h>
+#endif
+
+#if defined(BSD)
+#include <sys/sysctl.h>
+#endif
+
 #endif
 
 
@@ -54,13 +63,16 @@
 
 namespace banksia {
     
-    const char* BANKSIA_VERSION = "3.1";
+    const char* BANKSIA_VERSION = "3.1.5";
     bool banksiaVerbose = true;
     bool profileMode = false;
 
     extern const char* pieceTypeName;
     extern const char* reasonStrings[12];
-    
+    extern const char* resultStrings[5];
+    extern const char* sideStrings[4];
+    extern const char* shortSideStrings[4];
+
     const char* pieceTypeName = ".kqrbnp";
     const char* reasonStrings[] = {
         "*", "mate", "stalemate", "repetition", "resign", "fifty moves", "insufficient material", "illegal move", "timeout", "adjudication", "crash", nullptr
@@ -136,13 +148,13 @@ namespace banksia {
     }
     
     void toLower(std::string& str) {
-        for (int i = 0; i < str.size(); ++i) {
+        for (size_t i = 0; i < str.size(); ++i) {
             str[i] = tolower(str[i]);
         }
     }
     
     void toLower(char* str) {
-        for (int i = 0; str[i]; ++i) {
+        for (size_t i = 0; str[i]; ++i) {
             str[i] = tolower(str[i]);
         }
     }
@@ -290,8 +302,7 @@ namespace banksia {
         return bt;
     }
     
-    
-    
+
     std::string currentWorkingFolder()
     {
         char buf[1024];
@@ -453,7 +464,106 @@ namespace banksia {
     
 #endif
 
+    
+    int getNumberOfCores() {
+#ifdef WIN32
+        SYSTEM_INFO sysinfo;
+        GetSystemInfo(&sysinfo);
+        return sysinfo.dwNumberOfProcessors;
+#elif MACOS
+        int nm[2];
+        size_t len = 4;
+        uint32_t count;
+     
+        nm[0] = CTL_HW; nm[1] = HW_AVAILCPU;
+        sysctl(nm, 2, &count, &len, NULL, 0);
+     
+        if(count < 1) {
+            nm[1] = HW_NCPU;
+            sysctl(nm, 2, &count, &len, NULL, 0);
+            if(count < 1) { count = 1; }
+            }
+        return count;
+#else
+        return int(sysconf(_SC_NPROCESSORS_ONLN));
+#endif
+    }
 
+    
+    /**
+     * http://nadeausoftware.com/articles/2012/09/c_c_tip_how_get_physical_memory_size_system
+     * Returns the size of physical memory (RAM) in bytes.
+     */
+    size_t getMemorySize()
+    {
+#if defined(_WIN32) && (defined(__CYGWIN__) || defined(__CYGWIN32__))
+        /* Cygwin under Windows. ------------------------------------ */
+        /* New 64-bit MEMORYSTATUSEX isn't available.  Use old 32.bit */
+        MEMORYSTATUS status;
+        status.dwLength = sizeof(status);
+        GlobalMemoryStatus( &status );
+        return (size_t)status.dwTotalPhys;
+        
+#elif defined(_WIN32)
+        /* Windows. ------------------------------------------------- */
+        /* Use new 64-bit MEMORYSTATUSEX, not old 32-bit MEMORYSTATUS */
+        MEMORYSTATUSEX status;
+        status.dwLength = sizeof(status);
+        GlobalMemoryStatusEx( &status );
+        return (size_t)status.ullTotalPhys;
+        
+#elif defined(__unix__) || defined(__unix) || defined(unix) || (defined(__APPLE__) && defined(__MACH__))
+        /* UNIX variants. ------------------------------------------- */
+        /* Prefer sysctl() over sysconf() except sysctl() HW_REALMEM and HW_PHYSMEM */
+        
+#if defined(CTL_HW) && (defined(HW_MEMSIZE) || defined(HW_PHYSMEM64))
+        int mib[2];
+        mib[0] = CTL_HW;
+#if defined(HW_MEMSIZE)
+        mib[1] = HW_MEMSIZE;            /* OSX. --------------------- */
+#elif defined(HW_PHYSMEM64)
+        mib[1] = HW_PHYSMEM64;          /* NetBSD, OpenBSD. --------- */
+#endif
+        int64_t size = 0;               /* 64-bit */
+        size_t len = sizeof( size );
+        if ( sysctl( mib, 2, &size, &len, NULL, 0 ) == 0 )
+            return (size_t)size;
+        return 0L;            /* Failed? */
+        
+#elif defined(_SC_AIX_REALMEM)
+        /* AIX. ----------------------------------------------------- */
+        return (size_t)sysconf( _SC_AIX_REALMEM ) * (size_t)1024L;
+        
+#elif defined(_SC_PHYS_PAGES) && defined(_SC_PAGESIZE)
+        /* FreeBSD, Linux, OpenBSD, and Solaris. -------------------- */
+        return (size_t)sysconf( _SC_PHYS_PAGES ) *
+        (size_t)sysconf( _SC_PAGESIZE );
+        
+#elif defined(_SC_PHYS_PAGES) && defined(_SC_PAGE_SIZE)
+        /* Legacy. -------------------------------------------------- */
+        return (size_t)sysconf( _SC_PHYS_PAGES ) *
+        (size_t)sysconf( _SC_PAGE_SIZE );
+        
+#elif defined(CTL_HW) && (defined(HW_PHYSMEM) || defined(HW_REALMEM))
+        /* DragonFly BSD, FreeBSD, NetBSD, OpenBSD, and OSX. -------- */
+        int mib[2];
+        mib[0] = CTL_HW;
+#if defined(HW_REALMEM)
+        mib[1] = HW_REALMEM;        /* FreeBSD. ----------------- */
+#elif defined(HW_PYSMEM)
+        mib[1] = HW_PHYSMEM;        /* Others. ------------------ */
+#endif
+        unsigned int size = 0;        /* 32-bit */
+        size_t len = sizeof( size );
+        if ( sysctl( mib, 2, &size, &len, NULL, 0 ) == 0 )
+            return (size_t)size;
+        return 0L;            /* Failed? */
+#endif /* sysctl and sysconf variants */
+        
+#else
+        return 0L;            /* Unknown OS. */
+#endif
+    }
 }
 
 
@@ -560,8 +670,9 @@ bool JsonSavable::saveToJsonFile(const std::string& path, Json::Value& jsonData)
     if (outFile.is_open())
     {
         Json::StreamWriterBuilder builder;
-        builder.settings_["indentation"] = "  ";
+        builder["indentation"] = "  ";
         builder["precision"] = 1;
+        builder["precisionType"] = "decimal";
         std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
         writer->write(jsonData, &outFile);
         r = true;

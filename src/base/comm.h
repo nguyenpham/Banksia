@@ -47,7 +47,7 @@ namespace banksia {
 #else
     const std::string folderSlash = "/";
 #endif
-    
+
 
 #define i16 int16_t
 #define u16 uint16_t
@@ -59,6 +59,7 @@ namespace banksia {
     
     class Obj {
     public:
+        virtual ~Obj() {}
         virtual const char* className() const { return "Obj"; }
         
         virtual bool isValid() const { return false; }
@@ -71,6 +72,7 @@ namespace banksia {
     };
     class Jsonable : public Obj {
     public:
+        virtual ~Jsonable() {}
         virtual bool load(const Json::Value& obj) = 0;
         virtual Json::Value saveToJson() const = 0;
         static void printOut(const Json::Value&, std::string prefix = "");
@@ -79,6 +81,7 @@ namespace banksia {
     
     class JsonSavable {
     public:
+        virtual ~JsonSavable() {}
         virtual bool loadFromJsonFile(const std::string& jsonPath, bool verbose = true);
         virtual bool saveToJsonFile();
         
@@ -99,6 +102,7 @@ namespace banksia {
     
     class Tickable {
     public:
+        virtual ~Tickable() {}
         virtual void tick() {
             if (tickMutex.try_lock()) {
                 tickWork();
@@ -187,6 +191,8 @@ namespace banksia {
     i64 getFileSize(const std::string& path);
     bool isExecutable(const std::string& path);
     bool isRunning(int pid);
+    int getNumberOfCores();
+    size_t getMemorySize();
     
     std::vector<std::string> splitString(const std::string& string, const std::string& regexString);
     std::vector<std::string> splitString(const std::string &s, char delim);

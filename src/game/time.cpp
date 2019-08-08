@@ -156,21 +156,6 @@ bool TimeController::load(const Json::Value& obj)
             
         case TimeControlMode::movetime:
             return parseTime(obj);
-//            if (!obj.isMember("time")) return false;
-//            if (obj["time"].isString()) {
-//                auto s = obj["time"].asString();
-//                auto vec = splitString(s, ':');
-//                time = 0;
-//                for (auto && v : vec) {
-//                    if (v.empty()) break;
-//                    time *= 60;
-//                    time += std::atoi(v.c_str());
-//                }
-//                std::cout << "" << << std::endl;
-//            } else {
-//                time = obj["time"].asDouble();
-//            }
-//            return time > 0;
             
         case TimeControlMode::standard:
             if (!obj.isMember("time")
@@ -178,7 +163,6 @@ bool TimeController::load(const Json::Value& obj)
                 ||!obj.isMember("increment")
                 )
                 return false;
-//            time = obj["time"].asDouble();
             if (!parseTime(obj)) {
                 return false;
             }
@@ -201,7 +185,7 @@ Json::Value TimeController::saveToJson() const
     
     switch (mode) {
         case TimeControlMode::infinite:
-            return true;
+            break;
         case TimeControlMode::depth:
             obj["depth"] = depth;
             break;

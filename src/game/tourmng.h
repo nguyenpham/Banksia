@@ -61,6 +61,7 @@ namespace banksia {
             auto sd = swap ? B : W;
             playernames[sd] = name0; playernames[1 - sd] = name1;
         }
+        virtual ~MatchRecord() {}
         virtual const char* className() const override { return "MatchRecord"; }
         virtual bool isValid() const override;
         virtual std::string toString() const override;
@@ -91,6 +92,8 @@ namespace banksia {
     class TourPlayer : public Obj
     {
     public:
+        virtual ~TourPlayer() {}
+
         std::string name;
         int gameCnt = 0, winCnt = 0, drawCnt = 0, lossCnt = 0, abnormalCnt = 0, elo = 0, flag = 0;
         int byeCnt = 0, whiteCnt = 0; // for swiss and knockdown
@@ -142,7 +145,6 @@ namespace banksia {
         void shutdown();
 
 		static void append2TextFile(const std::string& path, const std::string& str);
-//        static void fixJson(Json::Value& d, const std::string& path);
         
         bool loadMatchRecords(bool autoYesReply);
 

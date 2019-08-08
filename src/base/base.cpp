@@ -99,9 +99,9 @@ void BoardCore::newGame(std::string fen)
 u64 BoardCore::initHashKey() const
 {
     u64 key = 0;
-    for(int i = 0; i < pieces.size(); i++) {
+    for(size_t i = 0; i < pieces.size(); i++) {
         if (!pieces[i].isEmpty()) {
-            key ^= xorHashKey(i);
+            key ^= xorHashKey(int(i));
         }
     }
     
@@ -115,12 +115,12 @@ u64 BoardCore::xorHashKey(int pos) const
 {
     assert(isPositionValid(pos ));
     
-    assert(!pieces[pos].isEmpty());
-    int sd = static_cast<int>(pieces[pos].side);
-    int p = static_cast<int>(pieces[pos].type);
+    assert(!pieces[size_t(pos)].isEmpty());
+    int sd = static_cast<int>(pieces[size_t(pos)].side);
+    int p = static_cast<int>(pieces[size_t(pos)].type);
     
-    auto sz = int(pieces.size()); assert(sz == 64);
-    int h = sd * 7 * sz + p * sz + pos; assert(h < hashTable.size());
+    auto sz = pieces.size(); assert(sz == 64);
+    auto h = sd * 7 * sz + p * sz + size_t(pos); assert(h < hashTable.size());
     return hashTable[h];
 }
 

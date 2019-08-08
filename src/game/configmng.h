@@ -50,6 +50,7 @@ namespace banksia {
         Option();
         Option(OptionType type, const std::string& name);
         Option(const Json::Value& obj);
+        virtual ~Option() {}
         
         static OptionType stringToOptionType(const std::string& name);
         static const char* getName(OptionType type);
@@ -107,6 +108,8 @@ namespace banksia {
     {
     public:
         Config();
+        virtual ~Config() {}
+
         virtual bool load(const Json::Value& obj) override;
         virtual Json::Value saveToJson() const override;
         
@@ -142,7 +145,7 @@ namespace banksia {
     {
     public:
         ConfigMng();
-        ~ConfigMng();
+        virtual ~ConfigMng();
         
         static ConfigMng* instance;
         
@@ -182,6 +185,13 @@ namespace banksia {
         
 		void setSyzygyPath(const std::string& path);
         std::string getSyzygyPath() const { return syzygyPath; }
+
+        int getEngineThreads() const {
+            return overrideOptionMode ? overrideOptionThreads : 0;
+        }
+        int getEngineMemory() const {
+            return overrideOptionMode ? overrideOptionMemory : 0;
+        }
 
     protected:
         Json::Value createJsonForSaving() override;
