@@ -438,52 +438,52 @@ std::string Game::toPgn(std::string event, std::string site, int round, int game
     std::ostringstream stringStream;
     
     if (!event.empty()) {
-        stringStream << "[Event \t\"" << event << "\"]" << std::endl;
+        stringStream << "[Event \"" << event << "\"]" << std::endl;
     }
     if (!site.empty()) {
-        stringStream << "[Site \t\"" << site << "\"]" << std::endl;
+        stringStream << "[Site \"" << site << "\"]" << std::endl;
     }
     
     auto tm = localtime_xp(std::time(0));
     
-    stringStream << "[Date \t\"" << std::put_time(&tm, "%Y.%m.%d") << "\"]" << std::endl;
+    stringStream << "[Date \"" << std::put_time(&tm, "%Y.%m.%d") << "\"]" << std::endl;
     
     if (round >= 0) {
-        stringStream << "[Round \t\"" << round << "\"]" << std::endl;
+        stringStream << "[Round \"" << round << "\"]" << std::endl;
     }
     
     for(int sd = 1; sd >= 0; sd--) {
         if (players[sd]) {
-            stringStream << "[" << (sd == W ? "White" : "Black") << " \t\"" << players[sd]->getName() << "\"]" << std::endl;
+            stringStream << "[" << (sd == W ? "White \"" : "Black \"") << players[sd]->getName() << "\"]" << std::endl;
         }
     }
-    stringStream << "[Result \t\"" << board.result.toShortString() << "\"]" << std::endl;
+    stringStream << "[Result \"" << board.result.toShortString() << "\"]" << std::endl;
     
-    stringStream << "[TimeControl \t\"" << timeController.toString() << "\"]" << std::endl;
+    stringStream << "[TimeControl \"" << timeController.toString() << "\"]" << std::endl;
     
-    stringStream << "[Time \t\"" << std::put_time(&tm, "%H:%M:%S") << "\"]" << std::endl;
+    stringStream << "[Time \"" << std::put_time(&tm, "%H:%M:%S") << "\"]" << std::endl;
     
     if (gameIdx >= 0) {
-        stringStream << "[Board \t\"" << std::to_string(gameIdx + 1) << "\"]" << std::endl;
+        stringStream << "[Board \"" << std::to_string(gameIdx + 1) << "\"]" << std::endl;
     }
 
     auto str = board.result.reasonString();
     if (!str.empty()) {
-        stringStream << "[Termination \t\"" << str << "\"]" << std::endl;
+        stringStream << "[Termination \"" << str << "\"]" << std::endl;
     }
 
     if (!board.fromOriginPosition()) {
-        stringStream << "[FEN \t\"" << board.getStartingFen() << "\"]" << std::endl;
-        stringStream << "[SetUp \t\"1\"]" << std::endl;
+        stringStream << "[FEN \"" << board.getStartingFen() << "\"]" << std::endl;
+        stringStream << "[SetUp \"1\"]" << std::endl;
     }
 
     auto ecoVec = board.commentEcoString();
 
     if (ecoVec.size() > 1) {
-        stringStream << "[ECO \t\"" << ecoVec.front() << "\"]" << std::endl;
-        stringStream << "[Opening \t\"" << ecoVec.at(1) << "\"]" << std::endl;
+        stringStream << "[ECO \"" << ecoVec.front() << "\"]" << std::endl;
+        stringStream << "[Opening \"" << ecoVec.at(1) << "\"]" << std::endl;
         if (ecoVec.size() > 2) {
-            stringStream << "[Variant \t\"" << ecoVec.at(2) << "\"]" << std::endl;
+            stringStream << "[Variation \"" << ecoVec.at(2) << "\"]" << std::endl;
         }
     }
 

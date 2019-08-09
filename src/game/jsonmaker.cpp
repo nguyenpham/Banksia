@@ -378,7 +378,7 @@ void JsonMaker::build(const std::string& mainJsonPath, const std::string& mainEn
     std::cout << " engine configurations JSON file: " << jsonEngineConfigPath << std::endl;
     std::cout << " tournament JSON file: " << jsonTourMngPath << std::endl;
     
-    // Scale engines
+    // Scan engines
     std::set<std::string> pathSet;
     
     ConfigMng::instance->setEditingMode(true);

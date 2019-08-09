@@ -380,7 +380,7 @@ namespace banksia {
     
     bool isExecutable(const std::string& path)
     {
-        return path.find(".exe") != std::string::npos;
+        return path.find(".exe") != std::string::npos || path.find(".bat") != std::string::npos;
     }
 
     bool isRunning(int pid)
@@ -622,7 +622,7 @@ bool JsonSavable::loadFromJsonFile(const std::string& jsonPath, bool verbose)
 {
     try {
         Json::Value obj;
-        return JsonSavable::loadFromJsonFile(jsonPath, obj, verbose) && parseJsonAfterLoading(obj);
+        return JsonSavable::_loadFromJsonFile(jsonPath, obj, verbose) && parseJsonAfterLoading(obj);
     } catch (Json::Exception const& e) {
         if (verbose)
             std::cerr << "Error: Exception when parsing json file - " << e.what() << std::endl;

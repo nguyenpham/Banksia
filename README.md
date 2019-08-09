@@ -23,7 +23,7 @@ Some features
 - Simple and short (in terms of design and implementation)
 - Support UCI and Winboard protocols
 - Support opening book formats: edp, pgn, bin (Polyglot)
-- Support adjudication by Syzygy 7 pieces
+- Support adjudication including Syzygy 7 pieces
 - Tournament: round robin, knockout, swiss, concurrency, ponderable, resumable
 - Profile engines for some important info such as cpu, memory consumed, numbers of threads.
 - Controlled mainly by 2 JSON files (one for configurations of engines, one for tournament management). That is very flexible, easy way to setup and change
@@ -134,7 +134,7 @@ If users don't want Banksia to scan (or engines are not scannable, or located in
 
 Right after generating JSON files, users can start their tournaments:
 
-    banksia -jsonpath c:\tour.json
+    banksia -t c:\tour.json
 
 Of course, users can edit those JSON files such as removing redundant, unused fields, re-order them to be easier to read! Some data fields are written down in empty forms (such as opening book folders) and need to fill in.
 
