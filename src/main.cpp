@@ -45,26 +45,6 @@ int main(int argc, const char * argv[])
 #define SIGPIPE     13
     signal(SIGPIPE, SIG_IGN);
     
-//    {
-//        std::cout << "getNumberOfCores: " << banksia::getNumberOfCores() << ", getMemorySize: " << banksia::getMemorySize() << std::endl;
-//
-//        banksia::TimeController tc;
-//        tc.setup(banksia::TimeControlMode::standard, 40, 60.02, 0.5, 0.5);
-//        auto v = tc.saveToJson();
-//        banksia::Jsonable::printOut(v, " ");
-//
-//        banksia::JsonSavable::saveToJsonFile("/Users/nguyenpham/workspace/BanksiaMatch/logs/t.txt", v);
-//    }
-//    {
-//        Tablebase::SyzygyTablebase::tb_init("/Users/nguyenpham/workspace/BanksiaMatch/syzygy345:/Users/nguyenpham/workspace/BanksiaMatch/syzygy6");
-//        banksia::ChessBoard board;
-//        board.newGame("8/4R3/8/1k6/8/2Q5/1P4P1/7K w - - 0 1");
-//        board.printOut();
-//
-//        auto r = board.probeSyzygy();
-//        std::cout << r.toShortString() << std::endl;
-//    }
-    
     std::cout << "Banksia, Chess Tournament Manager, by Nguyen Pham - version " << banksia::getVersion() << std::endl;
     
     if (argc < 2) {
