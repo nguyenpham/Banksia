@@ -179,7 +179,7 @@ History
 GUI
 ----
 
-I started working on a graphic user interface app based on Banksia.
+I started working on a graphic user interface app based on Banksia. It can be downloaed at https://banksiagui.com
 
 
 Terms of use
