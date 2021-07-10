@@ -1057,7 +1057,7 @@ Result ChessBoard::rule()
         return result;
     }
     
-    if (quietCnt >= 3 * 4) {
+    if (quietCnt >= 2 * 4) {
         auto cnt = 0;
         auto i = int(histList.size()), k = i - quietCnt;
         for(i -= 2; i >= 0 && i >= k; i -= 2) {
@@ -1066,7 +1066,7 @@ Result ChessBoard::rule()
                 cnt++;
             }
         }
-        if (cnt >= 3) {
+        if (cnt >= 2) {
             result.result = ResultType::draw;
             result.reason = ReasonType::repetition;
             return result;
